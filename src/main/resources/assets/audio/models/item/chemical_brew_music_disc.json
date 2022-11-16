@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "audio:item/chemical_brew_music_disc"
+  }
+}

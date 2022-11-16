@@ -1,0 +1,19 @@
+package com.github.audio.client.gui;
+
+import com.github.audio.sound.SoundEventRegistryHandler;
+import net.minecraft.client.audio.SimpleSound;
+import net.minecraft.client.audio.SoundHandler;
+import net.minecraft.util.text.ITextComponent;
+
+public class AudioWidget extends net.minecraft.client.gui.widget.Widget {
+
+    public AudioWidget(int x, int y, int width, int height, ITextComponent title) {
+        super(x, y, width, height, title);
+    }
+
+    @Override
+    public void playDownSound(SoundHandler handler) {
+        handler.play(SimpleSound.master(
+                SoundEventRegistryHandler.BACKPACK_FOLD_SOUND.get(), 1.0F));
+    }
+}

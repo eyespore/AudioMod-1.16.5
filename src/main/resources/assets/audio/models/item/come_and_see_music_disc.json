@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "audio:item/come_and_see_music_disc"
+  }
+}

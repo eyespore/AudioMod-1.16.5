@@ -1,0 +1,17 @@
+package com.github.audio.creativetab;
+
+import com.github.audio.item.ItemRegisterHandler;
+import net.minecraft.item.ItemGroup;
+import net.minecraft.item.ItemStack;
+
+public class TabAudio extends ItemGroup {
+
+    public TabAudio() {
+        super("tab.audio.tabAudio");
+    }
+
+    @Override
+    public ItemStack createIcon() {
+        return new ItemStack(ItemRegisterHandler.Audio.get());
+    }
+}

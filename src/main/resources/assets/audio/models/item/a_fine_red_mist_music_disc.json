@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "audio:item/a_fine_red_mist_music_disc"
+  }
+}
