@@ -1,7 +1,5 @@
 package com.github.audio.networking;
 
-import com.github.audio.client.clientevent.SoundHandler;
-import com.github.audio.item.Mp3;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.network.PacketBuffer;
@@ -11,23 +9,21 @@ import java.util.function.Supplier;
 
 public class AudioSoundPack {
 
-//    private final String judgement;
-    private final Judgement judgement;
+    private final AudioSoundPackBranchFactory.JudgementType judgementType;
 
     public AudioSoundPack(PacketBuffer buffer) {
-//        judgement = buffer.readString(Short.MAX_VALUE);
-        judgement = buffer.readEnumValue(Judgement.class);
+        judgementType = buffer.readEnumValue(AudioSoundPackBranchFactory.JudgementType.class);
     }
 
-    public AudioSoundPack(Judgement judgement) {
-        this.judgement = judgement;
+    public AudioSoundPack(AudioSoundPackBranchFactory.JudgementType judgementType) {
+        this.judgementType = judgementType;
     }
 
     public void toByte(PacketBuffer buf) {
-        buf.writeEnumValue(this.judgement);
+        buf.writeEnumValue(this.judgementType);
     }
 
-    /* When player died, reset player's sound parameter. */
+    /* handle the situation according to the given judgement, judgement packet usually comes from server side. */
     public void handler(Supplier<NetworkEvent.Context> ctx) {
         ctx.get().enqueueWork(() -> {
             ClientPlayerEntity clientPlayer = Minecraft.getInstance().player;
@@ -35,26 +31,8 @@ public class AudioSoundPack {
                 ctx.get().setPacketHandled(true);
                 return;
             }
-            String type = this.judgement.type;
-            if (type.equals(Judgement.REBORN.type)) {
-                SoundHandler.resetAllParameter();
-            } else if (type.equals(Judgement.TOSS.type) || type.equals(Judgement.CHANGE_DIMENSION.type)) {
-                SoundHandler.stopSound(clientPlayer.getUniqueID());
-                SoundHandler.resetAllParameter();
-                Mp3.playMp3EndSound(Minecraft.getInstance().player);
-            }
+            AudioSoundPackBranchFactory.JUDGEMENT_MAP.get(this.judgementType).branch(clientPlayer);
         });
         ctx.get().setPacketHandled(true);
-    }
-
-    public enum Judgement {
-        REBORN("reborn"),
-        TOSS("toss"),
-        CHANGE_DIMENSION("change_dimension");
-
-        final String type;
-        Judgement(String type) {
-            this.type = type;
-        };
     }
 }

@@ -6,7 +6,7 @@ license="All rights reserved"
 [[mods]] #mandatory
 modId="audio" #mandatory
 version="${file.jarVersion}" #mandatory
-displayName="clclfl's Mp3" #mandatory
+displayName="qqa's Mp3" #mandatory
 #updateJSONURL="https://change.me.example.invalid/updates.json" #optional
 #displayURL="https://change.me.to.your.mods.homepage.example.invalid/" #optional
 logoFile="IconAudio.png" #optional

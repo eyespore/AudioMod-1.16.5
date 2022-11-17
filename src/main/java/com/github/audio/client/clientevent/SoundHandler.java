@@ -14,7 +14,6 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.text.StringTextComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.world.WorldEvent;
@@ -25,9 +24,7 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
 
-/**
- * Specific method and function about how the soundEvent from audio correctly runs.
- */
+
 @Mod.EventBusSubscriber(modid = Utils.MOD_ID, value = Dist.CLIENT)
 public class SoundHandler {
 
@@ -37,19 +34,8 @@ public class SoundHandler {
     public static final SoundEventRegistryHandler.SoundChannel CURRENT_SOUND_CHANNEL =
             SoundEventRegistryHandler.SoundChannel.KATANA_ZERO_CHANNEL;
 
-//    public static final ArrayList<String> SOURCE_PATH = new ArrayList<>();
-
     public static SoundSource currentSource;
-    private static int soundIndex = 0;
-    public static boolean isPlaySong;
-    public static boolean isPaused;
     public static String currentSongNameRollingBar;
-
-    public static boolean hasPlayInit;
-
-    private static boolean hasRecord = false;
-    private static long firstRecord;
-    private static boolean gonnaPlay = false;
 
     /* For font time ticker */
     private static int timeTicker = 0;
@@ -57,23 +43,7 @@ public class SoundHandler {
     private static Utils.RollingFontBar rfb = new Utils.RollingFontBar("");
     protected static boolean currentSourceHasChanged = false;
 
-    public static boolean shouldPlayEndSound = false;
-    /* detect when should stop or resume the sound. */
-    protected static boolean shouldPauseOrResume = false;
-    /* detect when should play a sound to the player. */
-    protected static boolean shouldSwitchToNext = false;
-    protected static boolean shouldSwitchToLast = false;
-    /* define if the song stop because player turn it off by himself. */
-    protected static boolean isForceStop = false;
-
-
-    protected static boolean isSwitching;
     private static final int SOUND_STOP_CHECK_INTERVAL = 10;
-    /**
-     * True : means this source will be reset if player press stop button.
-     * False : means this source should be switch to the last song when next time player press stop button.
-     */
-    private static boolean resetThis = true;
 
     private static final Map<UUID, ISound> PLAYER_UUID_LIST = new ConcurrentHashMap<>();
     private static long lastPlaybackChecked = 0;
@@ -82,29 +52,7 @@ public class SoundHandler {
     }
 
     public static AudioSound getCurrentAudioSound() {
-        return CURRENT_SOUND_CHANNEL.getChannelSoundList().get(soundIndex);
-    }
-
-    private static void recordNow() {
-        if (!hasRecord) {
-            firstRecord = Objects.requireNonNull(Minecraft.getInstance().world).getGameTime();
-            hasRecord = true;
-        }
-    }
-
-    /**
-     * gathering the information for play itickable sound to player or entity.
-     */
-    public static class AudioPlayerContext {
-        public SoundEventRegistryHandler.SoundChannel currentChannel;
-        public UUID clientPlayerUUID;
-        public int entityID;
-
-        public AudioPlayerContext(SoundEventRegistryHandler.SoundChannel currentChannel, UUID clientPlayerUUID, int entityID) {
-            this.currentChannel = currentChannel;
-            this.clientPlayerUUID = clientPlayerUUID;
-            this.entityID = entityID;
-        }
+        return CURRENT_SOUND_CHANNEL.getChannelSoundList().get(HandleMethod.soundIndex);
     }
 
     public static void flushCurrentRollingBar() {
@@ -113,12 +61,16 @@ public class SoundHandler {
         timeTicker = 0;
     }
 
+    /**
+     * draw the statues bar while player holding mod item such as Mp3.
+     * @param event
+     */
     @SubscribeEvent
     public static void ticker(TickEvent.ClientTickEvent event) {
         ClientPlayerEntity clientPlayer = Minecraft.getInstance().player;
         ClientWorld clientWorld = Minecraft.getInstance().world;
         if (clientPlayer == null || clientWorld == null) return;
-        AudioPlayerContext context = new AudioPlayerContext(CURRENT_SOUND_CHANNEL , clientPlayer.getUniqueID() , clientPlayer.getEntityId());
+        HandleMethod.AudioPlayerContext context = new HandleMethod.AudioPlayerContext(CURRENT_SOUND_CHANNEL , clientPlayer.getUniqueID() , clientPlayer.getEntityId());
 
         if (currentSourceHasChanged || !hasInitRFB) {
             flushCurrentRollingBar();
@@ -131,100 +83,26 @@ public class SoundHandler {
             currentSongNameRollingBar = rfb.nextRollingFormat();
             timeTicker = 0;
 
-            //TODO :
-            if (currentSource != null) System.out.println("is stopped : " + currentSource.isStopped());
-
-        }
-
-        if (gonnaPlay) {
-
-            if (clientWorld.getGameTime() - firstRecord > SoundEventRegistryHandler.katanaZeroInit.getDuration() - 10) {
-                /* The sound haven't started yet, start from the one displaying in to tooltip of mp3. */
-                playTickableSound(context, SoundHandler::playCurrent , false);
-                audioToastDraw();
-                isPaused = false;
-                isPlaySong = true;
-                gonnaPlay = false;
-            }
+            //todo :
+//            if (currentSource != null) System.out.println("is stopped : " + currentSource.isStopped());
         }
     }
 
-    private static void audioToastDraw() {
+    static void audioToastDraw() {
         new AudioToastMessage().show("Now Playing:", getCurrentAudioSound().getDisplayName().length() > 20 ?
                 getCurrentAudioSound().getDisplayName().substring(0 , 20) + "..." : getCurrentAudioSound().getDisplayName());
     }
-
+    //TODO : what if a player pause a playing car and then he press next song button.
     @SubscribeEvent
     public static void onClientTick(TickEvent.ClientTickEvent event) {
         if (Minecraft.getInstance().world == null || Minecraft.getInstance().player == null) return;
         ClientPlayerEntity clientPlayer = Minecraft.getInstance().player;
-        AudioPlayerContext context = new AudioPlayerContext(CURRENT_SOUND_CHANNEL,
+        HandleMethod.AudioPlayerContext context = new HandleMethod.AudioPlayerContext(CURRENT_SOUND_CHANNEL,
                 clientPlayer.getUniqueID(), clientPlayer.getEntityId());
 
-        //switch to next sound
-        if (shouldSwitchToNext) {
-            if (isPaused || !isPlaySong) {
-                soundIndex = soundIndex + 1 > getChannelSize() - 1 ? 0 : soundIndex + 1;
-                currentSourceHasChanged = true;
-            } else {
-                stopSound(clientPlayer.getUniqueID());
-                playTickableSound(context, SoundHandler::switchToNext , true);
-                audioToastDraw();
-                currentSourceHasChanged = true;
-                isPlaySong = true;
-                resetThis = true;
-            }
-            shouldSwitchToNext = false;
-            isPaused = false;
-            return;
+        if (HandleMethod.toBeSolved != HandleMethodType.NULL) {
+            HandleMethodFactory.SOUND_HANDLER_JUDGEMENT_MAP.get(HandleMethod.toBeSolved).estimate(clientPlayer ,context);
         }
-
-        //switch to last sound
-        if (shouldSwitchToLast) {
-            if (isPaused || !isPlaySong) {
-                soundIndex = soundIndex - 1 < 0 ? CURRENT_SOUND_CHANNEL.getChannelSoundList().size() - 1 : soundIndex - 1;
-            } else {
-                stopSound(clientPlayer.getUniqueID());
-                SoundHandler.playTickableSound(context, SoundHandler::switchToLast , true);
-                isPlaySong = true;
-                resetThis = true;
-            }
-            isPaused = false;
-            shouldSwitchToLast = false;
-            currentSourceHasChanged = true;
-            return;
-        }
-
-        //TODO : what if a player pause a playing car and then he press next song button.
-
-        //pause or resume sound
-        if (shouldPauseOrResume) {
-            if (!isPlaySong && !isPaused) {
-
-                if (!hasPlayInit) {
-                    recordNow();
-                    playTickableSound(context , () -> SoundEventRegistryHandler.katanaZeroInit , true);
-                    hasPlayInit = true;
-                    gonnaPlay = true;
-                }
-
-            } else if (isPlaySong && !isPaused) {
-                /* If the sound has started to player, first press button turn into pause. */
-                currentSource.pause();
-                isPaused = true;
-                isPlaySong = false;
-            } else if (!isPlaySong) {
-                /* The second time when player press the button it turns into resume the sound. */
-                currentSource.resume();
-                isPaused = false;
-                isPlaySong = true;
-            }
-            shouldPauseOrResume = false;
-        }
-    }
-
-    private static boolean resetThis() {
-        return !(resetThis = !resetThis);
     }
 
     @SubscribeEvent
@@ -290,7 +168,7 @@ public class SoundHandler {
     /**
      * Main method to play itickable sound to player
      */
-    public static void playTickableSound(AudioPlayerContext context, Supplier<AudioSound> sup , boolean renderLast) {
+    public static void playTickableSound(HandleMethod.AudioPlayerContext context, Supplier<AudioSound> sup , boolean renderLast) {
         ClientWorld world = Minecraft.getInstance().world;
         if (world == null) {
             return;
@@ -319,7 +197,7 @@ public class SoundHandler {
         if (PLAYER_UUID_LIST.containsKey(playerUUID)) {
             Minecraft.getInstance().getSoundHandler().stop(PLAYER_UUID_LIST.remove(playerUUID));
 
-            shouldPlayEndSound = true;
+            HandleMethod.shouldPlayEndSound = true;
             //Server Thread
 //            PacketHandler.sendToServer(new SoundStopNotificationMessage(playerUUID));
         }
@@ -329,31 +207,31 @@ public class SoundHandler {
      * ----------------- Sound Switch Operation ---------------------------
      */
     protected static AudioSound switchToNext() {
-        soundIndex++;
+        HandleMethod.soundIndex++;
         if (isChannelEmpty()) return null;
-        if (soundIndex > getChannelSize() - 1) soundIndex = 0;
-        return getChannelSoundList().get(soundIndex);
+        if (HandleMethod.soundIndex > getChannelSize() - 1) HandleMethod.soundIndex = 0;
+        return getChannelSoundList().get(HandleMethod.soundIndex);
     }
 
     protected static AudioSound switchToLast() {
-        soundIndex--;
+        HandleMethod.soundIndex--;
         if (isChannelEmpty()) return null;
-        if (soundIndex < 0) soundIndex = getChannelSize() - 1;
-        return getChannelSoundList().get(soundIndex);
+        if (HandleMethod.soundIndex < 0) HandleMethod.soundIndex = getChannelSize() - 1;
+        return getChannelSoundList().get(HandleMethod.soundIndex);
     }
 
     protected static AudioSound resetCurrent() {
         if (isChannelEmpty()) return null;
-        return getChannelSoundList().get(soundIndex);
+        return getChannelSoundList().get(HandleMethod.soundIndex);
     }
 
     protected static AudioSound playCurrent() {
         if (isChannelEmpty()) return null;
-        return getChannelSoundList().get(soundIndex);
+        return getChannelSoundList().get(HandleMethod.soundIndex);
     }
 
     /*------------------------- GETTER -------------------------------------*/
-    private static int getChannelSize() {
+    static int getChannelSize() {
         return CURRENT_SOUND_CHANNEL.getChannelSoundList().size();
     }
 
@@ -365,25 +243,25 @@ public class SoundHandler {
         return CURRENT_SOUND_CHANNEL.getChannelSoundList();
     }
 
-    public static int getSoundIndex() {
-        return soundIndex;
+    private static int getSoundIndex() {
+        return HandleMethod.soundIndex;
     }
 
     /* Call this method only in client side, reset all mark defined in the class. */
     public static void resetAllParameter() {
-        isPaused = false;
-        isPlaySong = false;
-        isSwitching = false;
-        isForceStop = false;
-        shouldSwitchToNext = false;
-        shouldSwitchToLast = false;
-        shouldPauseOrResume = false;
+        HandleMethod.isPaused = false;
+        HandleMethod.isPlaySong = false;
+        HandleMethod.isSwitching = false;
+        HandleMethod.isForceStop = false;
+        HandleMethod.shouldSwitchToNext = false;
+        HandleMethod.shouldSwitchToLast = false;
+        HandleMethod.shouldPauseOrResume = false;
 
-        hasPlayInit = false;
-        hasRecord = false;
+        HandleMethod.hasPlayInit = false;
+        HandleMethod.hasRecord = false;
         hasInitRFB = false;
         currentSourceHasChanged = false;
-        gonnaPlay = false;
+        HandleMethod.gonnaPlay = false;
         ClientEventHandler.isHoldingMp3 = false;
     }
 

@@ -1,6 +1,7 @@
 package com.github.audio.item;
 
 import com.github.audio.client.clientevent.ClientEventHandler;
+import com.github.audio.client.clientevent.HandleMethod;
 import com.github.audio.client.clientevent.SoundHandler;
 import com.github.audio.sound.SoundEventRegistryHandler;
 import net.minecraft.client.Minecraft;
@@ -14,14 +15,12 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.World;
 
 import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Objects;
-import java.util.UUID;
 
 public class Mp3 extends Item {
 
@@ -40,9 +39,9 @@ public class Mp3 extends Item {
                 if (Screen.hasShiftDown()) {
                     SoundHandler.stopSound(Objects.requireNonNull(client.player).getUniqueID());
                     SoundHandler.resetAllParameter();
-                    if (SoundHandler.shouldPlayEndSound) {
+                    if (HandleMethod.shouldPlayEndSound) {
                         playMp3EndSound(clientPlayer);
-                        SoundHandler.shouldPlayEndSound = false;
+                        HandleMethod.shouldPlayEndSound = false;
                     }
                 }
             }
@@ -51,7 +50,7 @@ public class Mp3 extends Item {
     }
 
     public static void playMp3EndSound(ClientPlayerEntity clientPlayer) {
-        SoundHandler.playTickableSound(new SoundHandler.AudioPlayerContext(SoundHandler.CURRENT_SOUND_CHANNEL,
+        SoundHandler.playTickableSound(new HandleMethod.AudioPlayerContext(SoundHandler.CURRENT_SOUND_CHANNEL,
                         clientPlayer.getUniqueID(), clientPlayer.getEntityId()),
                 () -> SoundEventRegistryHandler.katanaZeroEnd, false);
     }
@@ -68,10 +67,10 @@ public class Mp3 extends Item {
     }
 
     private static ITextComponent getTooltip() {
-        return SoundHandler.isPlaySong ?
+        return HandleMethod.isPlaySong ?
                 new TranslationTextComponent("item.audio.audio.hasSong",
                         getCurrentSoundITextComponent("item.audio.audio.nowPlaySong"))
-                : SoundHandler.isPaused ?
+                : HandleMethod.isPaused ?
                 new TranslationTextComponent("item.audio.audio.hasSong",
                         getCurrentSoundITextComponent("item.audio.audio.isPauseNow"))
                 : new TranslationTextComponent("item.audio.audio.hasSong",
@@ -84,8 +83,8 @@ public class Mp3 extends Item {
     }
 
     private static ITextComponent getAudioDisplayName() {
-        return SoundHandler.isPlaySong ? new TranslationTextComponent("displayName.audio.audio.playingNow")
-                : SoundHandler.isPaused ? new TranslationTextComponent("displayName.audio.audio.pausingNow")
+        return HandleMethod.isPlaySong ? new TranslationTextComponent("displayName.audio.audio.playingNow")
+                : HandleMethod.isPaused ? new TranslationTextComponent("displayName.audio.audio.pausingNow")
                 : new TranslationTextComponent("displayName.audio.audio.waitToPlay");
     }
 

@@ -1,11 +1,8 @@
 package com.github.audio.event;
 
 import com.github.audio.Utils;
-import com.github.audio.client.clientevent.ClientEventHandler;
 import com.github.audio.item.ItemRegisterHandler;
-import com.github.audio.networking.AudioSoundPack;
-import com.github.audio.networking.NetworkingHandler;
-import com.github.audio.networking.BackPackSoundEventPack;
+import com.github.audio.networking.*;
 import com.github.audio.sound.SoundEventRegistryHandler;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -14,10 +11,8 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.server.management.PlayerList;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.world.World;
-import net.minecraftforge.client.event.sound.SoundEvent;
 import net.minecraftforge.event.OnDatapackSyncEvent;
 
-import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.event.entity.item.ItemTossEvent;
 import net.minecraftforge.event.entity.player.PlayerContainerEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
@@ -41,7 +36,7 @@ public class EventHandler {
     }
 
     @SubscribeEvent
-    public static void onPlayerFoldBackPack(PlayerContainerEvent.Close event) {
+    public static void onPlayerGuiClose(PlayerContainerEvent.Close event) {
         if (event.getContainer().getClass().getName()
                 .equals("net.minecraft.inventory.container.PlayerContainer")) {
             PlayerList playerList = ServerLifecycleHooks.getCurrentServer().getPlayerList();
@@ -53,6 +48,10 @@ public class EventHandler {
                                 false, false, event.getPlayer().getPosition()));
             }
         }
+//        NetworkingHandler.AUDIO_SOUND_CHANNEL.send(
+//                PacketDistributor.PLAYER.with(
+//                        () -> (ServerPlayerEntity) event.getPlayer()) ,
+//                    new AudioSoundPack(AudioSoundPackBranchFactory.JudgementType.CLOSE_GUI));
     }
 
     /**
@@ -80,7 +79,7 @@ public class EventHandler {
             NetworkingHandler.AUDIO_SOUND_CHANNEL.send(
                     PacketDistributor.PLAYER.with(
                             () -> (ServerPlayerEntity) event.getPlayer()),
-                    new AudioSoundPack(AudioSoundPack.Judgement.REBORN));
+                    new AudioSoundPack(AudioSoundPackBranchFactory.JudgementType.REBORN));
         }
     }
 
@@ -91,7 +90,7 @@ public class EventHandler {
             NetworkingHandler.AUDIO_SOUND_CHANNEL.send(
                     PacketDistributor.PLAYER.with(
                             () -> serverPlayer),
-                    new AudioSoundPack(AudioSoundPack.Judgement.CHANGE_DIMENSION));
+                    new AudioSoundPack(AudioSoundPackBranchFactory.JudgementType.CHANGE_DIMENSION));
         }
     }
 
@@ -102,12 +101,11 @@ public class EventHandler {
                 NetworkingHandler.AUDIO_SOUND_CHANNEL.send(
                         PacketDistributor.PLAYER.with(
                                 () -> (ServerPlayerEntity) event.getPlayer()),
-                        new AudioSoundPack(AudioSoundPack.Judgement.TOSS));
+                        new AudioSoundPack(AudioSoundPackBranchFactory.JudgementType.TOSS));
             } else if (event.getPlayer() instanceof ClientPlayerEntity){
-                NetworkingHandler.AUDIO_SOUND_CHANNEL.send(
-                        PacketDistributor.PLAYER.with(
-                                () -> ServerLifecycleHooks.getCurrentServer().getPlayerList().getPlayerByUUID(event.getPlayer().getUniqueID())),
-                        new AudioSoundPack(AudioSoundPack.Judgement.TOSS));
+                //Client Thread
+                AudioSoundPackBranchFactory.JUDGEMENT_MAP.get(AudioSoundPackBranchFactory.JudgementType.TOSS)
+                        .branch((ClientPlayerEntity) event.getPlayer());
             }
         }
     }
