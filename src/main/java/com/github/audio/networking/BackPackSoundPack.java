@@ -12,21 +12,21 @@ import java.util.Objects;
 import java.util.UUID;
 import java.util.function.Supplier;
 
-public class BackPackSoundEventPack {
+public class BackPackSoundPack {
 
     private final UUID uuid;
     private final boolean fromClient;
     private final boolean isUnfold;
     private final BlockPos pos;
 
-    public BackPackSoundEventPack(PacketBuffer buffer) {
+    public BackPackSoundPack(PacketBuffer buffer) {
         this.uuid = buffer.readUniqueId();
         this.fromClient = buffer.readBoolean();
         this.isUnfold = buffer.readBoolean();
         this.pos = buffer.readBlockPos();
     }
 
-    public BackPackSoundEventPack(UUID uuid, boolean fromClient, boolean isUnfold, BlockPos pos) {
+    public BackPackSoundPack(UUID uuid, boolean fromClient, boolean isUnfold, BlockPos pos) {
         this.uuid = uuid;
         this.fromClient = fromClient;
         this.isUnfold = isUnfold;

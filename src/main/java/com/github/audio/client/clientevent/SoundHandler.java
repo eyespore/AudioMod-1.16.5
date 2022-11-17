@@ -83,7 +83,7 @@ public class SoundHandler {
             currentSongNameRollingBar = rfb.nextRollingFormat();
             timeTicker = 0;
 
-            //todo :
+            //TODO : Judge when exactly the sound source stop playing.
 //            if (currentSource != null) System.out.println("is stopped : " + currentSource.isStopped());
         }
     }

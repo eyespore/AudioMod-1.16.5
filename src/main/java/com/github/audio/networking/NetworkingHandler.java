@@ -1,7 +1,6 @@
 package com.github.audio.networking;
 
 import com.github.audio.Utils;
-import com.mojang.serialization.Decoder;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.network.NetworkRegistry;
 import net.minecraftforge.fml.network.simple.SimpleChannel;
@@ -39,8 +38,8 @@ public class NetworkingHandler {
                 (version) -> version.equals(VERSION)
         );
 
-        BACKPACK_SOUND_CHANNEL.registerMessage(nextID() , BackPackSoundEventPack.class ,
-                BackPackSoundEventPack::toByte , BackPackSoundEventPack::new , BackPackSoundEventPack::handle);
+        BACKPACK_SOUND_CHANNEL.registerMessage(nextID() , BackPackSoundPack.class ,
+                BackPackSoundPack::toByte , BackPackSoundPack::new , BackPackSoundPack::handle);
 
         /* Mp3 Sound Channel */
         AUDIO_SOUND_CHANNEL = NetworkRegistry.newSimpleChannel(

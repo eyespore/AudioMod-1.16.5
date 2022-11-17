@@ -5,7 +5,7 @@ import com.github.audio.client.config.Config;
 import com.github.audio.client.gui.ConfigScreen;
 import com.github.audio.keybind.KeyBinds;
 import com.github.audio.networking.NetworkingHandler;
-import com.github.audio.networking.BackPackSoundEventPack;
+import com.github.audio.networking.BackPackSoundPack;
 import com.github.audio.sound.SoundEventRegistryHandler;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
@@ -15,6 +15,7 @@ import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.GuiOpenEvent;
+import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraftforge.client.event.InputEvent;
 import net.minecraftforge.client.event.sound.SoundEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
@@ -91,7 +92,7 @@ public class ClientEventHandler {
                     playerClient.playSound(SoundEventRegistryHandler.BACKPACK_UNFOLD_SOUND.get(), SoundCategory.PLAYERS, 3f, 1f);
                 }
                 NetworkingHandler.BACKPACK_SOUND_CHANNEL.sendToServer(
-                        new BackPackSoundEventPack(playerClient.getUniqueID(),
+                        new BackPackSoundPack(playerClient.getUniqueID(),
                                 true, true, playerClient.getPosition()));
             }
         }
@@ -109,6 +110,15 @@ public class ClientEventHandler {
             Objects.requireNonNull(Minecraft.getInstance().world)
                     .playSound(playerClient, soundPlayPos, SoundEventRegistryHandler.BACKPACK_FOLD_SOUND.get(),
                             SoundCategory.PLAYERS, 3f, 1f);
+        }
+    }
+
+    //TODO : Make function to judge when player delete item mp3 in creative inventory.
+    @SubscribeEvent
+    public static void onMp3Deleted(GuiScreenEvent.MouseClickedEvent event) {
+        if (!event.isCanceled() && event.getGui().getClass().getName()
+                .equals("net.minecraft.client.gui.screen.inventory.CreativeScreen")) {
+            System.out.println(event.getResult());
         }
     }
 

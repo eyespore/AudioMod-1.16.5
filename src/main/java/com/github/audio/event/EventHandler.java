@@ -44,7 +44,7 @@ public class EventHandler {
                 NetworkingHandler.BACKPACK_SOUND_CHANNEL.send(
                         PacketDistributor.PLAYER.with(
                                 () -> player),
-                        new BackPackSoundEventPack(player.getUniqueID(),
+                        new BackPackSoundPack(player.getUniqueID(),
                                 false, false, event.getPlayer().getPosition()));
             }
         }
@@ -60,14 +60,14 @@ public class EventHandler {
      *
      * @param clientPack
      */
-    public static void sendClientPackBack(BackPackSoundEventPack clientPack) {
+    public static void sendClientPackBack(BackPackSoundPack clientPack) {
         PlayerList playerList = ServerLifecycleHooks.getCurrentServer().getPlayerList();
 //        for (UUID uuid : PlayerManager.getUUIDSet()){
         for (ServerPlayerEntity player : playerList.getPlayers()) {
             NetworkingHandler.BACKPACK_SOUND_CHANNEL.send(
                     PacketDistributor.PLAYER.with(
                             () -> player),
-                    new BackPackSoundEventPack(clientPack.getUuid(),
+                    new BackPackSoundPack(clientPack.getUuid(),
                             false, clientPack.isUnfold(), clientPack.getPos())
             );
         }
