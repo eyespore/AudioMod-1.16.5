@@ -14,6 +14,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.StringTextComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.world.WorldEvent;
@@ -129,6 +130,10 @@ public class SoundHandler {
         if (timeTicker >= 50) {
             currentSongNameRollingBar = rfb.nextRollingFormat();
             timeTicker = 0;
+
+            //TODO :
+            if (currentSource != null) System.out.println("is stopped : " + currentSource.isStopped());
+
         }
 
         if (gonnaPlay) {
@@ -379,6 +384,7 @@ public class SoundHandler {
         hasInitRFB = false;
         currentSourceHasChanged = false;
         gonnaPlay = false;
+        ClientEventHandler.isHoldingMp3 = false;
     }
 
     @SuppressWarnings({"unused", "java:S1172"})

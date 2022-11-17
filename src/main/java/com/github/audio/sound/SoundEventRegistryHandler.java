@@ -21,7 +21,7 @@ import static com.github.audio.sound.SoundEventHelper.*;
 
 public class SoundEventRegistryHandler {
 
-    /* Normal Audio Sound */
+    /* Normal Mp3 Sound */
     public static AudioSound katanaZeroInit = new AudioSound("null", "null", null, 0);
     public static AudioSound katanaZeroEnd = new AudioSound("null", "null", null, 0);
 

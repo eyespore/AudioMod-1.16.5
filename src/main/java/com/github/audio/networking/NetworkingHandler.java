@@ -42,7 +42,7 @@ public class NetworkingHandler {
         BACKPACK_SOUND_CHANNEL.registerMessage(nextID() , BackPackSoundEventPack.class ,
                 BackPackSoundEventPack::toByte , BackPackSoundEventPack::new , BackPackSoundEventPack::handle);
 
-        /* Audio Sound Channel */
+        /* Mp3 Sound Channel */
         AUDIO_SOUND_CHANNEL = NetworkRegistry.newSimpleChannel(
                 new ResourceLocation(Utils.MOD_ID , "audio_sound_networking"),
                 () -> VERSION,

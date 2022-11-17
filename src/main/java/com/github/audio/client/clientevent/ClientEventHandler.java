@@ -4,6 +4,7 @@ import com.github.audio.Audio;
 import com.github.audio.Utils;
 import com.github.audio.client.config.Config;
 import com.github.audio.client.gui.ConfigScreen;
+import com.github.audio.item.ItemRegisterHandler;
 import com.github.audio.keybind.KeyBinds;
 import com.github.audio.networking.NetworkingHandler;
 import com.github.audio.networking.BackPackSoundEventPack;
@@ -12,12 +13,14 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.client.gui.screen.inventory.InventoryScreen;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.GuiOpenEvent;
 import net.minecraftforge.client.event.InputEvent;
 import net.minecraftforge.client.event.sound.SoundEvent;
+import net.minecraftforge.event.entity.item.ItemTossEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -67,7 +70,6 @@ public class ClientEventHandler {
 
         if (soundSourcePath.contains(event.getName())) {
             SoundHandler.currentSource = event.getSource();
-            Audio.getLOGGER().info("new sound source detected");
             SoundHandler.currentSourceHasChanged = true;
         }
     }
@@ -83,6 +85,7 @@ public class ClientEventHandler {
             }
         }
     }
+
 
     @SubscribeEvent
     public static void playerUnfoldBPListener(GuiOpenEvent event) {

@@ -2,12 +2,15 @@ package com.github.audio.event;
 
 import com.github.audio.Utils;
 import com.github.audio.client.clientevent.ClientEventHandler;
+import com.github.audio.item.ItemRegisterHandler;
 import com.github.audio.networking.AudioSoundPack;
 import com.github.audio.networking.NetworkingHandler;
 import com.github.audio.networking.BackPackSoundEventPack;
 import com.github.audio.sound.SoundEventRegistryHandler;
+import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.item.ItemStack;
 import net.minecraft.server.management.PlayerList;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.world.World;
@@ -15,6 +18,7 @@ import net.minecraftforge.client.event.sound.SoundEvent;
 import net.minecraftforge.event.OnDatapackSyncEvent;
 
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
+import net.minecraftforge.event.entity.item.ItemTossEvent;
 import net.minecraftforge.event.entity.player.PlayerContainerEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -35,11 +39,6 @@ public class EventHandler {
 
         }
     }
-
-//    @SubscribeEvent
-//    public static void onSoundSource(SoundEvent.SoundSourceEvent event) {
-//        System.out.println(event.getName());
-//    }
 
     @SubscribeEvent
     public static void onPlayerFoldBackPack(PlayerContainerEvent.Close event) {
@@ -81,8 +80,35 @@ public class EventHandler {
             NetworkingHandler.AUDIO_SOUND_CHANNEL.send(
                     PacketDistributor.PLAYER.with(
                             () -> (ServerPlayerEntity) event.getPlayer()),
-                    new AudioSoundPack("detected player died, now reset audio sound parameter.")
-            );
+                    new AudioSoundPack(AudioSoundPack.Judgement.REBORN));
+        }
+    }
+
+    @SubscribeEvent
+    public static void onPlayerChangeDimension(PlayerEvent.PlayerChangedDimensionEvent event) {
+        ServerPlayerEntity serverPlayer = (ServerPlayerEntity) event.getPlayer();
+        if (serverPlayer != null) {
+            NetworkingHandler.AUDIO_SOUND_CHANNEL.send(
+                    PacketDistributor.PLAYER.with(
+                            () -> serverPlayer),
+                    new AudioSoundPack(AudioSoundPack.Judgement.CHANGE_DIMENSION));
+        }
+    }
+
+    @SubscribeEvent
+    public static void onMp3Thrown(ItemTossEvent event) {
+        if (event.getEntityItem().getItem().isItemEqual(new ItemStack(ItemRegisterHandler.Audio.get()))) {
+            if (event.getPlayer() instanceof ServerPlayerEntity) {
+                NetworkingHandler.AUDIO_SOUND_CHANNEL.send(
+                        PacketDistributor.PLAYER.with(
+                                () -> (ServerPlayerEntity) event.getPlayer()),
+                        new AudioSoundPack(AudioSoundPack.Judgement.TOSS));
+            } else if (event.getPlayer() instanceof ClientPlayerEntity){
+                NetworkingHandler.AUDIO_SOUND_CHANNEL.send(
+                        PacketDistributor.PLAYER.with(
+                                () -> ServerLifecycleHooks.getCurrentServer().getPlayerList().getPlayerByUUID(event.getPlayer().getUniqueID())),
+                        new AudioSoundPack(AudioSoundPack.Judgement.TOSS));
+            }
         }
     }
 

@@ -14,16 +14,18 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.World;
 
 import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 
-public class Audio extends Item {
+public class Mp3 extends Item {
 
-    public Audio(Properties properties) {
+    public Mp3(Properties properties) {
         super(properties);
     }
 
@@ -39,15 +41,19 @@ public class Audio extends Item {
                     SoundHandler.stopSound(Objects.requireNonNull(client.player).getUniqueID());
                     SoundHandler.resetAllParameter();
                     if (SoundHandler.shouldPlayEndSound) {
-                        SoundHandler.playTickableSound(new SoundHandler.AudioPlayerContext(SoundHandler.CURRENT_SOUND_CHANNEL,
-                                        clientPlayer.getUniqueID(), clientPlayer.getEntityId()),
-                                () -> SoundEventRegistryHandler.katanaZeroEnd, false);
+                        playMp3EndSound(clientPlayer);
                         SoundHandler.shouldPlayEndSound = false;
                     }
                 }
             }
         }
         return super.onItemRightClick(worldIn, playerIn, handIn);
+    }
+
+    public static void playMp3EndSound(ClientPlayerEntity clientPlayer) {
+        SoundHandler.playTickableSound(new SoundHandler.AudioPlayerContext(SoundHandler.CURRENT_SOUND_CHANNEL,
+                        clientPlayer.getUniqueID(), clientPlayer.getEntityId()),
+                () -> SoundEventRegistryHandler.katanaZeroEnd, false);
     }
 
     @Override
