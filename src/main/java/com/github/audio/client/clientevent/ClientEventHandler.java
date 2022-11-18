@@ -22,7 +22,6 @@ import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
-import java.util.ArrayList;
 import java.util.Objects;
 
 @Mod.EventBusSubscriber(modid = Utils.MOD_ID, value = Dist.CLIENT)
@@ -30,44 +29,19 @@ public class ClientEventHandler {
 
     public static boolean isHoldingMp3 = false;
     public static boolean hasInitSoundSourcePath = false;
-    private static final ArrayList<String> soundSourcePath = new ArrayList<String>();
-
-    /* To judge when exactly the custom sound source has changed */
-    public static void initSoundSourcePath() {
-        soundSourcePath.add("a_fine_red_mist");
-        soundSourcePath.add("blue_room");
-        soundSourcePath.add("breath_of_a_serpent");
-        soundSourcePath.add("chemical_brew");
-        soundSourcePath.add("china_town");
-        soundSourcePath.add("come_and_see");
-        soundSourcePath.add("driving_force");
-        soundSourcePath.add("end_of_the_road");
-        soundSourcePath.add("full_confession");
-        soundSourcePath.add("hit_the_floor");
-        soundSourcePath.add("katana_zero");
-        soundSourcePath.add("meat_grinder");
-        soundSourcePath.add("nocturne");
-        soundSourcePath.add("overdose");
-        soundSourcePath.add("prison_2");
-        soundSourcePath.add("rain_on_bricks");
-        soundSourcePath.add("silhouette");
-        soundSourcePath.add("sneaky_driver");
-        soundSourcePath.add("snow");
-        soundSourcePath.add("third_district");
-        soundSourcePath.add("you_will_never_know");
-    }
 
     @SubscribeEvent
-    public static void onSoundSource(SoundEvent.SoundSourceEvent event) {
+    public static void onSoundSourceChange(SoundEvent.SoundSourceEvent event) {
 
         if (!hasInitSoundSourcePath) {
-            initSoundSourcePath();
+            SoundHandler.initSoundSourcePath();
             hasInitSoundSourcePath = true;
         }
 
-        if (soundSourcePath.contains(event.getName())) {
+        if (SoundHandler.soundSourcePath.contains(event.getName())) {
             SoundHandler.currentSource = event.getSource();
             SoundHandler.currentSourceHasChanged = true;
+//            HandleMethod.hasAutoSwitch = false;
         }
     }
 

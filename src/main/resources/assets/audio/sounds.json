@@ -230,5 +230,13 @@
         "stream": true
       }
     ]
+  },
+  "start_up": {
+    "sounds": [
+      {
+        "name": "audio:start_up",
+        "stream": true
+      }
+    ]
   }
 }

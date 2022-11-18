@@ -89,6 +89,7 @@ public class SoundEventRegistryHandler {
     public static final RegistryObject<SoundEvent> OVERDOSE = registryIntoSoundChannel("overdose", SoundChannel.KATANA_ZERO_CHANNEL, 5324);
     public static final RegistryObject<SoundEvent> KATANA_ZERO_Z = registryIntoSoundChannel("katana_zero", SoundChannel.KATANA_ZERO_CHANNEL, 6001);
     public static final RegistryObject<SoundEvent> MEAT_GRINDER = registryIntoSoundChannel("meat_grinder", SoundChannel.KATANA_ZERO_CHANNEL, 4495);
+    public static final RegistryObject<SoundEvent> START_UP = registryIntoSoundChannel("start_up" , SoundChannel.KATANA_ZERO_CHANNEL , 440);
     /*--------------------- Normal Sound Registry --------------------------*/
     public static final RegistryObject<SoundEvent> KATANA_ZERO_INIT = registryAsNormalAudioSound("katana_zero_init", katanaZeroInit, 50);
     public static final RegistryObject<SoundEvent> KATANA_ZERO_END = registryAsNormalAudioSound("katana_zero_end", katanaZeroEnd, 28);

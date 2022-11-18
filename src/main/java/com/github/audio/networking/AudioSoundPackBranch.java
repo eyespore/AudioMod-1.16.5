@@ -16,7 +16,7 @@ public class AudioSoundPackBranch {
     protected static class PlayerReborn implements IAudioSoundPackBranch {
         @Override
         public void branch(ClientPlayerEntity clientPlayer) {
-            SoundHandler.resetAllParameter();
+            HandleMethod.resetAllParameter();
         }
     }
 
@@ -25,7 +25,7 @@ public class AudioSoundPackBranch {
         @Override
         public void branch(ClientPlayerEntity clientPlayer) {
             SoundHandler.stopSound(clientPlayer.getUniqueID());
-            SoundHandler.resetAllParameter();
+            HandleMethod.resetAllParameter();
             Mp3.playMp3EndSound(Objects.requireNonNull(Minecraft.getInstance().player));
         }
     }

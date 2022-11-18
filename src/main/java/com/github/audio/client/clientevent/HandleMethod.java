@@ -17,7 +17,9 @@ import java.util.UUID;
 public class HandleMethod {
     public static boolean shouldPlayEndSound = false;
     public static boolean isPaused;
+
     public static boolean isPlaySong;
+
     public static boolean hasPlayInit;
     protected static boolean gonnaPlay = false;
     /* detect when should stop or resume the sound. */
@@ -25,9 +27,10 @@ public class HandleMethod {
     /* detect when should play a sound to the player. */
     protected static boolean shouldSwitchToNext = false;
     protected static boolean shouldSwitchToLast = false;
+    protected static boolean hasAutoSwitch = false;
     /* define if the song stop because player turn it off by himself. */
     protected static boolean isForceStop = false;
-    protected static boolean isSwitching;
+    protected static boolean isSwitching = false;
 
     protected static int soundIndex = 0;
     protected static Enum<HandleMethodType> toBeSolved = HandleMethodType.NULL;
@@ -41,7 +44,26 @@ public class HandleMethod {
         }
     }
 
-    public static class SwitchToNextMethod implements ISoundHandlerJudgement {
+    /* Call this method only in client side, reset all mark defined in the class. */
+    public static void resetAllParameter() {
+        isPaused = false;
+        isPlaySong = false;
+        isSwitching = false;
+        isForceStop = false;
+        shouldSwitchToNext = false;
+        shouldSwitchToLast = false;
+        shouldPauseOrResume = false;
+
+        hasPlayInit = false;
+        hasRecord = false;
+        gonnaPlay = false;
+
+        ClientEventHandler.isHoldingMp3 = false;
+        SoundHandler.hasInitRFB = false;
+        SoundHandler.currentSourceHasChanged = false;
+    }
+
+    public static class SwitchToNext implements ISoundHandlerJudgement {
         @Override
         public void estimate(ClientPlayerEntity clientPlayer, AudioPlayerContext context) {
             if (shouldSwitchToNext) {
@@ -64,7 +86,7 @@ public class HandleMethod {
     }
 
     @AudioAnnotation.ClientOnly
-    public static class SwitchToLastMethod implements ISoundHandlerJudgement {
+    public static class SwitchToLast implements ISoundHandlerJudgement {
         @Override
         public void estimate(ClientPlayerEntity clientPlayer, AudioPlayerContext context) {
             if (shouldSwitchToLast) {
@@ -85,7 +107,7 @@ public class HandleMethod {
     }
 
     @AudioAnnotation.ClientOnly
-    public static class PauseOrResumeMethod implements ISoundHandlerJudgement {
+    public static class PauseOrResume implements ISoundHandlerJudgement {
         @Override
         public void estimate(ClientPlayerEntity clientPlayer, AudioPlayerContext context) {
             if (shouldPauseOrResume) {
@@ -98,6 +120,7 @@ public class HandleMethod {
                         toBeSolved = HandleMethodType.GONNA_PLAY;
                     }
                 } else if (isPlaySong && !isPaused) {
+                    if (SoundHandler.currentSource == null) return;
                     /* If the sound has started to player, first press button turn into pause. */
                     SoundHandler.currentSource.pause();
                     isPaused = true;
@@ -116,7 +139,7 @@ public class HandleMethod {
     }
 
     @AudioAnnotation.ClientOnly
-    public static class GonnaPlayMethod implements ISoundHandlerJudgement {
+    public static class GonnaPlay implements ISoundHandlerJudgement {
         @Override
         public void estimate(ClientPlayerEntity clientPlayer, AudioPlayerContext context) {
             if (gonnaPlay) {
@@ -132,6 +155,13 @@ public class HandleMethod {
                     toBeSolved = HandleMethodType.NULL;
                 }
             }
+        }
+    }
+
+    public static class AutoSwitch implements ISoundHandlerJudgement {
+        @Override
+        public void estimate(ClientPlayerEntity clientPlayer, AudioPlayerContext context) {
+            //TODO
         }
     }
 

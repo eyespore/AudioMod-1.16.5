@@ -33,18 +33,19 @@ public class SoundHandler {
      */
     public static final SoundEventRegistryHandler.SoundChannel CURRENT_SOUND_CHANNEL =
             SoundEventRegistryHandler.SoundChannel.KATANA_ZERO_CHANNEL;
+    /* If you change the value "CURRENT_SOUND_CHANNEL", at the same time you should change this field as well. */
+    static final ArrayList<String> soundSourcePath = new ArrayList<String>();
 
     public static SoundSource currentSource;
     public static String currentSongNameRollingBar;
 
     /* For font time ticker */
     private static int timeTicker = 0;
-    private static boolean hasInitRFB = false;
+    protected static boolean hasInitRFB = false;
     private static Utils.RollingFontBar rfb = new Utils.RollingFontBar("");
     protected static boolean currentSourceHasChanged = false;
 
     private static final int SOUND_STOP_CHECK_INTERVAL = 10;
-
     private static final Map<UUID, ISound> PLAYER_UUID_LIST = new ConcurrentHashMap<>();
     private static long lastPlaybackChecked = 0;
 
@@ -63,6 +64,7 @@ public class SoundHandler {
 
     /**
      * draw the statues bar while player holding mod item such as Mp3.
+     *
      * @param event
      */
     @SubscribeEvent
@@ -70,7 +72,7 @@ public class SoundHandler {
         ClientPlayerEntity clientPlayer = Minecraft.getInstance().player;
         ClientWorld clientWorld = Minecraft.getInstance().world;
         if (clientPlayer == null || clientWorld == null) return;
-        HandleMethod.AudioPlayerContext context = new HandleMethod.AudioPlayerContext(CURRENT_SOUND_CHANNEL , clientPlayer.getUniqueID() , clientPlayer.getEntityId());
+        HandleMethod.AudioPlayerContext context = new HandleMethod.AudioPlayerContext(CURRENT_SOUND_CHANNEL, clientPlayer.getUniqueID(), clientPlayer.getEntityId());
 
         if (currentSourceHasChanged || !hasInitRFB) {
             flushCurrentRollingBar();
@@ -78,21 +80,29 @@ public class SoundHandler {
             hasInitRFB = true;
         }
 
+        if (HandleMethod.gonnaPlay) {
+            HandleMethodFactory.SOUND_HANDLER_JUDGEMENT_MAP.get(HandleMethodType.GONNA_PLAY).estimate(clientPlayer, context);
+        }
+
         timeTicker++;
         if (timeTicker >= 50) {
             currentSongNameRollingBar = rfb.nextRollingFormat();
             timeTicker = 0;
+        }
 
-            //TODO : Judge when exactly the sound source stop playing.
-//            if (currentSource != null) System.out.println("is stopped : " + currentSource.isStopped());
+        //TODO
+        if (currentSource != null && currentSource.isStopped() && HandleMethod.isPlaySong
+                && !HandleMethod.gonnaPlay && !HandleMethod.hasAutoSwitch) {
+            HandleMethod.toBeSolved = HandleMethodType.AUTO_SWITCH_NEXT;
+
         }
     }
 
     static void audioToastDraw() {
         new AudioToastMessage().show("Now Playing:", getCurrentAudioSound().getDisplayName().length() > 20 ?
-                getCurrentAudioSound().getDisplayName().substring(0 , 20) + "..." : getCurrentAudioSound().getDisplayName());
+                getCurrentAudioSound().getDisplayName().substring(0, 20) + "..." : getCurrentAudioSound().getDisplayName());
     }
-    //TODO : what if a player pause a playing car and then he press next song button.
+
     @SubscribeEvent
     public static void onClientTick(TickEvent.ClientTickEvent event) {
         if (Minecraft.getInstance().world == null || Minecraft.getInstance().player == null) return;
@@ -100,9 +110,10 @@ public class SoundHandler {
         HandleMethod.AudioPlayerContext context = new HandleMethod.AudioPlayerContext(CURRENT_SOUND_CHANNEL,
                 clientPlayer.getUniqueID(), clientPlayer.getEntityId());
 
-        if (HandleMethod.toBeSolved != HandleMethodType.NULL) {
-            HandleMethodFactory.SOUND_HANDLER_JUDGEMENT_MAP.get(HandleMethod.toBeSolved).estimate(clientPlayer ,context);
+        if (HandleMethod.toBeSolved != HandleMethodType.NULL && HandleMethod.toBeSolved != HandleMethodType.GONNA_PLAY) {
+            HandleMethodFactory.SOUND_HANDLER_JUDGEMENT_MAP.get(HandleMethod.toBeSolved).estimate(clientPlayer, context);
         }
+
     }
 
     @SubscribeEvent
@@ -168,7 +179,7 @@ public class SoundHandler {
     /**
      * Main method to play itickable sound to player
      */
-    public static void playTickableSound(HandleMethod.AudioPlayerContext context, Supplier<AudioSound> sup , boolean renderLast) {
+    public static void playTickableSound(HandleMethod.AudioPlayerContext context, Supplier<AudioSound> sup, boolean renderLast) {
         ClientWorld world = Minecraft.getInstance().world;
         if (world == null) {
             return;
@@ -247,28 +258,36 @@ public class SoundHandler {
         return HandleMethod.soundIndex;
     }
 
-    /* Call this method only in client side, reset all mark defined in the class. */
-    public static void resetAllParameter() {
-        HandleMethod.isPaused = false;
-        HandleMethod.isPlaySong = false;
-        HandleMethod.isSwitching = false;
-        HandleMethod.isForceStop = false;
-        HandleMethod.shouldSwitchToNext = false;
-        HandleMethod.shouldSwitchToLast = false;
-        HandleMethod.shouldPauseOrResume = false;
-
-        HandleMethod.hasPlayInit = false;
-        HandleMethod.hasRecord = false;
-        hasInitRFB = false;
-        currentSourceHasChanged = false;
-        HandleMethod.gonnaPlay = false;
-        ClientEventHandler.isHoldingMp3 = false;
-    }
-
     @SuppressWarnings({"unused", "java:S1172"})
     // needs to be here for addListener to recognize which event this method should be subscribed to
     public static void onWorldUnload(WorldEvent.Unload evt) {
         PLAYER_UUID_LIST.clear();
         lastPlaybackChecked = 0;
+    }
+
+    /* To judge when exactly the custom sound source has changed */
+    public static void initSoundSourcePath() {
+        soundSourcePath.add("a_fine_red_mist");
+        soundSourcePath.add("blue_room");
+        soundSourcePath.add("breath_of_a_serpent");
+        soundSourcePath.add("chemical_brew");
+        soundSourcePath.add("china_town");
+        soundSourcePath.add("come_and_see");
+        soundSourcePath.add("driving_force");
+        soundSourcePath.add("end_of_the_road");
+        soundSourcePath.add("full_confession");
+        soundSourcePath.add("hit_the_floor");
+        soundSourcePath.add("katana_zero");
+        soundSourcePath.add("meat_grinder");
+        soundSourcePath.add("nocturne");
+        soundSourcePath.add("overdose");
+        soundSourcePath.add("prison_2");
+        soundSourcePath.add("rain_on_bricks");
+        soundSourcePath.add("silhouette");
+        soundSourcePath.add("sneaky_driver");
+        soundSourcePath.add("snow");
+        soundSourcePath.add("third_district");
+        soundSourcePath.add("you_will_never_know");
+        soundSourcePath.add("start_up");
     }
 }

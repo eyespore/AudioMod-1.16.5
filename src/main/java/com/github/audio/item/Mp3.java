@@ -20,7 +20,6 @@ import net.minecraft.world.World;
 
 import javax.annotation.Nullable;
 import java.util.List;
-import java.util.Objects;
 
 public class Mp3 extends Item {
 
@@ -31,22 +30,25 @@ public class Mp3 extends Item {
     @Override
     public ActionResult<ItemStack> onItemRightClick(World worldIn, PlayerEntity playerIn, Hand handIn) {
 
-        //TODO : implement function for mp3's right click
         if (worldIn.isRemote) {
             Minecraft client = Minecraft.getInstance();
             ClientPlayerEntity clientPlayer = client.player;
             if (clientPlayer != null) {
                 if (Screen.hasShiftDown()) {
-                    SoundHandler.stopSound(Objects.requireNonNull(client.player).getUniqueID());
-                    SoundHandler.resetAllParameter();
-                    if (HandleMethod.shouldPlayEndSound) {
-                        playMp3EndSound(clientPlayer);
-                        HandleMethod.shouldPlayEndSound = false;
-                    }
+                    stopMp3(clientPlayer);
                 }
             }
         }
         return super.onItemRightClick(worldIn, playerIn, handIn);
+    }
+
+    public void stopMp3(ClientPlayerEntity clientPlayer) {
+        SoundHandler.stopSound(clientPlayer.getUniqueID());
+        HandleMethod.resetAllParameter();
+        if (HandleMethod.shouldPlayEndSound) {
+            playMp3EndSound(clientPlayer);
+            HandleMethod.shouldPlayEndSound = false;
+        }
     }
 
     public static void playMp3EndSound(ClientPlayerEntity clientPlayer) {
@@ -92,12 +94,12 @@ public class Mp3 extends Item {
     @Override
     public void inventoryTick(ItemStack stackIn, World worldIn, Entity entityIn, int itemSlot, boolean isSelected) {
         if (entityIn instanceof PlayerEntity &&
-                ((((PlayerEntity)entityIn).getHeldItemMainhand().isItemEqual(stackIn))
-                || ((PlayerEntity)entityIn).getHeldItemOffhand().isItemEqual(stackIn))) {
+                ((((PlayerEntity) entityIn).getHeldItemMainhand().isItemEqual(stackIn))
+                        || ((PlayerEntity) entityIn).getHeldItemOffhand().isItemEqual(stackIn))) {
             if (worldIn.isRemote) {
                 ClientPlayerEntity clientPlayer = Minecraft.getInstance().player;
                 if (clientPlayer == null) return;
-                clientPlayer.sendStatusMessage(getTooltip() , true);
+                clientPlayer.sendStatusMessage(getTooltip(), true);
                 ClientEventHandler.isHoldingMp3 = true;
             }
         } else {
