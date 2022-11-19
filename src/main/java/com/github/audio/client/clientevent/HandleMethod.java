@@ -2,12 +2,15 @@ package com.github.audio.client.clientevent;
 
 import com.github.audio.api.AudioAnnotation;
 import com.github.audio.api.ISoundHandlerJudgement;
+import com.github.audio.sound.AudioSound;
 import com.github.audio.sound.SoundEventRegistryHandler;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.client.world.ClientWorld;
 
+import java.util.HashMap;
 import java.util.Objects;
+import java.util.Random;
 import java.util.UUID;
 
 /**
@@ -22,20 +25,19 @@ public class HandleMethod {
 
     public static boolean hasPlayInit;
     protected static boolean gonnaPlay = false;
-    /* detect when should stop or resume the sound. */
-    protected static boolean shouldPauseOrResume = false;
-    /* detect when should play a sound to the player. */
-    protected static boolean shouldSwitchToNext = false;
-    protected static boolean shouldSwitchToLast = false;
-    protected static boolean hasAutoSwitch = false;
     /* define if the song stop because player turn it off by himself. */
     protected static boolean isForceStop = false;
     protected static boolean isSwitching = false;
 
     protected static int soundIndex = 0;
     protected static Enum<HandleMethodType> toBeSolved = HandleMethodType.NULL;
+    protected static final HashMap<String, Boolean> SOUND_PARAMETER_STATUES = new HashMap<>();
     static boolean hasRecord = false;
     static long firstRecord;
+
+    static {
+//        SOUND_PARAMETER_STATUES.put("sound index", soundIndex);
+    }
 
     static void recordNow() {
         if (!hasRecord) {
@@ -50,9 +52,7 @@ public class HandleMethod {
         isPlaySong = false;
         isSwitching = false;
         isForceStop = false;
-        shouldSwitchToNext = false;
-        shouldSwitchToLast = false;
-        shouldPauseOrResume = false;
+        toBeSolved = HandleMethodType.NULL;
 
         hasPlayInit = false;
         hasRecord = false;
@@ -63,25 +63,52 @@ public class HandleMethod {
         SoundHandler.currentSourceHasChanged = false;
     }
 
+    /**
+     * ----------------- Sound Switch Operation ---------------------------
+     */
+
+    protected static AudioSound next() {
+        if (SoundHandler.isChannelEmpty()) return null;
+        soundIndex = getSoundIndex() + 1 > SoundHandler.getChannelSize() - 1 ? 0 : getSoundIndex() + 1;
+        return SoundHandler.getChannelSoundList().get(soundIndex);
+    }
+
+    protected static AudioSound last() {
+        if (SoundHandler.isChannelEmpty()) return null;
+        soundIndex = getSoundIndex() - 1 < 0 ? SoundHandler.getChannelSize() - 1 : getSoundIndex() - 1;
+        return SoundHandler.getChannelSoundList().get(soundIndex);
+    }
+
+    protected static AudioSound current() {
+        if (SoundHandler.isChannelEmpty()) return null;
+        return SoundHandler.getChannelSoundList().get(soundIndex);
+    }
+
+    protected static AudioSound random() {
+        if (SoundHandler.isChannelEmpty()) return null;
+        return SoundHandler.getChannelSoundList().get(new Random().nextInt(soundIndex));
+    }
+
+    private static int getSoundIndex() {
+        return soundIndex;
+    }
+
     public static class SwitchToNext implements ISoundHandlerJudgement {
         @Override
         public void estimate(ClientPlayerEntity clientPlayer, AudioPlayerContext context) {
-            if (shouldSwitchToNext) {
-                if (isPaused || !isPlaySong) {
-                    soundIndex = soundIndex + 1 > SoundHandler.getChannelSize() - 1 ? 0 : soundIndex + 1;
-                    SoundHandler.currentSourceHasChanged = true;
-                } else {
-                    SoundHandler.stopSound(clientPlayer.getUniqueID());
-                    SoundHandler.playTickableSound(context, SoundHandler::switchToNext, true);
-                    SoundHandler.audioToastDraw();
-                    SoundHandler.currentSourceHasChanged = true;
-                    isPlaySong = true;
-//                    SoundHandler.resetThis = true;
-                }
-                shouldSwitchToNext = false;
-                toBeSolved = HandleMethodType.NULL;
-                isPaused = false;
+            SoundHandler.preventAutoSwitch();
+            if (isPaused || !isPlaySong) {
+                soundIndex = soundIndex + 1 > SoundHandler.getChannelSize() - 1 ? 0 : soundIndex + 1;
+                SoundHandler.currentSourceHasChanged = true;
+            } else {
+                SoundHandler.stopSound(clientPlayer.getUniqueID());
+                SoundHandler.playTickableSound(context, HandleMethod::next, true);
+                SoundHandler.audioToastDraw();
+                SoundHandler.currentSourceHasChanged = true;
+                isPlaySong = true;
             }
+            toBeSolved = HandleMethodType.NULL;
+            isPaused = false;
         }
     }
 
@@ -89,20 +116,17 @@ public class HandleMethod {
     public static class SwitchToLast implements ISoundHandlerJudgement {
         @Override
         public void estimate(ClientPlayerEntity clientPlayer, AudioPlayerContext context) {
-            if (shouldSwitchToLast) {
-                if (isPaused || !isPlaySong) {
-                    soundIndex = soundIndex - 1 < 0 ? SoundHandler.CURRENT_SOUND_CHANNEL.getChannelSoundList().size() - 1 : soundIndex - 1;
-                } else {
-                    SoundHandler.stopSound(clientPlayer.getUniqueID());
-                    SoundHandler.playTickableSound(context, SoundHandler::switchToLast, true);
-                    isPlaySong = true;
-//                    SoundHandler.resetThis = true;
-                }
-                isPaused = false;
-                shouldSwitchToLast = false;
-                SoundHandler.currentSourceHasChanged = true;
-                toBeSolved = HandleMethodType.NULL;
+            SoundHandler.preventAutoSwitch();
+            if (isPaused || !isPlaySong) {
+                soundIndex = soundIndex - 1 < 0 ? SoundHandler.CURRENT_SOUND_CHANNEL.getChannelSoundList().size() - 1 : soundIndex - 1;
+            } else {
+                SoundHandler.stopSound(clientPlayer.getUniqueID());
+                SoundHandler.playTickableSound(context, HandleMethod::last, true);
+                isPlaySong = true;
             }
+            isPaused = false;
+            SoundHandler.currentSourceHasChanged = true;
+            toBeSolved = HandleMethodType.NULL;
         }
     }
 
@@ -110,31 +134,28 @@ public class HandleMethod {
     public static class PauseOrResume implements ISoundHandlerJudgement {
         @Override
         public void estimate(ClientPlayerEntity clientPlayer, AudioPlayerContext context) {
-            if (shouldPauseOrResume) {
-                if (!isPlaySong && !isPaused) {
-                    if (!hasPlayInit) {
-                        recordNow();
-                        SoundHandler.playTickableSound(context, () -> SoundEventRegistryHandler.katanaZeroInit, true);
-                        hasPlayInit = true;
-                        gonnaPlay = true;
-                        toBeSolved = HandleMethodType.GONNA_PLAY;
-                    }
-                } else if (isPlaySong && !isPaused) {
-                    if (SoundHandler.currentSource == null) return;
-                    /* If the sound has started to player, first press button turn into pause. */
-                    SoundHandler.currentSource.pause();
-                    isPaused = true;
-                    isPlaySong = false;
-                    toBeSolved = HandleMethodType.NULL;
-                } else if (!isPlaySong) {
-                    /* The second time when player press the button it turns into resume the sound. */
-                    SoundHandler.currentSource.resume();
-                    isPaused = false;
-                    isPlaySong = true;
-                    toBeSolved = HandleMethodType.NULL;
+            SoundHandler.preventAutoSwitch();
+            if (!isPlaySong && !isPaused) {
+                if (!hasPlayInit) {
+                    recordNow();
+//                    SoundHandler.playTickableSound(context, () -> SoundEventRegistryHandler.katanaZeroInit, true);
+                    playInitMusic(context);
+                    hasPlayInit = true;
+                    gonnaPlay = true;
                 }
-                shouldPauseOrResume = false;
+            } else if (isPlaySong && !isPaused) {
+                if (SoundHandler.currentSource == null) return;
+                /* If the sound has started to player, first press button turn into pause. */
+                SoundHandler.currentSource.pause();
+                isPaused = true;
+                isPlaySong = false;
+            } else if (!isPlaySong) {
+                /* The second time when player press the button it turns into resume the sound. */
+                SoundHandler.currentSource.resume();
+                isPaused = false;
+                isPlaySong = true;
             }
+            toBeSolved = HandleMethodType.NULL;
         }
     }
 
@@ -142,18 +163,16 @@ public class HandleMethod {
     public static class GonnaPlay implements ISoundHandlerJudgement {
         @Override
         public void estimate(ClientPlayerEntity clientPlayer, AudioPlayerContext context) {
-            if (gonnaPlay) {
-                ClientWorld clientWorld = Minecraft.getInstance().world;
-                if (clientWorld == null) return;
-                if (clientWorld.getGameTime() - firstRecord > SoundEventRegistryHandler.katanaZeroInit.getDuration() - 10) {
-                    /* The sound haven't started yet, start from the one displaying in to tooltip of mp3. */
-                    SoundHandler.playTickableSound(context, SoundHandler::playCurrent, false);
-                    SoundHandler.audioToastDraw();
-                    isPaused = false;
-                    isPlaySong = true;
-                    gonnaPlay = false;
-                    toBeSolved = HandleMethodType.NULL;
-                }
+            ClientWorld clientWorld = Minecraft.getInstance().world;
+            if (clientWorld == null) return;
+            if (clientWorld.getGameTime() - firstRecord > SoundEventRegistryHandler.katanaZeroInit.getDuration() - 10) {
+                SoundHandler.preventAutoSwitch();
+                /* The sound haven't started yet, start from the one displaying in to tooltip of mp3. */
+                SoundHandler.playTickableSound(context, HandleMethod::current, false);
+                SoundHandler.audioToastDraw();
+                isPaused = false;
+                isPlaySong = true;
+                gonnaPlay = false;
             }
         }
     }
@@ -161,8 +180,12 @@ public class HandleMethod {
     public static class AutoSwitch implements ISoundHandlerJudgement {
         @Override
         public void estimate(ClientPlayerEntity clientPlayer, AudioPlayerContext context) {
-            //TODO
+            ClientEventHandler.trySwitchToNext();
         }
+    }
+
+    public static void playInitMusic(AudioPlayerContext context) {
+        SoundHandler.playTickableSound(context , () -> SoundEventRegistryHandler.katanaZeroInit , true);
     }
 
     /**

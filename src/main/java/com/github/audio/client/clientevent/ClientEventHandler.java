@@ -41,7 +41,6 @@ public class ClientEventHandler {
         if (SoundHandler.soundSourcePath.contains(event.getName())) {
             SoundHandler.currentSource = event.getSource();
             SoundHandler.currentSourceHasChanged = true;
-//            HandleMethod.hasAutoSwitch = false;
         }
     }
 
@@ -130,23 +129,15 @@ public class ClientEventHandler {
     }
 
     public static void trySwitchToLast() {
-        HandleMethod.shouldSwitchToLast = true;
         HandleMethod.toBeSolved = HandleMethodType.SWITCH_TO_LAST;
     }
 
     public static void trySwitchToNext() {
-        HandleMethod.shouldSwitchToNext = true;
         HandleMethod.toBeSolved = HandleMethodType.SWITCH_TO_NEXT;
     }
 
     public static void tryPauseOrResume() {
-        HandleMethod.shouldPauseOrResume = true;
         HandleMethod.toBeSolved = HandleMethodType.PAUSE_OR_RESUME;
-    }
-
-    public static void playInitMusic(ClientPlayerEntity clientPlayer) {
-//        SoundHandler.playSound(SoundEventRegistryHandler.SoundChannel.KATANA_ZERO_INIT ,
-//                clientPlayer.getUniqueID() , clientPlayer.getEntityId());
     }
 }
 

@@ -45,9 +45,15 @@ public class SoundHandler {
     private static Utils.RollingFontBar rfb = new Utils.RollingFontBar("");
     protected static boolean currentSourceHasChanged = false;
 
-    private static final int SOUND_STOP_CHECK_INTERVAL = 10;
     private static final Map<UUID, ISound> PLAYER_UUID_LIST = new ConcurrentHashMap<>();
+
     private static long lastPlaybackChecked = 0;
+    private static final int SOUND_STOP_CHECK_INTERVAL = 10;
+    private static boolean preventAutoSwitch = false;
+
+    private static long lastPreventAutoSwitchChecked = 0;
+    private static long lastAutoSwitchChecked = 0;
+    private static final int SOUND_AUTO_SWITCH_CHECK_INTERVAL = 30;
 
     private SoundHandler() {
     }
@@ -80,27 +86,24 @@ public class SoundHandler {
             hasInitRFB = true;
         }
 
-        if (HandleMethod.gonnaPlay) {
-            HandleMethodFactory.SOUND_HANDLER_JUDGEMENT_MAP.get(HandleMethodType.GONNA_PLAY).estimate(clientPlayer, context);
-        }
-
         timeTicker++;
         if (timeTicker >= 50) {
             currentSongNameRollingBar = rfb.nextRollingFormat();
             timeTicker = 0;
         }
 
-        //TODO
-        if (currentSource != null && currentSource.isStopped() && HandleMethod.isPlaySong
-                && !HandleMethod.gonnaPlay && !HandleMethod.hasAutoSwitch) {
-            HandleMethod.toBeSolved = HandleMethodType.AUTO_SWITCH_NEXT;
-
+        if (HandleMethod.gonnaPlay) {
+            HandleMethodFactory.SOUND_HANDLER_JUDGEMENT_MAP.get(HandleMethodType.GONNA_PLAY).estimate(clientPlayer, context);
         }
     }
 
-    static void audioToastDraw() {
+    protected static void audioToastDraw() {
         new AudioToastMessage().show("Now Playing:", getCurrentAudioSound().getDisplayName().length() > 20 ?
                 getCurrentAudioSound().getDisplayName().substring(0, 20) + "..." : getCurrentAudioSound().getDisplayName());
+    }
+
+    protected static void preventAutoSwitch() {
+        preventAutoSwitch = true;
     }
 
     @SubscribeEvent
@@ -114,6 +117,20 @@ public class SoundHandler {
             HandleMethodFactory.SOUND_HANDLER_JUDGEMENT_MAP.get(HandleMethod.toBeSolved).estimate(clientPlayer, context);
         }
 
+        boolean flag1 = currentSource != null && currentSource.isStopped() && HandleMethod.isPlaySong && !HandleMethod.gonnaPlay;
+        boolean flag2 = Minecraft.getInstance().world.getGameTime() > lastAutoSwitchChecked + SOUND_AUTO_SWITCH_CHECK_INTERVAL;
+        boolean flag3 = Minecraft.getInstance().world.getGameTime() > lastPreventAutoSwitchChecked + SOUND_AUTO_SWITCH_CHECK_INTERVAL;
+        boolean flag4 = getHandler() == HandleMethodType.NULL && !HandleMethod.gonnaPlay;
+
+        if (flag3) {
+            preventAutoSwitch = false;
+            lastPreventAutoSwitchChecked = Minecraft.getInstance().world.getGameTime();
+        }
+
+        if (flag1 && flag2 && flag4 && !preventAutoSwitch) {
+            lastAutoSwitchChecked = Minecraft.getInstance().world.getGameTime();
+            HandleMethodFactory.SOUND_HANDLER_JUDGEMENT_MAP.get(HandleMethodType.AUTO_SWITCH_NEXT).estimate(clientPlayer , context);
+        }
     }
 
     @SubscribeEvent
@@ -123,7 +140,6 @@ public class SoundHandler {
             lastPlaybackChecked = event.world.getGameTime();
             PLAYER_UUID_LIST.entrySet().removeIf(entry -> {
                 if (!Minecraft.getInstance().getSoundHandler().isPlaying(entry.getValue())) {
-//                    PacketHandler.sendToServer(new SoundStopNotificationMessage(entry.getKey()));
                     return true;
                 }
                 return false;
@@ -132,7 +148,7 @@ public class SoundHandler {
     }
 
     /*---------------- Sound Play&Stop Operation --------------------------*/
-    public static void playSound(UUID playerUUID, ISound sound) {
+    public static void playsound(UUID playerUUID, ISound sound) {
         if (PLAYER_UUID_LIST.containsKey(playerUUID)) {
             Minecraft.getInstance().getSoundHandler().stop(PLAYER_UUID_LIST.remove(playerUUID));
         }
@@ -151,11 +167,11 @@ public class SoundHandler {
 
     //ISound
     public static void playSimpleSound(SoundEvent soundEvent, UUID backpackUuid, BlockPos pos) {
-        playSound(backpackUuid, SimpleSound.ambientWithAttenuation(soundEvent, pos.getX(), pos.getY(), pos.getZ()));
+        playsound(backpackUuid, SimpleSound.ambientWithAttenuation(soundEvent, pos.getX(), pos.getY(), pos.getZ()));
     }
 
     public static void playSimpleSound(AudioSound audioSound, UUID playerUUID, BlockPos pos) {
-        playSound(playerUUID, SimpleSound.ambientWithAttenuation(
+        playsound(playerUUID, SimpleSound.ambientWithAttenuation(
                 audioSound.getSoundEvent(), pos.getX(), pos.getY(), pos.getZ()));
     }
 
@@ -169,7 +185,7 @@ public class SoundHandler {
         if (!(entity instanceof LivingEntity)) {
             return;
         }
-        playSound(playerUUID, new EntityTickableSound(soundEvent, SoundCategory.RECORDS, 2, 1, entity));
+        playsound(playerUUID, new EntityTickableSound(soundEvent, SoundCategory.RECORDS, 2, 1, entity));
     }
 
     public static void playTickableSound(AudioSound audioSound, UUID playerUUID, int entityId) {
@@ -192,7 +208,7 @@ public class SoundHandler {
 
         SoundEvent sound = (Objects.requireNonNull(sup.get()).getSoundEvent());
         if (renderLast) {
-            playSound(context.clientPlayerUUID, new EntityTickableSound(
+            playsound(context.clientPlayerUUID, new EntityTickableSound(
                     sound, SoundCategory.RECORDS, 2, 1, entity));
         } else {
             playSoundWithoutOverRender(context.clientPlayerUUID, new EntityTickableSound(
@@ -207,38 +223,8 @@ public class SoundHandler {
     public static void stopSound(UUID playerUUID) {
         if (PLAYER_UUID_LIST.containsKey(playerUUID)) {
             Minecraft.getInstance().getSoundHandler().stop(PLAYER_UUID_LIST.remove(playerUUID));
-
             HandleMethod.shouldPlayEndSound = true;
-            //Server Thread
-//            PacketHandler.sendToServer(new SoundStopNotificationMessage(playerUUID));
         }
-    }
-
-    /**
-     * ----------------- Sound Switch Operation ---------------------------
-     */
-    protected static AudioSound switchToNext() {
-        HandleMethod.soundIndex++;
-        if (isChannelEmpty()) return null;
-        if (HandleMethod.soundIndex > getChannelSize() - 1) HandleMethod.soundIndex = 0;
-        return getChannelSoundList().get(HandleMethod.soundIndex);
-    }
-
-    protected static AudioSound switchToLast() {
-        HandleMethod.soundIndex--;
-        if (isChannelEmpty()) return null;
-        if (HandleMethod.soundIndex < 0) HandleMethod.soundIndex = getChannelSize() - 1;
-        return getChannelSoundList().get(HandleMethod.soundIndex);
-    }
-
-    protected static AudioSound resetCurrent() {
-        if (isChannelEmpty()) return null;
-        return getChannelSoundList().get(HandleMethod.soundIndex);
-    }
-
-    protected static AudioSound playCurrent() {
-        if (isChannelEmpty()) return null;
-        return getChannelSoundList().get(HandleMethod.soundIndex);
     }
 
     /*------------------------- GETTER -------------------------------------*/
@@ -246,16 +232,12 @@ public class SoundHandler {
         return CURRENT_SOUND_CHANNEL.getChannelSoundList().size();
     }
 
-    private static boolean isChannelEmpty() {
+    protected static boolean isChannelEmpty() {
         return CURRENT_SOUND_CHANNEL.getChannelSoundList().isEmpty();
     }
 
-    private static ArrayList<AudioSound> getChannelSoundList() {
+    protected static ArrayList<AudioSound> getChannelSoundList() {
         return CURRENT_SOUND_CHANNEL.getChannelSoundList();
-    }
-
-    private static int getSoundIndex() {
-        return HandleMethod.soundIndex;
     }
 
     @SuppressWarnings({"unused", "java:S1172"})
@@ -263,6 +245,10 @@ public class SoundHandler {
     public static void onWorldUnload(WorldEvent.Unload evt) {
         PLAYER_UUID_LIST.clear();
         lastPlaybackChecked = 0;
+    }
+
+    protected static Enum<HandleMethodType> getHandler() {
+        return HandleMethod.toBeSolved;
     }
 
     /* To judge when exactly the custom sound source has changed */
@@ -286,6 +272,7 @@ public class SoundHandler {
         soundSourcePath.add("silhouette");
         soundSourcePath.add("sneaky_driver");
         soundSourcePath.add("snow");
+        soundSourcePath.add("worst_neighbor_ever");
         soundSourcePath.add("third_district");
         soundSourcePath.add("you_will_never_know");
         soundSourcePath.add("start_up");

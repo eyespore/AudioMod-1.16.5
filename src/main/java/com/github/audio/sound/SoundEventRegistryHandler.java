@@ -77,7 +77,7 @@ public class SoundEventRegistryHandler {
     public static final RegistryObject<SoundEvent> SILHOUETTE = registryIntoSoundChannel("silhouette", SoundChannel.KATANA_ZERO_CHANNEL, 4320);
     public static final RegistryObject<SoundEvent> CHEMICAL_BREW = registryIntoSoundChannel("chemical_brew", SoundChannel.KATANA_ZERO_CHANNEL, 6629);
     public static final RegistryObject<SoundEvent> YOU_WILL_NEVER_KNOW = registryIntoSoundChannel("you_will_never_know", SoundChannel.KATANA_ZERO_CHANNEL, 3916);
-    public static final RegistryObject<SoundEvent> WORST_NEIGHBOR_EVER = registryIntoSoundChannel("worst_neighbor_ever", SoundChannel.KATANA_ZERO_CHANNEL, 1481);
+//    public static final RegistryObject<SoundEvent> WORST_NEIGHBOR_EVER = registryIntoSoundChannel("worst_neighbor_ever", SoundChannel.KATANA_ZERO_CHANNEL, 1481);
     public static final RegistryObject<SoundEvent> BLUE_ROOM = registryIntoSoundChannel("blue_room", SoundChannel.KATANA_ZERO_CHANNEL, 3495);
     public static final RegistryObject<SoundEvent> FULL_CONFESSION = registryIntoSoundChannel("full_confession", SoundChannel.KATANA_ZERO_CHANNEL, 4912);
     public static final RegistryObject<SoundEvent> SNOW = registryIntoSoundChannel("snow", SoundChannel.KATANA_ZERO_CHANNEL, 2806);

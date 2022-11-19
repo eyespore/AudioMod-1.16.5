@@ -117,6 +117,10 @@ public class Mp3 extends Item {
     private static ITextComponent getAfter() {
         return null;
     }
+
+    private static enum mode {
+        DEFAULT, SINGLE, RANDOM;
+    }
 }
 
 

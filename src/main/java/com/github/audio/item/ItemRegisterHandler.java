@@ -23,10 +23,10 @@ public class ItemRegisterHandler {
                     SoundEventRegistryHandler.RAIN_ON_BRICKS::get,
                     new Item.Properties().maxStackSize(1).group(ModCreativeTab.TAB_AUDIO)));
 
-    public static final RegistryObject<Item> WORST_NEIGHBORS_EVER_MUSIC_DISC = ITEM_REGISTER.register(
-            "worst_neighbor_ever_music_disc" , () -> new MusicDiscItem(1 ,
-                    SoundEventRegistryHandler.WORST_NEIGHBOR_EVER::get,
-                    new Item.Properties().maxStackSize(1).group(ModCreativeTab.TAB_AUDIO)));
+//    public static final RegistryObject<Item> WORST_NEIGHBORS_EVER_MUSIC_DISC = ITEM_REGISTER.register(
+//            "worst_neighbor_ever_music_disc" , () -> new MusicDiscItem(1 ,
+//                    SoundEventRegistryHandler.WORST_NEIGHBOR_EVER::get,
+//                    new Item.Properties().maxStackSize(1).group(ModCreativeTab.TAB_AUDIO)));
 
     public static final RegistryObject<Item> BLUE_ROOM_MUSIC_DISC = ITEM_REGISTER.register(
             "blue_room_music_disc" , () -> new MusicDiscItem(1 ,
