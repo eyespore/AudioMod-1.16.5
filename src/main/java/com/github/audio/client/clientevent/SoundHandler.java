@@ -2,6 +2,7 @@ package com.github.audio.client.clientevent;
 
 import com.github.audio.Utils;
 import com.github.audio.client.gui.AudioToastMessage;
+import com.github.audio.item.mp3.Mp3;
 import com.github.audio.sound.AudioSound;
 import com.github.audio.sound.SoundEventRegistryHandler;
 import net.minecraft.client.Minecraft;
@@ -37,29 +38,31 @@ public class SoundHandler {
     static final ArrayList<String> soundSourcePath = new ArrayList<String>();
 
     public static SoundSource currentSource;
+    public static AudioSound currentAudioSound;
     public static String currentSongNameRollingBar;
 
     /* For font time ticker */
     private static int timeTicker = 0;
     protected static boolean hasInitRFB = false;
-    private static Utils.RollingFontBar rfb = new Utils.RollingFontBar("");
+    private static Utils.RollFontHelper rfb = new Utils.RollFontHelper("");
     protected static boolean currentSourceHasChanged = false;
 
     private static final Map<UUID, ISound> PLAYER_UUID_LIST = new ConcurrentHashMap<>();
 
     private static long lastPlaybackChecked = 0;
     private static final int SOUND_STOP_CHECK_INTERVAL = 10;
-    private static boolean preventAutoSwitch = false;
+    protected static boolean preventAutoSwitch = false;
 
     private static long lastPreventAutoSwitchChecked = 0;
     private static long lastAutoSwitchChecked = 0;
-    private static final int SOUND_AUTO_SWITCH_CHECK_INTERVAL = 30;
+    private static final int SOUND_AUTO_SWITCH_CHECK_INTERVAL = 60;
 
     private SoundHandler() {
     }
 
     public static AudioSound getCurrentAudioSound() {
-        return CURRENT_SOUND_CHANNEL.getChannelSoundList().get(HandleMethod.soundIndex);
+//        return CURRENT_SOUND_CHANNEL.getChannelSoundList().get(HandleMethod.soundIndex);
+        return currentAudioSound;
     }
 
     public static void flushCurrentRollingBar() {
@@ -93,7 +96,8 @@ public class SoundHandler {
         }
 
         if (HandleMethod.gonnaPlay) {
-            HandleMethodFactory.SOUND_HANDLER_JUDGEMENT_MAP.get(HandleMethodType.GONNA_PLAY).estimate(clientPlayer, context);
+            preventAutoSwitch();
+            HandleMethodFactory.DEFAULT_SOUND_HANDLER_MAP.get(HandleMethodFactory.HandleMethodType.GONNA_PLAY).estimate(clientPlayer, context);
         }
     }
 
@@ -103,6 +107,9 @@ public class SoundHandler {
     }
 
     protected static void preventAutoSwitch() {
+        if (Minecraft.getInstance().world != null) {
+            lastPreventAutoSwitchChecked = Minecraft.getInstance().world.getGameTime();
+        }
         preventAutoSwitch = true;
     }
 
@@ -113,14 +120,15 @@ public class SoundHandler {
         HandleMethod.AudioPlayerContext context = new HandleMethod.AudioPlayerContext(CURRENT_SOUND_CHANNEL,
                 clientPlayer.getUniqueID(), clientPlayer.getEntityId());
 
-        if (HandleMethod.toBeSolved != HandleMethodType.NULL && HandleMethod.toBeSolved != HandleMethodType.GONNA_PLAY) {
-            HandleMethodFactory.SOUND_HANDLER_JUDGEMENT_MAP.get(HandleMethod.toBeSolved).estimate(clientPlayer, context);
+        if (HandleMethod.toBeSolved != HandleMethodFactory.HandleMethodType.NULL && HandleMethod.toBeSolved != HandleMethodFactory.HandleMethodType.GONNA_PLAY) {
+            preventAutoSwitch();
+            HandleMethodFactory.DEFAULT_SOUND_HANDLER_MAP.get(HandleMethod.toBeSolved).estimate(clientPlayer, context);
         }
 
         boolean flag1 = currentSource != null && currentSource.isStopped() && HandleMethod.isPlaySong && !HandleMethod.gonnaPlay;
         boolean flag2 = Minecraft.getInstance().world.getGameTime() > lastAutoSwitchChecked + SOUND_AUTO_SWITCH_CHECK_INTERVAL;
         boolean flag3 = Minecraft.getInstance().world.getGameTime() > lastPreventAutoSwitchChecked + SOUND_AUTO_SWITCH_CHECK_INTERVAL;
-        boolean flag4 = getHandler() == HandleMethodType.NULL && !HandleMethod.gonnaPlay;
+        boolean flag4 = getHandler() == HandleMethodFactory.HandleMethodType.NULL && !HandleMethod.gonnaPlay && Mp3.getCurrentMode() != Mp3.RelayMode.SINGLE;
 
         if (flag3) {
             preventAutoSwitch = false;
@@ -129,7 +137,7 @@ public class SoundHandler {
 
         if (flag1 && flag2 && flag4 && !preventAutoSwitch) {
             lastAutoSwitchChecked = Minecraft.getInstance().world.getGameTime();
-            HandleMethodFactory.SOUND_HANDLER_JUDGEMENT_MAP.get(HandleMethodType.AUTO_SWITCH_NEXT).estimate(clientPlayer , context);
+            HandleMethodFactory.DEFAULT_SOUND_HANDLER_MAP.get(HandleMethodFactory.HandleMethodType.AUTO_SWITCH_NEXT).estimate(clientPlayer, context);
         }
     }
 
@@ -148,7 +156,7 @@ public class SoundHandler {
     }
 
     /*---------------- Sound Play&Stop Operation --------------------------*/
-    public static void playsound(UUID playerUUID, ISound sound) {
+    public static void playSound(UUID playerUUID, ISound sound) {
         if (PLAYER_UUID_LIST.containsKey(playerUUID)) {
             Minecraft.getInstance().getSoundHandler().stop(PLAYER_UUID_LIST.remove(playerUUID));
         }
@@ -167,11 +175,11 @@ public class SoundHandler {
 
     //ISound
     public static void playSimpleSound(SoundEvent soundEvent, UUID backpackUuid, BlockPos pos) {
-        playsound(backpackUuid, SimpleSound.ambientWithAttenuation(soundEvent, pos.getX(), pos.getY(), pos.getZ()));
+        playSound(backpackUuid, SimpleSound.ambientWithAttenuation(soundEvent, pos.getX(), pos.getY(), pos.getZ()));
     }
 
     public static void playSimpleSound(AudioSound audioSound, UUID playerUUID, BlockPos pos) {
-        playsound(playerUUID, SimpleSound.ambientWithAttenuation(
+        playSound(playerUUID, SimpleSound.ambientWithAttenuation(
                 audioSound.getSoundEvent(), pos.getX(), pos.getY(), pos.getZ()));
     }
 
@@ -185,7 +193,7 @@ public class SoundHandler {
         if (!(entity instanceof LivingEntity)) {
             return;
         }
-        playsound(playerUUID, new EntityTickableSound(soundEvent, SoundCategory.RECORDS, 2, 1, entity));
+        playSound(playerUUID, new EntityTickableSound(soundEvent, SoundCategory.RECORDS, 2, 1, entity));
     }
 
     public static void playTickableSound(AudioSound audioSound, UUID playerUUID, int entityId) {
@@ -208,7 +216,7 @@ public class SoundHandler {
 
         SoundEvent sound = (Objects.requireNonNull(sup.get()).getSoundEvent());
         if (renderLast) {
-            playsound(context.clientPlayerUUID, new EntityTickableSound(
+            playSound(context.clientPlayerUUID, new EntityTickableSound(
                     sound, SoundCategory.RECORDS, 2, 1, entity));
         } else {
             playSoundWithoutOverRender(context.clientPlayerUUID, new EntityTickableSound(
@@ -223,7 +231,6 @@ public class SoundHandler {
     public static void stopSound(UUID playerUUID) {
         if (PLAYER_UUID_LIST.containsKey(playerUUID)) {
             Minecraft.getInstance().getSoundHandler().stop(PLAYER_UUID_LIST.remove(playerUUID));
-            HandleMethod.shouldPlayEndSound = true;
         }
     }
 
@@ -247,34 +254,22 @@ public class SoundHandler {
         lastPlaybackChecked = 0;
     }
 
-    protected static Enum<HandleMethodType> getHandler() {
+    protected static Enum<HandleMethodFactory.HandleMethodType> getHandler() {
         return HandleMethod.toBeSolved;
     }
 
     /* To judge when exactly the custom sound source has changed */
-    public static void initSoundSourcePath() {
-        soundSourcePath.add("a_fine_red_mist");
-        soundSourcePath.add("blue_room");
-        soundSourcePath.add("breath_of_a_serpent");
-        soundSourcePath.add("chemical_brew");
-        soundSourcePath.add("china_town");
-        soundSourcePath.add("come_and_see");
-        soundSourcePath.add("driving_force");
-        soundSourcePath.add("end_of_the_road");
-        soundSourcePath.add("full_confession");
-        soundSourcePath.add("hit_the_floor");
-        soundSourcePath.add("katana_zero");
-        soundSourcePath.add("meat_grinder");
-        soundSourcePath.add("nocturne");
-        soundSourcePath.add("overdose");
-        soundSourcePath.add("prison_2");
-        soundSourcePath.add("rain_on_bricks");
-        soundSourcePath.add("silhouette");
-        soundSourcePath.add("sneaky_driver");
-        soundSourcePath.add("snow");
-        soundSourcePath.add("worst_neighbor_ever");
-        soundSourcePath.add("third_district");
-        soundSourcePath.add("you_will_never_know");
-        soundSourcePath.add("start_up");
+    public static void initSoundList() {
+        Utils.CollectionHelper.add(soundSourcePath, "a_fine_red_mist", "blue_room", "breath_of_a_serpent", "chemical_brew", "china_town",
+                "come_and_see", "driving_force", "end_of_the_road", "full_confession", "hit_the_floor", "katana_zero",
+                "meat_grinder", "nocturne", "overdose", "prison_2", "rain_on_bricks", "silhouette", "sneaky_driver",
+                "snow", "worst_neighbor_ever", "third_district", "you_will_never_know", "start_up");
+        Utils.CollectionHelper.add(Mp3.MODE_LIST, Mp3.RelayMode.DEFAULT, Mp3.RelayMode.SINGLE, Mp3.RelayMode.RANDOM);
+
+        for (int i = 0; i < SoundHandler.getChannelSize(); i++) {
+            HandleMethod.RANDOM_MODE_SOUND_INDEX_LIST.add(i, i);
+        }
+
+        currentAudioSound = CURRENT_SOUND_CHANNEL.getChannelSoundList().get(0);
     }
 }

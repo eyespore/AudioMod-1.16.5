@@ -46,9 +46,9 @@
   "item.audio.audio.nowPlaySong": "§9§lNow playing >>> : §r§9§l|§r %s §9§l|§r",
   "item.audio.audio.isPauseNow" : "§d§lPausing Now ||| : §r§d§l|§r %s §9§l|§r",
 
-  "displayName.audio.audio.playingNow": "§e§lMP3§r §9§l[Playing Now]§r",
-  "displayName.audio.audio.pausingNow": "§e§lMP3§r §d§l[Pausing Now]§r",
-  "displayName.audio.audio.waitToPlay": "§e§lMP3§r",
+  "displayName.audio.audio.playingNow": "§e§lMP3§r §9§l[Playing Now]§r §1§l[§r%s§1§l]§r",
+  "displayName.audio.audio.pausingNow": "§e§lMP3§r §d§l[Pausing Now]§r §1§l[§r%s§1§l]§r",
+  "displayName.audio.audio.waitToPlay": "§e§lMP3§r §1§l[§r%s§1§l]§r",
 
   "Message": "",
   "message.audio.soundSettingKeyPress": "sound setting key has been pressed!",

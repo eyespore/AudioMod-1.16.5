@@ -2,6 +2,8 @@ package com.github.audio;
 
 import net.minecraft.util.text.*;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.function.Supplier;
 
 public class Utils {
@@ -36,26 +38,26 @@ public class Utils {
     }
 
     /* Rolling Format */
-    public static Supplier<RollingFontBar> getRollingBar(String rollingFontBar) {
-        return () -> new RollingFontBar(rollingFontBar);
+    public static Supplier<RollFontHelper> getRollingBar(String rollingFontBar) {
+        return () -> new RollFontHelper(rollingFontBar);
     }
 
-    public static Supplier<RollingFontBar> getRollingBar(String rollingFontBar , int disPlayLength) {
-        return () -> new RollingFontBar(rollingFontBar , disPlayLength);
+    public static Supplier<RollFontHelper> getRollingBar(String rollingFontBar , int disPlayLength) {
+        return () -> new RollFontHelper(rollingFontBar , disPlayLength);
     }
 
-    public static class RollingFontBar {
+    public static class RollFontHelper {
         private final int displayLength;
         private String rollingFont;
 
         /* Constructor */
-        public RollingFontBar(String rollingFont , int displayLength) {
+        public RollFontHelper(String rollingFont , int displayLength) {
             this.rollingFont = rollingFont.length() <= displayLength ? rollingFont : rollingFont + "  ";
             this.displayLength = displayLength;
         }
 
         /* Constructor */
-        public RollingFontBar(String rollingFont) {
+        public RollFontHelper(String rollingFont) {
             displayLength = 15;
             this.rollingFont = rollingFont.length() <= displayLength ? rollingFont : rollingFont + "  ";
         }
@@ -67,6 +69,14 @@ public class Utils {
             String toReturn = rollingFont.substring(0, displayLength);
             rollingFont = rollingFont.substring(1) + rollingFont.split("")[0];
             return toReturn;
+        }
+    }
+
+    public static class CollectionHelper {
+
+        @SafeVarargs
+        public static <T> void add(List<T> list, T... t) {
+            list.addAll(Arrays.asList(t));
         }
     }
 }

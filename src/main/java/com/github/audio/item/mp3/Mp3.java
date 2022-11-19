@@ -1,5 +1,6 @@
-package com.github.audio.item;
+package com.github.audio.item.mp3;
 
+import com.github.audio.Utils;
 import com.github.audio.client.clientevent.ClientEventHandler;
 import com.github.audio.client.clientevent.HandleMethod;
 import com.github.audio.client.clientevent.SoundHandler;
@@ -19,9 +20,18 @@ import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.World;
 
 import javax.annotation.Nullable;
+import java.util.ArrayList;
 import java.util.List;
 
+@SuppressWarnings("ALL")
 public class Mp3 extends Item {
+
+    public static Enum<RelayMode> currentMode = RelayMode.DEFAULT;
+    public static final ArrayList<RelayMode> MODE_LIST = new ArrayList<RelayMode>();
+
+    public static Enum<RelayMode> getCurrentMode() {
+        return currentMode;
+    }
 
     public Mp3(Properties properties) {
         super(properties);
@@ -36,6 +46,9 @@ public class Mp3 extends Item {
             if (clientPlayer != null) {
                 if (Screen.hasShiftDown()) {
                     stopMp3(clientPlayer);
+                } else {
+                    currentMode = Mp3.MODE_LIST.get(Mp3.MODE_LIST.indexOf(currentMode) + 1 > Mp3.MODE_LIST.size() - 1 ?
+                            0 : Mp3.MODE_LIST.indexOf(currentMode) + 1);
                 }
             }
         }
@@ -45,11 +58,9 @@ public class Mp3 extends Item {
     public void stopMp3(ClientPlayerEntity clientPlayer) {
         SoundHandler.stopSound(clientPlayer.getUniqueID());
         HandleMethod.resetAllParameter();
-        if (HandleMethod.shouldPlayEndSound) {
-            playMp3EndSound(clientPlayer);
-            HandleMethod.shouldPlayEndSound = false;
-        }
+        playMp3EndSound(clientPlayer);
     }
+
 
     public static void playMp3EndSound(ClientPlayerEntity clientPlayer) {
         SoundHandler.playTickableSound(new HandleMethod.AudioPlayerContext(SoundHandler.CURRENT_SOUND_CHANNEL,
@@ -79,15 +90,15 @@ public class Mp3 extends Item {
                 getCurrentSoundITextComponent("item.audio.audio.waitToPlay"));
     }
 
-    @Override
-    public ITextComponent getDisplayName(ItemStack p_200295_1_) {
-        return getAudioDisplayName();
+    private String getModeName() {
+        return (currentMode.name().substring(0, 1) + currentMode.name().substring(1, currentMode.name().length()).toLowerCase());
     }
 
-    private static ITextComponent getAudioDisplayName() {
-        return HandleMethod.isPlaySong ? new TranslationTextComponent("displayName.audio.audio.playingNow")
-                : HandleMethod.isPaused ? new TranslationTextComponent("displayName.audio.audio.pausingNow")
-                : new TranslationTextComponent("displayName.audio.audio.waitToPlay");
+    @Override
+    public ITextComponent getDisplayName(ItemStack p_200295_1_) {
+        return HandleMethod.isPlaySong ? new TranslationTextComponent("displayName.audio.audio.playingNow", getModeName())
+                : HandleMethod.isPaused ? new TranslationTextComponent("displayName.audio.audio.pausingNow", getModeName())
+                : new TranslationTextComponent("displayName.audio.audio.waitToPlay", getModeName());
     }
 
     @SuppressWarnings("NullableProblems")
@@ -118,7 +129,7 @@ public class Mp3 extends Item {
         return null;
     }
 
-    private static enum mode {
+    public static enum RelayMode {
         DEFAULT, SINGLE, RANDOM;
     }
 }

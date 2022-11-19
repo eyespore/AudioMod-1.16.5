@@ -4,7 +4,7 @@ import com.github.audio.api.AudioAnnotation;
 import com.github.audio.api.IAudioSoundPackBranch;
 import com.github.audio.client.clientevent.HandleMethod;
 import com.github.audio.client.clientevent.SoundHandler;
-import com.github.audio.item.Mp3;
+import com.github.audio.item.mp3.Mp3;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
 

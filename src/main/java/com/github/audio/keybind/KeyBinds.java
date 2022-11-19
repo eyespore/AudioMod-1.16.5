@@ -7,22 +7,22 @@ import org.lwjgl.glfw.GLFW;
 
 public class KeyBinds {
 
-    public static KeyBinding soundSetting;
-    public static KeyBinding nextDisc;
-    public static KeyBinding lastDisc;
-    public static KeyBinding pauseAndResume;
+    public static KeyBinding settingMenu;
+    public static KeyBinding relayNext;
+    public static KeyBinding relayLast;
+    public static KeyBinding pauseOrResume;
 
     public static void register(){
-        soundSetting = new KeyBinding(new TranslationTextComponent("key.audio.soundsetting").getString() ,
+        settingMenu = new KeyBinding(new TranslationTextComponent("key.audio.soundsetting").getString() ,
                 GLFW.GLFW_KEY_B , "key_categories.audio");
-        nextDisc = new KeyBinding(new TranslationTextComponent("key.audio.nextDisc").getString() ,
+        relayNext = new KeyBinding(new TranslationTextComponent("key.audio.nextDisc").getString() ,
                 GLFW.GLFW_KEY_RIGHT_BRACKET , "key_categories.audio");
-        lastDisc = new KeyBinding(new TranslationTextComponent("key.audio.lastDisc").getString() ,
+        relayLast = new KeyBinding(new TranslationTextComponent("key.audio.lastDisc").getString() ,
                 GLFW.GLFW_KEY_LEFT_BRACKET , "key_categories.audio");
-        pauseAndResume = new KeyBinding(new TranslationTextComponent("key.audio.pauseAndResume").getString() ,
+        pauseOrResume = new KeyBinding(new TranslationTextComponent("key.audio.pauseAndResume").getString() ,
                 GLFW.GLFW_KEY_BACKSLASH , "key_categories.audio");
 
-        register(soundSetting, nextDisc, lastDisc , pauseAndResume);
+        register(settingMenu, relayNext, relayLast, pauseOrResume);
 
         //        ClientRegistry.registerKeyBinding(soundSetting);
 //        ClientRegistry.registerKeyBinding(startDisc);

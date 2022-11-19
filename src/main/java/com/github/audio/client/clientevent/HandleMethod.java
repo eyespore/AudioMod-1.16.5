@@ -1,5 +1,6 @@
 package com.github.audio.client.clientevent;
 
+import com.github.audio.Utils;
 import com.github.audio.api.AudioAnnotation;
 import com.github.audio.api.ISoundHandlerJudgement;
 import com.github.audio.sound.AudioSound;
@@ -8,36 +9,22 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.client.world.ClientWorld;
 
-import java.util.HashMap;
-import java.util.Objects;
-import java.util.Random;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * Specific method and function about how the soundEvent from audio correctly runs, the logic of how those method
  * running is in the class {@link SoundHandler}.
  */
 public class HandleMethod {
-    public static boolean shouldPlayEndSound = false;
     public static boolean isPaused;
-
     public static boolean isPlaySong;
-
     public static boolean hasPlayInit;
     protected static boolean gonnaPlay = false;
-    /* define if the song stop because player turn it off by himself. */
-    protected static boolean isForceStop = false;
-    protected static boolean isSwitching = false;
 
-    protected static int soundIndex = 0;
-    protected static Enum<HandleMethodType> toBeSolved = HandleMethodType.NULL;
-    protected static final HashMap<String, Boolean> SOUND_PARAMETER_STATUES = new HashMap<>();
+    protected static Enum<HandleMethodFactory.HandleMethodType> toBeSolved = HandleMethodFactory.HandleMethodType.NULL;
+    protected static final ArrayList<Integer> RANDOM_MODE_SOUND_INDEX_LIST = new ArrayList<>();
     static boolean hasRecord = false;
     static long firstRecord;
-
-    static {
-//        SOUND_PARAMETER_STATUES.put("sound index", soundIndex);
-    }
 
     static void recordNow() {
         if (!hasRecord) {
@@ -50,83 +37,84 @@ public class HandleMethod {
     public static void resetAllParameter() {
         isPaused = false;
         isPlaySong = false;
-        isSwitching = false;
-        isForceStop = false;
-        toBeSolved = HandleMethodType.NULL;
-
         hasPlayInit = false;
         hasRecord = false;
         gonnaPlay = false;
 
         ClientEventHandler.isHoldingMp3 = false;
         SoundHandler.hasInitRFB = false;
+        SoundHandler.preventAutoSwitch = false;
         SoundHandler.currentSourceHasChanged = false;
+
+        toBeSolved = HandleMethodFactory.HandleMethodType.NULL;
     }
 
     /**
      * ----------------- Sound Switch Operation ---------------------------
      */
 
-    protected static AudioSound next() {
+    protected static AudioSound toNext() {
         if (SoundHandler.isChannelEmpty()) return null;
-        soundIndex = getSoundIndex() + 1 > SoundHandler.getChannelSize() - 1 ? 0 : getSoundIndex() + 1;
-        return SoundHandler.getChannelSoundList().get(soundIndex);
+        int currentIndex = SoundHandler.getChannelSoundList().indexOf(SoundHandler.currentAudioSound);
+        currentIndex = currentIndex + 1 > SoundHandler.getChannelSize() - 1 ? 0 : currentIndex + 1;
+        return SoundHandler.currentAudioSound = SoundHandler.getChannelSoundList().get(currentIndex);
     }
 
-    protected static AudioSound last() {
+    protected static AudioSound toLast() {
         if (SoundHandler.isChannelEmpty()) return null;
-        soundIndex = getSoundIndex() - 1 < 0 ? SoundHandler.getChannelSize() - 1 : getSoundIndex() - 1;
-        return SoundHandler.getChannelSoundList().get(soundIndex);
+        int currentIndex = SoundHandler.getChannelSoundList().indexOf(SoundHandler.currentAudioSound);
+        currentIndex = currentIndex - 1 < 0 ? SoundHandler.getChannelSize() - 1 : currentIndex - 1;
+        return SoundHandler.currentAudioSound = SoundHandler.getChannelSoundList().get(currentIndex);
     }
 
-    protected static AudioSound current() {
+    protected static AudioSound onCurrent() {
         if (SoundHandler.isChannelEmpty()) return null;
-        return SoundHandler.getChannelSoundList().get(soundIndex);
+        return SoundHandler.currentAudioSound;
     }
 
-    protected static AudioSound random() {
+    protected static AudioSound randomNext() {
         if (SoundHandler.isChannelEmpty()) return null;
-        return SoundHandler.getChannelSoundList().get(new Random().nextInt(soundIndex));
+//        return SoundHandler.getChannelSoundList().get(new Random().nextInt(soundIndex));
+        //TODO
+        return null;
     }
 
-    private static int getSoundIndex() {
-        return soundIndex;
-    }
-
-    public static class SwitchToNext implements ISoundHandlerJudgement {
+    public static final class ToNext implements ISoundHandlerJudgement {
         @Override
         public void estimate(ClientPlayerEntity clientPlayer, AudioPlayerContext context) {
-            SoundHandler.preventAutoSwitch();
             if (isPaused || !isPlaySong) {
-                soundIndex = soundIndex + 1 > SoundHandler.getChannelSize() - 1 ? 0 : soundIndex + 1;
-                SoundHandler.currentSourceHasChanged = true;
+                int currentIndex = SoundHandler.getChannelSoundList().indexOf(SoundHandler.currentAudioSound);
+                currentIndex = currentIndex + 1 > SoundHandler.getChannelSoundList().size() - 1 ? 0 : currentIndex + 1;
+                SoundHandler.currentAudioSound = SoundHandler.getChannelSoundList().get(currentIndex);
             } else {
                 SoundHandler.stopSound(clientPlayer.getUniqueID());
-                SoundHandler.playTickableSound(context, HandleMethod::next, true);
+                SoundHandler.playTickableSound(context, HandleMethod::toNext, true);
                 SoundHandler.audioToastDraw();
-                SoundHandler.currentSourceHasChanged = true;
                 isPlaySong = true;
             }
-            toBeSolved = HandleMethodType.NULL;
+            toBeSolved = HandleMethodFactory.HandleMethodType.NULL;
+            SoundHandler.currentSourceHasChanged = true;
             isPaused = false;
         }
     }
 
     @AudioAnnotation.ClientOnly
-    public static class SwitchToLast implements ISoundHandlerJudgement {
+    public static final class ToLast implements ISoundHandlerJudgement {
         @Override
         public void estimate(ClientPlayerEntity clientPlayer, AudioPlayerContext context) {
-            SoundHandler.preventAutoSwitch();
             if (isPaused || !isPlaySong) {
-                soundIndex = soundIndex - 1 < 0 ? SoundHandler.CURRENT_SOUND_CHANNEL.getChannelSoundList().size() - 1 : soundIndex - 1;
+                int currentIndex = SoundHandler.getChannelSoundList().indexOf(SoundHandler.currentAudioSound);
+                currentIndex = currentIndex - 1 < 0 ? SoundHandler.getChannelSize() - 1 : currentIndex - 1;
+                SoundHandler.currentAudioSound =  SoundHandler.getChannelSoundList().get(currentIndex);
+
             } else {
                 SoundHandler.stopSound(clientPlayer.getUniqueID());
-                SoundHandler.playTickableSound(context, HandleMethod::last, true);
+                SoundHandler.playTickableSound(context, HandleMethod::toLast, true);
                 isPlaySong = true;
             }
             isPaused = false;
             SoundHandler.currentSourceHasChanged = true;
-            toBeSolved = HandleMethodType.NULL;
+            toBeSolved = HandleMethodFactory.HandleMethodType.NULL;
         }
     }
 
@@ -134,11 +122,9 @@ public class HandleMethod {
     public static class PauseOrResume implements ISoundHandlerJudgement {
         @Override
         public void estimate(ClientPlayerEntity clientPlayer, AudioPlayerContext context) {
-            SoundHandler.preventAutoSwitch();
             if (!isPlaySong && !isPaused) {
                 if (!hasPlayInit) {
                     recordNow();
-//                    SoundHandler.playTickableSound(context, () -> SoundEventRegistryHandler.katanaZeroInit, true);
                     playInitMusic(context);
                     hasPlayInit = true;
                     gonnaPlay = true;
@@ -155,7 +141,7 @@ public class HandleMethod {
                 isPaused = false;
                 isPlaySong = true;
             }
-            toBeSolved = HandleMethodType.NULL;
+            toBeSolved = HandleMethodFactory.HandleMethodType.NULL;
         }
     }
 
@@ -166,9 +152,8 @@ public class HandleMethod {
             ClientWorld clientWorld = Minecraft.getInstance().world;
             if (clientWorld == null) return;
             if (clientWorld.getGameTime() - firstRecord > SoundEventRegistryHandler.katanaZeroInit.getDuration() - 10) {
-                SoundHandler.preventAutoSwitch();
                 /* The sound haven't started yet, start from the one displaying in to tooltip of mp3. */
-                SoundHandler.playTickableSound(context, HandleMethod::current, false);
+                SoundHandler.playTickableSound(context, HandleMethod::onCurrent, false);
                 SoundHandler.audioToastDraw();
                 isPaused = false;
                 isPlaySong = true;

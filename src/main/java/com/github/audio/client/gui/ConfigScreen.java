@@ -178,7 +178,7 @@ public final class ConfigScreen extends Screen {
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
         if ((keyCode == 256 && this.shouldCloseOnEsc())
-                || keyCode == KeyBinds.soundSetting.getKey().getKeyCode()
+                || keyCode == KeyBinds.settingMenu.getKey().getKeyCode()
                 || keyCode == 69) {
             this.closeScreen();
             return true;
