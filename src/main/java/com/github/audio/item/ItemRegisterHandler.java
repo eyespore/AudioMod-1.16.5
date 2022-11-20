@@ -16,7 +16,7 @@ public class ItemRegisterHandler {
     public static final DeferredRegister<Item> ITEM_REGISTER =
             DeferredRegister.create(ForgeRegistries.ITEMS, Utils.MOD_ID);
 
-    public static final RegistryObject<Item> Audio = ITEM_REGISTER.register("audio" ,
+    public static final RegistryObject<Item> Mp3 = ITEM_REGISTER.register("audio" ,
             () -> new Mp3(new Item.Properties().maxStackSize(1).group(ModCreativeTab.TAB_AUDIO)));
 
     public static final RegistryObject<Item> RAIN_ON_BRICKS_MUSIC_DISC = ITEM_REGISTER.register(

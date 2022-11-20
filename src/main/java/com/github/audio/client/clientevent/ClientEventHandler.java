@@ -11,7 +11,6 @@ import com.github.audio.networking.BackPackSoundPack;
 import com.github.audio.sound.SoundEventRegistryHandler;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
-import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.inventory.InventoryScreen;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.SoundCategory;
@@ -28,12 +27,9 @@ import net.minecraftforge.fml.common.Mod;
 
 import java.util.Objects;
 
-import static com.github.audio.item.mp3.Mp3.currentMode;
-
 @Mod.EventBusSubscriber(modid = Utils.MOD_ID, value = Dist.CLIENT)
 public class ClientEventHandler {
 
-    public static boolean isHoldingMp3 = false;
     public static boolean hasInitSoundSourcePath = false;
 
     private static long clientTickChecked = 0L;
@@ -133,7 +129,7 @@ public class ClientEventHandler {
 
             if (KeyBinds.settingMenu.isPressed()) client.displayGuiScreen(new ConfigScreen());
 
-            if (isHoldingMp3) {
+            if (Mp3.isHoldingMp3) {
                 //switch to last disc
                 if (KeyBinds.relayLast.isPressed()) trySwitchToLast();
                 //switch to next disc
@@ -145,15 +141,15 @@ public class ClientEventHandler {
     }
 
     public static void trySwitchToLast() {
-        HandleMethod.toBeSolved = HandleMethodFactory.HandleMethodType.SWITCH_TO_LAST;
+        SoundHandleMethod.toBeSolved = HandleMethodFactory.HandleMethodType.SWITCH_TO_LAST;
     }
 
     public static void trySwitchToNext() {
-        HandleMethod.toBeSolved = HandleMethodFactory.HandleMethodType.SWITCH_TO_NEXT;
+        SoundHandleMethod.toBeSolved = HandleMethodFactory.HandleMethodType.SWITCH_TO_NEXT;
     }
 
     public static void tryPauseOrResume() {
-        HandleMethod.toBeSolved = HandleMethodFactory.HandleMethodType.PAUSE_OR_RESUME;
+        SoundHandleMethod.toBeSolved = HandleMethodFactory.HandleMethodType.PAUSE_OR_RESUME;
     }
 }
 

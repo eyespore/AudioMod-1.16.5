@@ -14,6 +14,7 @@ import org.jaudiotagger.audio.exceptions.CannotReadException;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -31,14 +32,14 @@ public class SoundEventRegistryHandler {
     protected static final long DEF_DURATION = 50;
 
     /* ChannelSoundList Define*/
-    private static final ArrayList<AudioSound> KATANA_ZERO = new ArrayList<AudioSound>();
+    private static final LinkedList<AudioSound> KATANA_ZERO = new LinkedList<>();
     private static final ArrayList<AudioSound> BACKPACK_SOUND = new ArrayList<AudioSound>();
     private static final ArrayList<AudioSound> MUSIC_BOX_CLEW_TONE = new ArrayList<AudioSound>();
     private static final ArrayList<AudioSound> NORMAL_SOUND = new ArrayList<AudioSound>();
 
     public static class SoundChannel {
 
-        private final ArrayList<AudioSound> channelSoundList;
+        private final List<AudioSound> channelSoundList;
 
         /* Channel */
         public static final SoundChannel BACKPACK_CHANNEL = new SoundChannel(BACKPACK_SOUND);
@@ -46,7 +47,7 @@ public class SoundEventRegistryHandler {
         public static final SoundChannel KATANA_ZERO_CHANNEL = new SoundChannel(KATANA_ZERO);
         public static final SoundChannel NORMAL_SOUND_CHANNEL = new SoundChannel(NORMAL_SOUND);
 
-        private SoundChannel(ArrayList<AudioSound> channelSoundList) {
+        private SoundChannel(List<AudioSound> channelSoundList) {
             this.channelSoundList = channelSoundList;
         }
 
@@ -55,7 +56,7 @@ public class SoundEventRegistryHandler {
             return this.channelSoundList.get(collect.contains(registryName) ? collect.indexOf(registryName) : 0);
         }
 
-        public ArrayList<AudioSound> getChannelSoundList() {
+        public List<AudioSound> getChannelSoundList() {
             return channelSoundList;
         }
     }

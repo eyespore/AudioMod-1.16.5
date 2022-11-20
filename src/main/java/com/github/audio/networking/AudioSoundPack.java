@@ -9,18 +9,18 @@ import java.util.function.Supplier;
 
 public class AudioSoundPack {
 
-    private final AudioSoundPackBranchFactory.JudgementType judgementType;
+    private final ASPMethodFactory.ASPJudgementType ASPJudgementType;
 
     public AudioSoundPack(PacketBuffer buffer) {
-        judgementType = buffer.readEnumValue(AudioSoundPackBranchFactory.JudgementType.class);
+        ASPJudgementType = buffer.readEnumValue(ASPMethodFactory.ASPJudgementType.class);
     }
 
-    public AudioSoundPack(AudioSoundPackBranchFactory.JudgementType judgementType) {
-        this.judgementType = judgementType;
+    public AudioSoundPack(ASPMethodFactory.ASPJudgementType ASPJudgementType) {
+        this.ASPJudgementType = ASPJudgementType;
     }
 
     public void toByte(PacketBuffer buf) {
-        buf.writeEnumValue(this.judgementType);
+        buf.writeEnumValue(this.ASPJudgementType);
     }
 
     /* handle the situation according to the given judgement, judgement packet usually comes from server side. */
@@ -31,7 +31,7 @@ public class AudioSoundPack {
                 ctx.get().setPacketHandled(true);
                 return;
             }
-            AudioSoundPackBranchFactory.JUDGEMENT_MAP.get(this.judgementType).branch(clientPlayer);
+            ASPMethodFactory.BRANCH_MAP.get(this.ASPJudgementType).withBranch(clientPlayer);
         });
         ctx.get().setPacketHandled(true);
     }

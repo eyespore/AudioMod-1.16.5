@@ -1,8 +1,6 @@
 package com.github.audio.item.mp3;
 
-import com.github.audio.Utils;
-import com.github.audio.client.clientevent.ClientEventHandler;
-import com.github.audio.client.clientevent.HandleMethod;
+import com.github.audio.client.clientevent.SoundHandleMethod;
 import com.github.audio.client.clientevent.SoundHandler;
 import com.github.audio.sound.SoundEventRegistryHandler;
 import net.minecraft.client.Minecraft;
@@ -25,6 +23,9 @@ import java.util.List;
 
 @SuppressWarnings("ALL")
 public class Mp3 extends Item {
+
+    public static boolean isHoldingMp3 = false;
+    public static boolean hasMp3InInventory = false;
 
     public static Enum<RelayMode> currentMode = RelayMode.DEFAULT;
     public static final ArrayList<RelayMode> MODE_LIST = new ArrayList<RelayMode>();
@@ -55,15 +56,15 @@ public class Mp3 extends Item {
         return super.onItemRightClick(worldIn, playerIn, handIn);
     }
 
-    public void stopMp3(ClientPlayerEntity clientPlayer) {
+    public static void stopMp3(ClientPlayerEntity clientPlayer) {
         SoundHandler.stopSound(clientPlayer.getUniqueID());
-        HandleMethod.resetAllParameter();
+        SoundHandleMethod.resetAllParameter();
         playMp3EndSound(clientPlayer);
     }
 
 
     public static void playMp3EndSound(ClientPlayerEntity clientPlayer) {
-        SoundHandler.playTickableSound(new HandleMethod.AudioPlayerContext(SoundHandler.CURRENT_SOUND_CHANNEL,
+        SoundHandler.playTickableSound(new SoundHandleMethod.AudioPlayerContext(SoundHandler.CURRENT_SOUND_CHANNEL,
                         clientPlayer.getUniqueID(), clientPlayer.getEntityId()),
                 () -> SoundEventRegistryHandler.katanaZeroEnd, false);
     }
@@ -80,10 +81,10 @@ public class Mp3 extends Item {
     }
 
     private static ITextComponent getTooltip() {
-        return HandleMethod.isPlaySong ?
+        return SoundHandleMethod.isPlaySong ?
                 new TranslationTextComponent("item.audio.audio.hasSong",
                         getCurrentSoundITextComponent("item.audio.audio.nowPlaySong"))
-                : HandleMethod.isPaused ?
+                : SoundHandleMethod.isPaused ?
                 new TranslationTextComponent("item.audio.audio.hasSong",
                         getCurrentSoundITextComponent("item.audio.audio.isPauseNow"))
                 : new TranslationTextComponent("item.audio.audio.hasSong",
@@ -96,8 +97,8 @@ public class Mp3 extends Item {
 
     @Override
     public ITextComponent getDisplayName(ItemStack p_200295_1_) {
-        return HandleMethod.isPlaySong ? new TranslationTextComponent("displayName.audio.audio.playingNow", getModeName())
-                : HandleMethod.isPaused ? new TranslationTextComponent("displayName.audio.audio.pausingNow", getModeName())
+        return SoundHandleMethod.isPlaySong ? new TranslationTextComponent("displayName.audio.audio.playingNow", getModeName())
+                : SoundHandleMethod.isPaused ? new TranslationTextComponent("displayName.audio.audio.pausingNow", getModeName())
                 : new TranslationTextComponent("displayName.audio.audio.waitToPlay", getModeName());
     }
 
@@ -111,11 +112,11 @@ public class Mp3 extends Item {
                 ClientPlayerEntity clientPlayer = Minecraft.getInstance().player;
                 if (clientPlayer == null) return;
                 clientPlayer.sendStatusMessage(getTooltip(), true);
-                ClientEventHandler.isHoldingMp3 = true;
+                isHoldingMp3 = true;
             }
         } else {
             if (worldIn.isRemote) {
-                ClientEventHandler.isHoldingMp3 = false;
+                isHoldingMp3 = false;
             }
         }
     }

@@ -5,6 +5,6 @@ import net.minecraft.client.entity.player.ClientPlayerEntity;
 @FunctionalInterface
 public interface IAudioSoundPackBranch {
 
-    void branch(ClientPlayerEntity clientPlayer);
+    void withBranch(ClientPlayerEntity clientPlayer);
 
 }

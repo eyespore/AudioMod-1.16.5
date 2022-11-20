@@ -1,18 +1,22 @@
 package com.github.audio.event;
 
+import com.github.audio.Audio;
 import com.github.audio.Utils;
 import com.github.audio.item.ItemRegisterHandler;
 import com.github.audio.networking.*;
+import com.github.audio.sound.AudioSound;
 import com.github.audio.sound.SoundEventRegistryHandler;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.management.PlayerList;
+import net.minecraft.util.NonNullList;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.world.World;
 import net.minecraftforge.event.OnDatapackSyncEvent;
 
+import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.item.ItemTossEvent;
 import net.minecraftforge.event.entity.player.PlayerContainerEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
@@ -21,9 +25,16 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.network.PacketDistributor;
 import net.minecraftforge.fml.server.ServerLifecycleHooks;
 
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 
 @Mod.EventBusSubscriber(modid = Utils.MOD_ID)
 public class EventHandler {
+
+    private static final long CHECK_PLAYER_INVENTORY_DELAY = 120;
+    private static long lastPlayerInventoryChecked = 0L;
 
     /**
      * This event will be fired once player get into the server or put into command "/reload",
@@ -32,6 +43,28 @@ public class EventHandler {
     public static void onDatapackSync(OnDatapackSyncEvent event) {
         if (event.getPlayer() == null) {
 
+        }
+    }
+
+    @SubscribeEvent
+    public static void tick(TickEvent.WorldTickEvent event) {
+        if (event.world.isRemote && event.phase != TickEvent.Phase.END) return;
+        if (event.world.getGameTime() < lastPlayerInventoryChecked + CHECK_PLAYER_INVENTORY_DELAY) return;
+        lastPlayerInventoryChecked = event.world.getGameTime();
+        List<ServerPlayerEntity> players = ServerLifecycleHooks.getCurrentServer().getPlayerList().getPlayers();
+        for (ServerPlayerEntity player : players) {
+            if (player == null) return;
+            List<ItemStack> collect = player.inventory.mainInventory.stream().filter(
+                    itemStack -> itemStack.isItemEqual(new ItemStack(ItemRegisterHandler.Mp3.get())))
+                    .collect(Collectors.toList());
+
+            if (collect.isEmpty()) {
+                NetworkingHandler.AUDIO_SOUND_CHANNEL.send(PacketDistributor.PLAYER.with(() -> player),
+                        new AudioSoundPack(ASPMethodFactory.ASPJudgementType.MISS_MP3));
+            } else {
+                NetworkingHandler.AUDIO_SOUND_CHANNEL.send(PacketDistributor.PLAYER.with(() -> player),
+                        new AudioSoundPack(ASPMethodFactory.ASPJudgementType.HAS_MP3));
+            }
         }
     }
 
@@ -51,7 +84,7 @@ public class EventHandler {
 //        NetworkingHandler.AUDIO_SOUND_CHANNEL.send(
 //                PacketDistributor.PLAYER.with(
 //                        () -> (ServerPlayerEntity) event.getPlayer()) ,
-//                    new AudioSoundPack(AudioSoundPackBranchFactory.JudgementType.CLOSE_GUI));
+//                    new AudioSoundPack(ASPMethodFactory.ASPJudgementType.CLOSE_GUI));
     }
 
     /**
@@ -74,12 +107,12 @@ public class EventHandler {
     }
 
     @SubscribeEvent
-    public static void onPlayerCloneEvent(PlayerEvent.Clone event){
-        if (!event.getOriginal().getEntityWorld().isRemote){
+    public static void onPlayerCloneEvent(PlayerEvent.Clone event) {
+        if (!event.getOriginal().getEntityWorld().isRemote) {
             NetworkingHandler.AUDIO_SOUND_CHANNEL.send(
                     PacketDistributor.PLAYER.with(
                             () -> (ServerPlayerEntity) event.getPlayer()),
-                    new AudioSoundPack(AudioSoundPackBranchFactory.JudgementType.REBORN));
+                    new AudioSoundPack(ASPMethodFactory.ASPJudgementType.REBORN));
         }
     }
 
@@ -90,22 +123,22 @@ public class EventHandler {
             NetworkingHandler.AUDIO_SOUND_CHANNEL.send(
                     PacketDistributor.PLAYER.with(
                             () -> serverPlayer),
-                    new AudioSoundPack(AudioSoundPackBranchFactory.JudgementType.CHANGE_DIMENSION));
+                    new AudioSoundPack(ASPMethodFactory.ASPJudgementType.CHANGE_DIMENSION));
         }
     }
 
     @SubscribeEvent
     public static void onMp3Thrown(ItemTossEvent event) {
-        if (event.getEntityItem().getItem().isItemEqual(new ItemStack(ItemRegisterHandler.Audio.get()))) {
+        if (event.getEntityItem().getItem().isItemEqual(new ItemStack(ItemRegisterHandler.Mp3.get()))) {
             if (event.getPlayer() instanceof ServerPlayerEntity) {
                 NetworkingHandler.AUDIO_SOUND_CHANNEL.send(
                         PacketDistributor.PLAYER.with(
                                 () -> (ServerPlayerEntity) event.getPlayer()),
-                        new AudioSoundPack(AudioSoundPackBranchFactory.JudgementType.TOSS));
-            } else if (event.getPlayer() instanceof ClientPlayerEntity){
+                        new AudioSoundPack(ASPMethodFactory.ASPJudgementType.TOSS));
+            } else if (event.getPlayer() instanceof ClientPlayerEntity) {
                 //Client Thread
-                AudioSoundPackBranchFactory.JUDGEMENT_MAP.get(AudioSoundPackBranchFactory.JudgementType.TOSS)
-                        .branch((ClientPlayerEntity) event.getPlayer());
+                ASPMethodFactory.BRANCH_MAP.get(ASPMethodFactory.ASPJudgementType.TOSS)
+                        .withBranch((ClientPlayerEntity) event.getPlayer());
             }
         }
     }

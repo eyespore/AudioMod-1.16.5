@@ -5,7 +5,6 @@ import com.github.audio.item.ItemRegisterHandler;
 import net.minecraft.item.ItemModelsProperties;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 
@@ -16,7 +15,7 @@ public class PropertyRegistry {
 
 //    @SubscribeEvent
     public static void propertyOverrideRegistry(FMLClientSetupEvent event) {
-        event.enqueueWork(() -> ItemModelsProperties.registerProperty(ItemRegisterHandler.Audio.get() ,
+        event.enqueueWork(() -> ItemModelsProperties.registerProperty(ItemRegisterHandler.Mp3.get() ,
                 new ResourceLocation(Utils.MOD_ID , "time") ,
                 (itemStack , clientWorld , livingEntity) -> {
                     return Objects.requireNonNull(clientWorld).getGameTime();

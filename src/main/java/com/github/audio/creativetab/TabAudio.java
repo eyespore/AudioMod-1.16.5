@@ -12,6 +12,6 @@ public class TabAudio extends ItemGroup {
 
     @Override
     public ItemStack createIcon() {
-        return new ItemStack(ItemRegisterHandler.Audio.get());
+        return new ItemStack(ItemRegisterHandler.Mp3.get());
     }
 }

@@ -61,7 +61,6 @@ public class SoundHandler {
     }
 
     public static AudioSound getCurrentAudioSound() {
-//        return CURRENT_SOUND_CHANNEL.getChannelSoundList().get(HandleMethod.soundIndex);
         return currentAudioSound;
     }
 
@@ -81,7 +80,7 @@ public class SoundHandler {
         ClientPlayerEntity clientPlayer = Minecraft.getInstance().player;
         ClientWorld clientWorld = Minecraft.getInstance().world;
         if (clientPlayer == null || clientWorld == null) return;
-        HandleMethod.AudioPlayerContext context = new HandleMethod.AudioPlayerContext(CURRENT_SOUND_CHANNEL, clientPlayer.getUniqueID(), clientPlayer.getEntityId());
+        SoundHandleMethod.AudioPlayerContext context = new SoundHandleMethod.AudioPlayerContext(CURRENT_SOUND_CHANNEL, clientPlayer.getUniqueID(), clientPlayer.getEntityId());
 
         if (currentSourceHasChanged || !hasInitRFB) {
             flushCurrentRollingBar();
@@ -95,9 +94,13 @@ public class SoundHandler {
             timeTicker = 0;
         }
 
-        if (HandleMethod.gonnaPlay) {
+        if (SoundHandleMethod.gonnaPlay) {
             preventAutoSwitch();
-            HandleMethodFactory.DEFAULT_SOUND_HANDLER_MAP.get(HandleMethodFactory.HandleMethodType.GONNA_PLAY).estimate(clientPlayer, context);
+            HandleMethodFactory.DEFAULT_SOUND_HANDLER_MAP.get(HandleMethodFactory.HandleMethodType.GONNA_PLAY).withBranch(clientPlayer, context);
+        }
+
+        if (Mp3.currentMode == Mp3.RelayMode.RANDOM) {
+            SoundHandleMethod.shouldInitRandomList = true;
         }
     }
 
@@ -117,18 +120,18 @@ public class SoundHandler {
     public static void onClientTick(TickEvent.ClientTickEvent event) {
         if (Minecraft.getInstance().world == null || Minecraft.getInstance().player == null) return;
         ClientPlayerEntity clientPlayer = Minecraft.getInstance().player;
-        HandleMethod.AudioPlayerContext context = new HandleMethod.AudioPlayerContext(CURRENT_SOUND_CHANNEL,
+        SoundHandleMethod.AudioPlayerContext context = new SoundHandleMethod.AudioPlayerContext(CURRENT_SOUND_CHANNEL,
                 clientPlayer.getUniqueID(), clientPlayer.getEntityId());
 
-        if (HandleMethod.toBeSolved != HandleMethodFactory.HandleMethodType.NULL && HandleMethod.toBeSolved != HandleMethodFactory.HandleMethodType.GONNA_PLAY) {
+        if (SoundHandleMethod.toBeSolved != HandleMethodFactory.HandleMethodType.NULL && SoundHandleMethod.toBeSolved != HandleMethodFactory.HandleMethodType.GONNA_PLAY) {
             preventAutoSwitch();
-            HandleMethodFactory.DEFAULT_SOUND_HANDLER_MAP.get(HandleMethod.toBeSolved).estimate(clientPlayer, context);
+            HandleMethodFactory.DEFAULT_SOUND_HANDLER_MAP.get(SoundHandleMethod.toBeSolved).withBranch(clientPlayer, context);
         }
 
-        boolean flag1 = currentSource != null && currentSource.isStopped() && HandleMethod.isPlaySong && !HandleMethod.gonnaPlay;
+        boolean flag1 = currentSource != null && currentSource.isStopped() && SoundHandleMethod.isPlaySong && !SoundHandleMethod.gonnaPlay;
         boolean flag2 = Minecraft.getInstance().world.getGameTime() > lastAutoSwitchChecked + SOUND_AUTO_SWITCH_CHECK_INTERVAL;
         boolean flag3 = Minecraft.getInstance().world.getGameTime() > lastPreventAutoSwitchChecked + SOUND_AUTO_SWITCH_CHECK_INTERVAL;
-        boolean flag4 = getHandler() == HandleMethodFactory.HandleMethodType.NULL && !HandleMethod.gonnaPlay && Mp3.getCurrentMode() != Mp3.RelayMode.SINGLE;
+        boolean flag4 = getHandler() == HandleMethodFactory.HandleMethodType.NULL && !SoundHandleMethod.gonnaPlay && Mp3.getCurrentMode() != Mp3.RelayMode.SINGLE;
 
         if (flag3) {
             preventAutoSwitch = false;
@@ -137,7 +140,7 @@ public class SoundHandler {
 
         if (flag1 && flag2 && flag4 && !preventAutoSwitch) {
             lastAutoSwitchChecked = Minecraft.getInstance().world.getGameTime();
-            HandleMethodFactory.DEFAULT_SOUND_HANDLER_MAP.get(HandleMethodFactory.HandleMethodType.AUTO_SWITCH_NEXT).estimate(clientPlayer, context);
+            HandleMethodFactory.DEFAULT_SOUND_HANDLER_MAP.get(HandleMethodFactory.HandleMethodType.AUTO_SWITCH_NEXT).withBranch(clientPlayer, context);
         }
     }
 
@@ -203,7 +206,7 @@ public class SoundHandler {
     /**
      * Main method to play itickable sound to player
      */
-    public static void playTickableSound(HandleMethod.AudioPlayerContext context, Supplier<AudioSound> sup, boolean renderLast) {
+    public static void playTickableSound(SoundHandleMethod.AudioPlayerContext context, Supplier<AudioSound> sup, boolean renderLast) {
         ClientWorld world = Minecraft.getInstance().world;
         if (world == null) {
             return;
@@ -243,7 +246,7 @@ public class SoundHandler {
         return CURRENT_SOUND_CHANNEL.getChannelSoundList().isEmpty();
     }
 
-    protected static ArrayList<AudioSound> getChannelSoundList() {
+    protected static List<AudioSound> getChannelSoundList() {
         return CURRENT_SOUND_CHANNEL.getChannelSoundList();
     }
 
@@ -255,7 +258,7 @@ public class SoundHandler {
     }
 
     protected static Enum<HandleMethodFactory.HandleMethodType> getHandler() {
-        return HandleMethod.toBeSolved;
+        return SoundHandleMethod.toBeSolved;
     }
 
     /* To judge when exactly the custom sound source has changed */
@@ -267,7 +270,7 @@ public class SoundHandler {
         Utils.CollectionHelper.add(Mp3.MODE_LIST, Mp3.RelayMode.DEFAULT, Mp3.RelayMode.SINGLE, Mp3.RelayMode.RANDOM);
 
         for (int i = 0; i < SoundHandler.getChannelSize(); i++) {
-            HandleMethod.RANDOM_MODE_SOUND_INDEX_LIST.add(i, i);
+            SoundHandleMethod.SOUND_INDEX_LIST.add(i, i);
         }
 
         currentAudioSound = CURRENT_SOUND_CHANNEL.getChannelSoundList().get(0);
