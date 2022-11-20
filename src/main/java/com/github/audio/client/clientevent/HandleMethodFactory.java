@@ -13,7 +13,6 @@ public class HandleMethodFactory {
     static {
         DEFAULT_SOUND_HANDLER_MAP.put(HandleMethodType.SWITCH_TO_NEXT , new SoundHandleMethod.ToNext());
         DEFAULT_SOUND_HANDLER_MAP.put(HandleMethodType.SWITCH_TO_LAST , new SoundHandleMethod.ToLast());
-
         DEFAULT_SOUND_HANDLER_MAP.put(HandleMethodType.PAUSE_OR_RESUME , new SoundHandleMethod.PauseOrResume());
         DEFAULT_SOUND_HANDLER_MAP.put(HandleMethodType.GONNA_PLAY , new SoundHandleMethod.GonnaPlay());
         DEFAULT_SOUND_HANDLER_MAP.put(HandleMethodType.AUTO_SWITCH_NEXT, new SoundHandleMethod.AutoSwitch());
