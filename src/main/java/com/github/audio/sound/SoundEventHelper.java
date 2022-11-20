@@ -53,7 +53,7 @@ public class SoundEventHelper {
 
     //Print out the sound duration in the dir.
     public static void main(String[] args) throws CannotReadException, IOException {
-        File audioFile = new File("D:\\Desktop\\audio\\src\\main\\resources\\assets\\audio\\sounds");
+        File audioFile = new File("src\\main\\resources\\assets\\audio\\sounds");
         Arrays.stream(Objects.requireNonNull(audioFile.listFiles())).forEach(file -> {
             String registryName = file.getName().substring(0 , file.getName().lastIndexOf("."));
             try {
