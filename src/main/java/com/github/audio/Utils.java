@@ -138,16 +138,16 @@ public class Utils {
                         if (!fileName.contains("backpack")) {
                             String registryName = fileName.split(".ogg")[0];
                             try {
-                                SoundEventRegistryHandler.duration.put(registryName, SoundEventHelper.getSongDuration(file).get());
+                                SoundEventRegistryHandler.DURATION.put(registryName, SoundEventHelper.getSongDuration(file).get());
                             } catch (IOException | CannotReadException e) {
                                 e.printStackTrace();
                                 }
                         }
                 }
                 //Debug
-                Set keyset = SoundEventRegistryHandler.duration.keySet();
+                Set keyset = SoundEventRegistryHandler.DURATION.keySet();
                 for (Object key : keyset) {
-                    Object val = SoundEventRegistryHandler.duration.get(key);
+                    Object val = SoundEventRegistryHandler.DURATION.get(key);
                     Audio.getLOGGER().info("duration now " + key + " : " + val);
                 }
             }

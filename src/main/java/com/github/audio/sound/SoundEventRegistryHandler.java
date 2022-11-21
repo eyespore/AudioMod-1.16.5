@@ -1,9 +1,6 @@
 package com.github.audio.sound;
 
-import com.github.audio.Audio;
 import com.github.audio.Utils;
-import com.github.audio.client.clientevent.ClientEventHandler;
-import com.github.audio.client.clientevent.SoundHandler;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.util.SoundEvents;
@@ -13,7 +10,6 @@ import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import org.jaudiotagger.audio.exceptions.CannotReadException;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -24,11 +20,15 @@ import java.util.stream.Collectors;
 import static com.github.audio.sound.SoundEventHelper.*;
 
 public class SoundEventRegistryHandler {
+    public static final HashMap<String, Long> DURATION = new HashMap<String, Long>();
 
     /* Normal Mp3 Sound */
     public static AudioSound katanaZeroInit = new AudioSound("null", "null", null, 0);
     public static AudioSound katanaZeroEnd = new AudioSound("null", "null", null, 0);
-    public static HashMap<String, Long> duration = new HashMap<String, Long>();
+    /*WARNING: All project depend on this static code block,Be careful to move it*/
+    static {
+        Utils.AudioHelper.getDurationFromFile();
+    }
     /* For load vanilla volume*/
     private static boolean hasInit = false;
     /* Default means song but not normal sound event. */
@@ -71,29 +71,29 @@ public class SoundEventRegistryHandler {
     public static final RegistryObject<SoundEvent> BACKPACK_UNFOLD_SOUND = registryIntoSoundChannel("backpack_unfold", SoundChannel.BACKPACK_CHANNEL, true);
     public static final RegistryObject<SoundEvent> BACKPACK_FOLD_SOUND = registryIntoSoundChannel("backpack_fold", SoundChannel.BACKPACK_CHANNEL, true);
     /*------------------ Non Default Sound Registry ------------------------*/
-    public static final RegistryObject<SoundEvent> RAIN_ON_BRICKS = registryIntoSoundChannel("rain_on_bricks", SoundChannel.KATANA_ZERO_CHANNEL, 400 );
-    public static final RegistryObject<SoundEvent> HIT_THE_FLOOR = registryIntoSoundChannel("hit_the_floor", SoundChannel.KATANA_ZERO_CHANNEL, 4216);
-    public static final RegistryObject<SoundEvent> COME_AND_SEE = registryIntoSoundChannel("come_and_see", SoundChannel.KATANA_ZERO_CHANNEL, 2084);
-    public static final RegistryObject<SoundEvent> NOCTURNE = registryIntoSoundChannel("nocturne", SoundChannel.KATANA_ZERO_CHANNEL, 2673);
-    public static final RegistryObject<SoundEvent> A_FINE_RED_MIST = registryIntoSoundChannel("a_fine_red_mist", SoundChannel.KATANA_ZERO_CHANNEL, 1456);
-    public static final RegistryObject<SoundEvent> END_OF_THE_ROAD = registryIntoSoundChannel("end_of_the_road", SoundChannel.KATANA_ZERO_CHANNEL, 6001);
-    public static final RegistryObject<SoundEvent> PRISON_TWO = registryIntoSoundChannel("prison_2", SoundChannel.KATANA_ZERO_CHANNEL, 2856);
-    public static final RegistryObject<SoundEvent> SILHOUETTE = registryIntoSoundChannel("silhouette", SoundChannel.KATANA_ZERO_CHANNEL, 4320);
-    public static final RegistryObject<SoundEvent> CHEMICAL_BREW = registryIntoSoundChannel("chemical_brew", SoundChannel.KATANA_ZERO_CHANNEL, 6629);
-    public static final RegistryObject<SoundEvent> YOU_WILL_NEVER_KNOW = registryIntoSoundChannel("you_will_never_know", SoundChannel.KATANA_ZERO_CHANNEL, 3916);
+    public static final RegistryObject<SoundEvent> RAIN_ON_BRICKS = registryIntoSoundChannel("rain_on_bricks", SoundChannel.KATANA_ZERO_CHANNEL);
+    public static final RegistryObject<SoundEvent> HIT_THE_FLOOR = registryIntoSoundChannel("hit_the_floor", SoundChannel.KATANA_ZERO_CHANNEL);
+    public static final RegistryObject<SoundEvent> COME_AND_SEE = registryIntoSoundChannel("come_and_see", SoundChannel.KATANA_ZERO_CHANNEL);
+    public static final RegistryObject<SoundEvent> NOCTURNE = registryIntoSoundChannel("nocturne", SoundChannel.KATANA_ZERO_CHANNEL);
+    public static final RegistryObject<SoundEvent> A_FINE_RED_MIST = registryIntoSoundChannel("a_fine_red_mist", SoundChannel.KATANA_ZERO_CHANNEL);
+    public static final RegistryObject<SoundEvent> END_OF_THE_ROAD = registryIntoSoundChannel("end_of_the_road", SoundChannel.KATANA_ZERO_CHANNEL);
+    public static final RegistryObject<SoundEvent> PRISON_TWO = registryIntoSoundChannel("prison_2", SoundChannel.KATANA_ZERO_CHANNEL);
+    public static final RegistryObject<SoundEvent> SILHOUETTE = registryIntoSoundChannel("silhouette", SoundChannel.KATANA_ZERO_CHANNEL);
+    public static final RegistryObject<SoundEvent> CHEMICAL_BREW = registryIntoSoundChannel("chemical_brew", SoundChannel.KATANA_ZERO_CHANNEL);
+    public static final RegistryObject<SoundEvent> YOU_WILL_NEVER_KNOW = registryIntoSoundChannel("you_will_never_know", SoundChannel.KATANA_ZERO_CHANNEL);
 //    public static final RegistryObject<SoundEvent> WORST_NEIGHBOR_EVER = registryIntoSoundChannel("worst_neighbor_ever", SoundChannel.KATANA_ZERO_CHANNEL, 1481);
-    public static final RegistryObject<SoundEvent> BLUE_ROOM = registryIntoSoundChannel("blue_room", SoundChannel.KATANA_ZERO_CHANNEL, 3495);
-    public static final RegistryObject<SoundEvent> FULL_CONFESSION = registryIntoSoundChannel("full_confession", SoundChannel.KATANA_ZERO_CHANNEL, 4912);
-    public static final RegistryObject<SoundEvent> SNOW = registryIntoSoundChannel("snow", SoundChannel.KATANA_ZERO_CHANNEL, 2806);
-    public static final RegistryObject<SoundEvent> CHINATOWN = registryIntoSoundChannel("china_town", SoundChannel.KATANA_ZERO_CHANNEL, 7243);
-    public static final RegistryObject<SoundEvent> BREATH_OF_A_SERPENT = registryIntoSoundChannel("breath_of_a_serpent", SoundChannel.KATANA_ZERO_CHANNEL, 4331);
-    public static final RegistryObject<SoundEvent> DRIVING_FORCE = registryIntoSoundChannel("driving_force", SoundChannel.KATANA_ZERO_CHANNEL, 5139);
-    public static final RegistryObject<SoundEvent> SNEAKY_DRIVER = registryIntoSoundChannel("sneaky_driver", SoundChannel.KATANA_ZERO_CHANNEL, 5599);
-    public static final RegistryObject<SoundEvent> THIRD_DISTRICT = registryIntoSoundChannel("third_district", SoundChannel.KATANA_ZERO_CHANNEL, 5488);
-    public static final RegistryObject<SoundEvent> OVERDOSE = registryIntoSoundChannel("overdose", SoundChannel.KATANA_ZERO_CHANNEL, 5324);
-    public static final RegistryObject<SoundEvent> KATANA_ZERO_Z = registryIntoSoundChannel("katana_zero", SoundChannel.KATANA_ZERO_CHANNEL, 6001);
-    public static final RegistryObject<SoundEvent> MEAT_GRINDER = registryIntoSoundChannel("meat_grinder", SoundChannel.KATANA_ZERO_CHANNEL, 4495);
-    public static final RegistryObject<SoundEvent> START_UP = registryIntoSoundChannel("start_up" , SoundChannel.KATANA_ZERO_CHANNEL , 440);
+    public static final RegistryObject<SoundEvent> BLUE_ROOM = registryIntoSoundChannel("blue_room", SoundChannel.KATANA_ZERO_CHANNEL);
+    public static final RegistryObject<SoundEvent> FULL_CONFESSION = registryIntoSoundChannel("full_confession", SoundChannel.KATANA_ZERO_CHANNEL);
+    public static final RegistryObject<SoundEvent> SNOW = registryIntoSoundChannel("snow", SoundChannel.KATANA_ZERO_CHANNEL);
+    public static final RegistryObject<SoundEvent> CHINATOWN = registryIntoSoundChannel("china_town", SoundChannel.KATANA_ZERO_CHANNEL);
+    public static final RegistryObject<SoundEvent> BREATH_OF_A_SERPENT = registryIntoSoundChannel("breath_of_a_serpent", SoundChannel.KATANA_ZERO_CHANNEL);
+    public static final RegistryObject<SoundEvent> DRIVING_FORCE = registryIntoSoundChannel("driving_force", SoundChannel.KATANA_ZERO_CHANNEL);
+    public static final RegistryObject<SoundEvent> SNEAKY_DRIVER = registryIntoSoundChannel("sneaky_driver", SoundChannel.KATANA_ZERO_CHANNEL);
+    public static final RegistryObject<SoundEvent> THIRD_DISTRICT = registryIntoSoundChannel("third_district", SoundChannel.KATANA_ZERO_CHANNEL);
+    public static final RegistryObject<SoundEvent> OVERDOSE = registryIntoSoundChannel("overdose", SoundChannel.KATANA_ZERO_CHANNEL);
+    public static final RegistryObject<SoundEvent> KATANA_ZERO_Z = registryIntoSoundChannel("katana_zero", SoundChannel.KATANA_ZERO_CHANNEL);
+    public static final RegistryObject<SoundEvent> MEAT_GRINDER = registryIntoSoundChannel("meat_grinder", SoundChannel.KATANA_ZERO_CHANNEL);
+    public static final RegistryObject<SoundEvent> START_UP = registryIntoSoundChannel("start_up" , SoundChannel.KATANA_ZERO_CHANNEL);
     /*--------------------- Normal Sound Registry --------------------------*/
     public static final RegistryObject<SoundEvent> KATANA_ZERO_INIT = registryAsNormalAudioSound("katana_zero_init", katanaZeroInit, 50);
     public static final RegistryObject<SoundEvent> KATANA_ZERO_END = registryAsNormalAudioSound("katana_zero_end", katanaZeroEnd, 28);
@@ -107,16 +107,14 @@ public class SoundEventRegistryHandler {
      */
     private static RegistryObject<SoundEvent> registryIntoSoundChannel(String registryName, SoundChannel registryChannel, boolean useDefDuration) {
             return registryIntoSoundChannel(registryName, registryChannel,
-                    (useDefDuration ? DEF_DURATION : duration.get(registryName)));
+                    (useDefDuration ? DEF_DURATION : DURATION.get(registryName)));
+    }
+    private static RegistryObject<SoundEvent> registryIntoSoundChannel(String registryName, SoundChannel registryChannel) {
+        return registryIntoSoundChannel(registryName, registryChannel, false);
     }
 
     private static RegistryObject<SoundEvent> registryIntoSoundChannel(String registryName, SoundChannel registryChannel, long duration) {
         return SOUND_REGISTER.register(registryName, () -> {
-            try {
-                init();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
             SoundEvent registrySoundEvent = new SoundEvent(new ResourceLocation(Utils.MOD_ID, registryName));
 //            SoundHandler.SOURCE_PATH.add(registryName);
             registryChannel.channelSoundList.add(new AudioSound(registryName, getSongName(registryName),
@@ -137,11 +135,7 @@ public class SoundEventRegistryHandler {
 
     private static RegistryObject<SoundEvent> registryAsNormalAudioSound(String registryName, AudioSound audioSound, long duration) {
         return SOUND_REGISTER.register(registryName, () -> {
-            try {
-                init();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+
             SoundEvent registrySoundEvent = new SoundEvent(new ResourceLocation(Utils.MOD_ID, registryName));
             AudioSound build = AudioSoundBuilder.anAudioSoundBuilder().withRegistryName(registryName).withDisplayName(getSongName(registryName))
                     .withDuration(duration).withSoundEvent(registrySoundEvent).build();
@@ -169,13 +163,13 @@ public class SoundEventRegistryHandler {
         return toReturn.toString();
     }
 
-    private static void init() throws IOException {
+    public static void init() throws IOException {
         if (!hasInit) {
             /* Add initialization information here. */
             initVanillaSoundEvent();
-            //TODO: Transfer the work of getting duration here
-            Utils.AudioHelper.getDurationFromFile();
-            hasInit = false;
+
+
+            hasInit = true;
         }
     }
 
@@ -194,18 +188,18 @@ public class SoundEventRegistryHandler {
 
     /* registry normal sound event */
     private static RegistryObject<SoundEvent> registrySoundEvent(String registryName) {
+        return SOUND_REGISTER.register(registryName, () -> new SoundEvent(
+                new ResourceLocation(Utils.MOD_ID, registryName)));
+    }
+
+
+    public static void register(IEventBus eventBus) {
+        SOUND_REGISTER.register(eventBus);
         try {
             init();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        return SOUND_REGISTER.register(registryName, () -> new SoundEvent(
-                new ResourceLocation(Utils.MOD_ID, registryName)));
-    }
-
-    @Deprecated
-    public static void register(IEventBus eventBus) {
-        SOUND_REGISTER.register(eventBus);
     }
 
 }

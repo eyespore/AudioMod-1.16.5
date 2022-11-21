@@ -36,12 +36,13 @@ public class Audio
     private static final Logger LOGGER = LogManager.getLogger();
 
 
-    public Audio() {
+    public Audio()  {
+
         IEventBus eventBus = FMLJavaModLoadingContext.get().getModEventBus();
         ModLoadingContext context = ModLoadingContext.get();
 
         ItemRegisterHandler.ITEM_REGISTER.register(eventBus);
-        SoundEventRegistryHandler.SOUND_REGISTER.register(eventBus);
+        SoundEventRegistryHandler.register(eventBus);
 
         eventBus.addListener(this::setup);
         eventBus.addListener(this::enqueueIMC);
