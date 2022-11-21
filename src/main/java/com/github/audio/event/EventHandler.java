@@ -3,6 +3,7 @@ package com.github.audio.event;
 import com.github.audio.Audio;
 import com.github.audio.Utils;
 import com.github.audio.item.ItemRegisterHandler;
+import com.github.audio.item.mp3.Mp3;
 import com.github.audio.networking.*;
 import com.github.audio.sound.AudioSound;
 import com.github.audio.sound.SoundEventRegistryHandler;
@@ -139,6 +140,7 @@ public class EventHandler {
                 //Client Thread
                 ASPMethodFactory.BRANCH_MAP.get(ASPMethodFactory.ASPJudgementType.TOSS)
                         .withBranch((ClientPlayerEntity) event.getPlayer());
+                Mp3.hasMp3InInventory = false;
             }
         }
     }

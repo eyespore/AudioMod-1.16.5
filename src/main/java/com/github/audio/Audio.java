@@ -33,7 +33,7 @@ public class Audio
         IEventBus eventBus = FMLJavaModLoadingContext.get().getModEventBus();
         ModLoadingContext context = ModLoadingContext.get();
 
-        ItemRegisterHandler.ITEM_REGISTER.register(eventBus);
+        ItemRegisterHandler.register(eventBus);
         SoundEventRegistryHandler.SOUND_REGISTER.register(eventBus);
 
         eventBus.addListener(this::setup);
@@ -71,4 +71,5 @@ public class Audio
     public static Logger getLOGGER() {
         return LOGGER;
     }
+
 }
