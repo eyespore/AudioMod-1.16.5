@@ -1,5 +1,6 @@
 package com.github.audio.sound;
 
+import com.github.audio.Audio;
 import com.github.audio.Utils;
 import com.github.audio.client.clientevent.ClientEventHandler;
 import com.github.audio.client.clientevent.SoundHandler;
@@ -12,8 +13,10 @@ import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import org.jaudiotagger.audio.exceptions.CannotReadException;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -25,7 +28,7 @@ public class SoundEventRegistryHandler {
     /* Normal Mp3 Sound */
     public static AudioSound katanaZeroInit = new AudioSound("null", "null", null, 0);
     public static AudioSound katanaZeroEnd = new AudioSound("null", "null", null, 0);
-
+    public static HashMap<String, Long> duration = new HashMap<String, Long>();
     /* For load vanilla volume*/
     private static boolean hasInit = false;
     /* Default means song but not normal sound event. */
@@ -68,7 +71,7 @@ public class SoundEventRegistryHandler {
     public static final RegistryObject<SoundEvent> BACKPACK_UNFOLD_SOUND = registryIntoSoundChannel("backpack_unfold", SoundChannel.BACKPACK_CHANNEL, true);
     public static final RegistryObject<SoundEvent> BACKPACK_FOLD_SOUND = registryIntoSoundChannel("backpack_fold", SoundChannel.BACKPACK_CHANNEL, true);
     /*------------------ Non Default Sound Registry ------------------------*/
-    public static final RegistryObject<SoundEvent> RAIN_ON_BRICKS = registryIntoSoundChannel("rain_on_bricks", SoundChannel.KATANA_ZERO_CHANNEL, 1619);
+    public static final RegistryObject<SoundEvent> RAIN_ON_BRICKS = registryIntoSoundChannel("rain_on_bricks", SoundChannel.KATANA_ZERO_CHANNEL, 400 );
     public static final RegistryObject<SoundEvent> HIT_THE_FLOOR = registryIntoSoundChannel("hit_the_floor", SoundChannel.KATANA_ZERO_CHANNEL, 4216);
     public static final RegistryObject<SoundEvent> COME_AND_SEE = registryIntoSoundChannel("come_and_see", SoundChannel.KATANA_ZERO_CHANNEL, 2084);
     public static final RegistryObject<SoundEvent> NOCTURNE = registryIntoSoundChannel("nocturne", SoundChannel.KATANA_ZERO_CHANNEL, 2673);
@@ -103,13 +106,8 @@ public class SoundEventRegistryHandler {
      * and lowercase such as "breath_of_a_serpent".
      */
     private static RegistryObject<SoundEvent> registryIntoSoundChannel(String registryName, SoundChannel registryChannel, boolean useDefDuration) {
-        try {
             return registryIntoSoundChannel(registryName, registryChannel,
-                    (useDefDuration ? DEF_DURATION : getSongDuration(registryName).orElse(DEF_DURATION)));
-        } catch (IOException | CannotReadException e) {
-            e.printStackTrace();
-        }
-        return null;
+                    (useDefDuration ? DEF_DURATION : duration.get(registryName)));
     }
 
     private static RegistryObject<SoundEvent> registryIntoSoundChannel(String registryName, SoundChannel registryChannel, long duration) {
@@ -175,6 +173,8 @@ public class SoundEventRegistryHandler {
         if (!hasInit) {
             /* Add initialization information here. */
             initVanillaSoundEvent();
+            //TODO: Transfer the work of getting duration here
+            Utils.AudioHelper.getDurationFromFile();
             hasInit = false;
         }
     }
