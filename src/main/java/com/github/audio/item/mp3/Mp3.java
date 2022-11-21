@@ -2,6 +2,7 @@ package com.github.audio.item.mp3;
 
 import com.github.audio.client.clientevent.SoundHandleMethod;
 import com.github.audio.client.clientevent.SoundHandler;
+import com.github.audio.creativetab.ModCreativeTab;
 import com.github.audio.sound.SoundEventRegistryHandler;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
@@ -34,8 +35,8 @@ public class Mp3 extends Item {
         return currentMode;
     }
 
-    public Mp3(Properties properties) {
-        super(properties);
+    public Mp3() {
+        super(new Item.Properties().group(ModCreativeTab.TAB_AUDIO).maxStackSize(1));
     }
 
     @Override

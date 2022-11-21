@@ -140,9 +140,7 @@ public class SoundHandleMethod {
         @Override
         public void withBranch(ClientPlayerEntity clientPlayer, AudioPlayerContext context) {
             if (isPaused || !isPlaySong) {
-
                 currentAudioSound = toLast();
-
             } else {
                 SoundHandler.stopSound(clientPlayer.getUniqueID());
                 SoundHandler.playTickableSound(context, SoundHandleMethod::toLast, true);

@@ -31,9 +31,10 @@ public class ASPHandleMethod {
     }
 
     @AudioAnnotation.ClientOnly
-    protected static class PlayerTossItem implements IAudioSoundPackBranch {
+    protected static class PlayerTossMp3 implements IAudioSoundPackBranch {
         @Override
         public void withBranch(ClientPlayerEntity clientPlayer) {
+            Mp3.hasMp3InInventory = false;
             new PlayerChangeDimension().withBranch(clientPlayer);
         }
     }
