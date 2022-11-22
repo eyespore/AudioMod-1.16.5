@@ -2,8 +2,8 @@ package com.github.audio.networking;
 
 import com.github.audio.api.AudioAnnotation;
 import com.github.audio.api.IAudioSoundPackBranch;
-import com.github.audio.client.clientevent.SoundHandleMethod;
-import com.github.audio.client.clientevent.SoundHandler;
+import com.github.audio.client.clienthandler.mp3.Mp3HandleMethod;
+import com.github.audio.client.clienthandler.mp3.Mp3Statues;
 import com.github.audio.item.mp3.Mp3;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
@@ -16,7 +16,7 @@ public class ASPHandleMethod {
     protected static class PlayerReborn implements IAudioSoundPackBranch {
         @Override
         public void withBranch(ClientPlayerEntity clientPlayer) {
-            SoundHandleMethod.resetAllParameter();
+            Mp3Statues.resetAllParameter();
         }
     }
 
@@ -24,8 +24,8 @@ public class ASPHandleMethod {
     protected static class PlayerChangeDimension implements IAudioSoundPackBranch {
         @Override
         public void withBranch(ClientPlayerEntity clientPlayer) {
-            SoundHandler.stopSound(clientPlayer.getUniqueID());
-            SoundHandleMethod.resetAllParameter();
+            Mp3HandleMethod.stopSound(clientPlayer.getUniqueID());
+            Mp3Statues.resetAllParameter();
             Mp3.playMp3EndSound(Objects.requireNonNull(Minecraft.getInstance().player));
         }
     }
@@ -43,8 +43,8 @@ public class ASPHandleMethod {
     protected static class PlayerCloseGUI implements IAudioSoundPackBranch {
         @Override
         public void withBranch(ClientPlayerEntity clientPlayer) {
-            if (SoundHandler.currentSource != null && SoundHandleMethod.isPaused) {
-                SoundHandler.currentSource.pause();
+            if (Mp3Statues.currentSource != null && Mp3Statues.isPaused) {
+                Mp3Statues.currentSource.pause();
             }
         }
     }

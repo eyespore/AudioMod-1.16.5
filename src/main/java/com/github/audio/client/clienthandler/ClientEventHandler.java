@@ -1,6 +1,9 @@
-package com.github.audio.client.clientevent;
+package com.github.audio.client.clienthandler;
 
 import com.github.audio.Utils;
+import com.github.audio.client.clienthandler.mp3.HandleMethodFactory;
+import com.github.audio.client.clienthandler.mp3.Mp3HandleMethod;
+import com.github.audio.client.clienthandler.mp3.Mp3Statues;
 import com.github.audio.client.config.Config;
 import com.github.audio.client.gui.ConfigScreen;
 import com.github.audio.item.mp3.Mp3;
@@ -30,22 +33,20 @@ import java.util.Objects;
 @Mod.EventBusSubscriber(modid = Utils.MOD_ID, value = Dist.CLIENT)
 public class ClientEventHandler {
 
-    public static boolean hasInitSoundSourcePath = false;
-
     private static long clientTickChecked = 0L;
     private static final long CLIENT_TICK_CHECK_INTERVAL = 40L;
 
     @SubscribeEvent
     public static void onSoundSourceChange(SoundEvent.SoundSourceEvent event) {
 
-        if (!hasInitSoundSourcePath) {
-            SoundHandler.initSoundList();
-            hasInitSoundSourcePath = true;
+        if (!Mp3HandleMethod.hasInitSoundSourcePath) {
+            Mp3HandleMethod.initSoundList();
+            Mp3HandleMethod.hasInitSoundSourcePath = true;
         }
 
-        if (SoundHandler.soundSourcePath.contains(event.getName())) {
-            SoundHandler.currentSource = event.getSource();
-            SoundHandler.currentSourceHasChanged = true;
+        if (Mp3Statues.soundSourcePath.contains(event.getName())) {
+            Mp3Statues.currentSource = event.getSource();
+            Mp3Statues.currentSourceHasChanged = true;
         }
     }
 
@@ -119,7 +120,7 @@ public class ClientEventHandler {
     }
 
     /**
-     * Key input event
+     * Key input event for mp3
      */
     @SubscribeEvent
     public static void onKeyInput(InputEvent.KeyInputEvent event) {
@@ -141,15 +142,15 @@ public class ClientEventHandler {
     }
 
     public static void trySwitchToLast() {
-        SoundHandleMethod.toBeSolved = HandleMethodFactory.HandleMethodType.SWITCH_TO_LAST;
+        Mp3HandleMethod.toBeSolved = HandleMethodFactory.HandleMethodType.SWITCH_TO_LAST;
     }
 
     public static void trySwitchToNext() {
-        SoundHandleMethod.toBeSolved = HandleMethodFactory.HandleMethodType.SWITCH_TO_NEXT;
+        Mp3HandleMethod.toBeSolved = HandleMethodFactory.HandleMethodType.SWITCH_TO_NEXT;
     }
 
     public static void tryPauseOrResume() {
-        SoundHandleMethod.toBeSolved = HandleMethodFactory.HandleMethodType.PAUSE_OR_RESUME;
+        Mp3HandleMethod.toBeSolved = HandleMethodFactory.HandleMethodType.PAUSE_OR_RESUME;
     }
 }
 

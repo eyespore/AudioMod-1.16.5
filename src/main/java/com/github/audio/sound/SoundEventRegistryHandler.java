@@ -174,7 +174,7 @@ public class SoundEventRegistryHandler {
                     .duration(duration).soundEvent(registrySoundEvent).build();
             audioSound.reset(build);
 
-//            SoundHandler.SOURCE_PATH.add(registryName);
+//            Mp3SoundHandler.SOURCE_PATH.add(registryName);
             return registrySoundEvent;
         });
     }

@@ -30,5 +30,21 @@
         "stream": true
       }
     ]
+  },
+  "katana_zero_init": {
+    "sounds": [
+      {
+        "name": "audio:katana_zero_init",
+        "stream": true
+      }
+    ]
+  },
+  "katana_zero_end": {
+    "sounds": [
+      {
+        "name": "audio:katana_zero_end",
+        "stream": true
+      }
+    ]
   }
 }

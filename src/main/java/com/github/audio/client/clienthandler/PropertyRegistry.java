@@ -1,4 +1,4 @@
-package com.github.audio.client.clientevent;
+package com.github.audio.client.clienthandler;
 
 import com.github.audio.Utils;
 import com.github.audio.item.ItemRegisterHandler;

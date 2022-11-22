@@ -1,6 +1,6 @@
 package com.github.audio.networking;
 
-import com.github.audio.client.clientevent.ClientEventHandler;
+import com.github.audio.client.clienthandler.ClientEventHandler;
 import com.github.audio.client.config.Config;
 import com.github.audio.event.EventHandler;
 import net.minecraft.client.Minecraft;

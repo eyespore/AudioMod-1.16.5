@@ -1,10 +1,8 @@
 package com.github.audio.sound;
 
-import com.github.audio.client.clientevent.SoundHandler;
 import org.jaudiotagger.audio.exceptions.CannotReadException;
 import org.jaudiotagger.audio.generic.GenericAudioHeader;
 import org.jaudiotagger.audio.ogg.util.OggInfoReader;
-import org.lwjgl.system.CallbackI;
 
 import java.io.*;
 import java.util.Arrays;
