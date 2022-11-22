@@ -160,9 +160,14 @@ public class SoundHandler {
 
     /*---------------- Sound Play&Stop Operation --------------------------*/
     public static void playSound(UUID playerUUID, ISound sound) {
+        if (sound == null) {
+            if (Minecraft.getInstance().player != null) Minecraft.getInstance().player.sendChatMessage("ops, seems like we don't got the sound event you are asking for.");
+            return;
+        }
         if (PLAYER_UUID_LIST.containsKey(playerUUID)) {
             Minecraft.getInstance().getSoundHandler().stop(PLAYER_UUID_LIST.remove(playerUUID));
         }
+
         Minecraft.getInstance().getSoundHandler().play(sound);
         PLAYER_UUID_LIST.put(playerUUID, sound);
     }

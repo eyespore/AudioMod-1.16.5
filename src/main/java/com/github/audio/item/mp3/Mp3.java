@@ -63,7 +63,6 @@ public class Mp3 extends Item {
         playMp3EndSound(clientPlayer);
     }
 
-
     public static void playMp3EndSound(ClientPlayerEntity clientPlayer) {
         SoundHandler.playTickableSound(new SoundHandleMethod.AudioPlayerContext(SoundHandler.CURRENT_SOUND_CHANNEL,
                         clientPlayer.getUniqueID(), clientPlayer.getEntityId()),
@@ -106,6 +105,10 @@ public class Mp3 extends Item {
     @SuppressWarnings("NullableProblems")
     @Override
     public void inventoryTick(ItemStack stackIn, World worldIn, Entity entityIn, int itemSlot, boolean isSelected) {
+        if (worldIn.isRemote) {
+            hasMp3InInventory = true;
+        }
+
         if (entityIn instanceof PlayerEntity &&
                 ((((PlayerEntity) entityIn).getHeldItemMainhand().isItemEqual(stackIn))
                         || ((PlayerEntity) entityIn).getHeldItemOffhand().isItemEqual(stackIn))) {

@@ -8,29 +8,30 @@ public final class AudioSoundBuilder {
     private long duration;
     private SoundEvent soundEvent;
 
-    private AudioSoundBuilder() {
+    AudioSoundBuilder() {
     }
 
+    @Deprecated
     public static AudioSoundBuilder anAudioSoundBuilder() {
         return new AudioSoundBuilder();
     }
 
-    public AudioSoundBuilder withRegistryName(String registryName) {
+    public AudioSoundBuilder registryName(String registryName) {
         this.registryName = registryName;
         return this;
     }
 
-    public AudioSoundBuilder withDisplayName(String displayName) {
+    public AudioSoundBuilder displayName(String displayName) {
         this.displayName = displayName;
         return this;
     }
 
-    public AudioSoundBuilder withDuration(long duration) {
+    public AudioSoundBuilder duration(long duration) {
         this.duration = duration;
         return this;
     }
 
-    public AudioSoundBuilder withSoundEvent(SoundEvent soundEvent) {
+    public AudioSoundBuilder soundEvent(SoundEvent soundEvent) {
         this.soundEvent = soundEvent;
         return this;
     }

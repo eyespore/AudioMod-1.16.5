@@ -73,7 +73,7 @@ public class BackPackSoundPack {
     }
 
     //GETTER
-    public UUID getUuid() {
+    public UUID getUUID() {
         return uuid;
     }
 

@@ -8,19 +8,51 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.client.gui.widget.list.OptionsRowList;
-import net.minecraft.client.settings.BooleanOption;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraftforge.common.ForgeConfigSpec;
 
+import java.util.ArrayList;
 import java.util.Objects;
+import java.util.function.Supplier;
 
 public final class ConfigScreen extends Screen {
 
     private static int buttonNum = 0;
-    private static int musicBoxClewToneParameter = Config.MUSIC_BOX_CLEW_TONE.get();
-    private static int backpackSoundStatue = Config.BACK_PACK_SOUND_STATUE.get();
-    private static boolean disableBackpackSoundParameter = Config.DISABLE_BACKPACKSOUND.get();
+    //TODO : add new parameter for this.
+    private static final AudioConfigPara<Integer> TOAST_MSG_TONE_PARA = new AudioConfigPara<>(Config.MUSIC_BOX_CLEW_TONE.get());
+    private static final AudioConfigPara<Integer> BACKPACK_SOUND_PARA = new AudioConfigPara<>(Config.BACK_PACK_SOUND_STATUE.get());
+    private static final ArrayList<AudioConfigPara<Integer>> INTEGER_PARA = new ArrayList<>();
+
+    static {
+        INTEGER_PARA.add(TOAST_MSG_TONE_PARA);
+        INTEGER_PARA.add(BACKPACK_SOUND_PARA);
+    }
+
+    public static class AudioConfigPara<T extends Number> {
+
+        private T para;
+
+        public Supplier<T> getPara() {
+            return () -> para;
+        }
+
+        public void setPara(T t) {
+            this.para = t;
+        }
+
+        public AudioConfigPara(T para) {
+            this.para = para;
+        }
+
+        public T ensureIn(T min, T max) {
+            boolean paraIn = this.para.doubleValue() <= max.doubleValue() && this.para.doubleValue() >= min.doubleValue();
+            if (!paraIn) {
+                this.setPara(min);
+            }
+            return this.para;
+        }
+    }
 
     private static final String[] BACKPACK_SOUND_STATUES = {"Multiple", "Single", "Null"};
 
@@ -64,12 +96,12 @@ public final class ConfigScreen extends Screen {
                 new TranslationTextComponent("gui.audio.soundStatue",
                         BACKPACK_SOUND_STATUES[Config.BACK_PACK_SOUND_STATUE.get()]),
                 (button) -> {
-                    if (backpackSoundStatue == BACKPACK_SOUND_STATUES.length - 1) {
-                        backpackSoundStatue = 0;
+                    if (BACKPACK_SOUND_PARA.para == BACKPACK_SOUND_STATUES.length - 1) {
+                        BACKPACK_SOUND_PARA.para = 0;
                     } else {
-                        backpackSoundStatue++;
+                        BACKPACK_SOUND_PARA.para++;
                     }
-                    Config.BACK_PACK_SOUND_STATUE.set(backpackSoundStatue);
+                    Config.BACK_PACK_SOUND_STATUE.set(BACKPACK_SOUND_PARA.para);
                     Config.BACK_PACK_SOUND_STATUE.save();
                     this.backpackSoundStatueButton.setMessage(new TranslationTextComponent(
                             "gui.audio.soundStatue",
@@ -83,23 +115,26 @@ public final class ConfigScreen extends Screen {
         this.musicBoxClewToneButton = new Button(this.width / 2 - 75, getY(), DEF_WIDTH, DEF_HEIGHT,
                 new TranslationTextComponent("gui.audio.configScreen.musicBoxClewToneButton",
                         SoundEventRegistryHandler.SoundChannel.MUSIC_BOX_CHANNEL.
-                                getChannelSoundList().get(musicBoxClewToneParameter).getDisplayName()),
+                                getChannelSoundList().get(TOAST_MSG_TONE_PARA.para).getDisplayName()),
                 button -> {
-                    if (musicBoxClewToneParameter ==
+                    if (TOAST_MSG_TONE_PARA.para ==
                             SoundEventRegistryHandler.SoundChannel.MUSIC_BOX_CHANNEL.getChannelSoundList().size() - 1) {
-                        musicBoxClewToneParameter = 0;
+                        TOAST_MSG_TONE_PARA.para = 0;
                     } else {
-                        musicBoxClewToneParameter++;
+                        TOAST_MSG_TONE_PARA.para++;
                     }
-                    Config.MUSIC_BOX_CLEW_TONE.set(musicBoxClewToneParameter);
+
+                    SoundEvent soundEvent = SoundEventRegistryHandler.SoundChannel.MUSIC_BOX_CHANNEL
+                            .getChannelSoundList().get(TOAST_MSG_TONE_PARA.ensureIn(0, SoundEventRegistryHandler
+                                    .SoundChannel.MUSIC_BOX_CHANNEL.getChannelSoundList().size() - 1)).getSoundEvent();
+
+                    Config.MUSIC_BOX_CLEW_TONE.set(TOAST_MSG_TONE_PARA.para);
                     Config.MUSIC_BOX_CLEW_TONE.save();
+
                     this.musicBoxClewToneButton.setMessage(new TranslationTextComponent(
                             "gui.audio.configScreen.musicBoxClewToneButton",
                             SoundEventRegistryHandler.SoundChannel.MUSIC_BOX_CHANNEL.
-                                    getChannelSoundList().get(musicBoxClewToneParameter).getDisplayName()));
-
-                    SoundEvent soundEvent = SoundEventRegistryHandler.SoundChannel.MUSIC_BOX_CHANNEL
-                            .getChannelSoundList().get(musicBoxClewToneParameter).getSoundEvent();
+                                    getChannelSoundList().get(TOAST_MSG_TONE_PARA.para).getDisplayName()));
                     if (soundEvent != null) {
                         Objects.requireNonNull(Minecraft.getInstance().player).playSound(soundEvent, 2, 1);
                     }
@@ -119,16 +154,6 @@ public final class ConfigScreen extends Screen {
                 button -> ConfigScreen.this.closeScreen());
         this.addButton(done);
 
-        @Deprecated
-        BooleanOption setConfig = new BooleanOption(
-                "gui.audio.configScreen.setConfig", unused -> ConfigScreen.disableBackpackSoundParameter,
-                (unused, newValue) -> {
-                    ConfigScreen.setDisableBackpackSoundParameter(newValue);
-//                    audio.getLogger().info("Config now : " + ConfigScreen.disableBackpackSoundParameter);
-                    Config.DISABLE_BACKPACKSOUND.set(ConfigScreen.disableBackpackSoundParameter);
-                    Config.AUDIO_CONFIG.save();
-                });
-//        this.optionsRowList.addOption(setConfig);
     }
 
     @Override
@@ -192,11 +217,6 @@ public final class ConfigScreen extends Screen {
         } else {
             return super.keyPressed(keyCode, scanCode, modifiers);
         }
-    }
-
-    @Deprecated
-    public static void setDisableBackpackSoundParameter(boolean disableBackpackSoundParameter) {
-        ConfigScreen.disableBackpackSoundParameter = disableBackpackSoundParameter;
     }
 }
 
