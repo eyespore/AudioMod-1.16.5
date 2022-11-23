@@ -1,6 +1,5 @@
 package com.github.audio.client.clienthandler.mp3;
 
-import com.github.audio.Audio;
 import com.github.audio.Utils;
 import com.github.audio.api.annotation.ClientOnly;
 import com.github.audio.api.Interface.ISoundHandlerBranch;
@@ -128,14 +127,14 @@ public final class Mp3HandleMethod {
     }
 
     public static void flushCurrentRollingBar() {
-        rfb = Utils.getRollingBar(getCurrentAudioSound().getDisplayName()).get();
+        rfb = Utils.getRollingBar(getCurrentAudioSound().getSignedName()).get();
         Mp3Context.currentSongNameRollingBar = rfb.nextRollingFormat();
         Mp3SoundHandler.timeTicker = 0;
     }
 
     protected static void audioToastDraw() {
-        new AudioToastMessage().show("Now Playing:", getCurrentAudioSound().getDisplayName().length() > 20 ?
-                getCurrentAudioSound().getDisplayName().substring(0, 20) + "..." : getCurrentAudioSound().getDisplayName());
+        new AudioToastMessage().show("Now Playing:", getCurrentAudioSound().getSignedName().length() > 20 ?
+                getCurrentAudioSound().getSignedName().substring(0, 20) + "..." : getCurrentAudioSound().getSignedName());
     }
 
     protected static void preventAutoSwitch() {

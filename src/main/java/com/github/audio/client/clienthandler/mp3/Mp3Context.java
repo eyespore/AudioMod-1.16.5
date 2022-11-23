@@ -14,9 +14,8 @@ import java.util.function.Supplier;
 
 public class Mp3Context extends AudioContext {
 
-    /**
-     * The sound channel using for playing now.
-     */
+    public static final Mp3Context playerMp3Context = new Mp3Context();
+
     public static final SoundChannel CURRENT_SOUND_CHANNEL =
             SoundChannel.KATANA_ZERO_CHANNEL;
 
