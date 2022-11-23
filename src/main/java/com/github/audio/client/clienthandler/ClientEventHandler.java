@@ -137,7 +137,9 @@ public class ClientEventHandler {
                 if (KeyBinds.relayNext.isPressed()) trySwitchToNext();
                 //try pause or resume the current disc
                 if (KeyBinds.pauseOrResume.isPressed()) tryPauseOrResume();
-            } else return;
+            } else {
+                return;
+            }
         }
     }
 

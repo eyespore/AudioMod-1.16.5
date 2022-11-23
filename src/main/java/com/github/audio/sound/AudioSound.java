@@ -4,11 +4,8 @@ import com.github.audio.Utils;
 import com.github.audio.api.AudioContext;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundEvent;
-import net.minecraft.util.SoundEvents;
-import net.minecraftforge.fml.RegistryObject;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
-import org.lwjgl.system.CallbackI;
 
 import java.util.function.Supplier;
 
@@ -73,17 +70,17 @@ public class AudioSound {
         return this;
     }
 
-    public static class audioSoundBuilder extends AudioContext {
+    public static class AudioSoundBuilder extends AudioContext {
         private long duration;
         private String registryName;
         private String displayName;
         private Supplier<SoundEvent> soundEvent;
 
-        public audioSoundBuilder() {
+        public AudioSoundBuilder() {
             this.init();
         }
 
-        public audioSoundBuilder tag(String registryName, String displayName) {
+        public AudioSoundBuilder tag(String registryName, String displayName) {
             this.registryName = registryName;
             this.displayName = displayName;
             return this;
@@ -94,12 +91,12 @@ public class AudioSound {
          *  to get duration could be using AudioAPI method to read .ogg file or defining with *DEF_DURATION*.
          */
         @Deprecated
-        public audioSoundBuilder duration(long duration) {
+        public AudioSoundBuilder duration(long duration) {
             this.duration = duration;
             return this;
         }
 
-        public audioSoundBuilder soundEvent(Supplier<SoundEvent> soundEvent) {
+        public AudioSoundBuilder soundEvent(Supplier<SoundEvent> soundEvent) {
             this.soundEvent = soundEvent;
             return this;
         }

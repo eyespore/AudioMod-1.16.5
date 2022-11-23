@@ -61,12 +61,12 @@ public class AudioSoundRegistryHandler {
 
     private static void initSoundEvent() {
         SoundChannel.MUSIC_BOX_CHANNEL.add(
-                new AudioSound.audioSoundBuilder().tag("bit", "Bit").soundEvent(() -> SoundEvents.BLOCK_NOTE_BLOCK_BIT).build() ,
-                new AudioSound.audioSoundBuilder().tag("bell", "Bell").soundEvent(() -> SoundEvents.BLOCK_NOTE_BLOCK_BELL).build() ,
-                new AudioSound.audioSoundBuilder().tag("mute", "Mute").soundEvent(NULL_SOUND_EVENT::getSoundEvent).build() ,
-                new AudioSound.audioSoundBuilder().tag("pling", "Pling").soundEvent(() -> SoundEvents.BLOCK_NOTE_BLOCK_PLING).build() ,
-                new AudioSound.audioSoundBuilder().tag("picked", "Picked").soundEvent(() -> SoundEvents.ENTITY_ITEM_PICKUP).build() ,
-                new AudioSound.audioSoundBuilder().tag("book_turn", "Book Turn").soundEvent(() -> SoundEvents.ITEM_BOOK_PAGE_TURN).build());
+                new AudioSound.AudioSoundBuilder().tag("bit", "Bit").soundEvent(() -> SoundEvents.BLOCK_NOTE_BLOCK_BIT).build() ,
+                new AudioSound.AudioSoundBuilder().tag("bell", "Bell").soundEvent(() -> SoundEvents.BLOCK_NOTE_BLOCK_BELL).build() ,
+                new AudioSound.AudioSoundBuilder().tag("mute", "Mute").soundEvent(NULL_SOUND_EVENT::getSoundEvent).build() ,
+                new AudioSound.AudioSoundBuilder().tag("pling", "Pling").soundEvent(() -> SoundEvents.BLOCK_NOTE_BLOCK_PLING).build() ,
+                new AudioSound.AudioSoundBuilder().tag("picked", "Picked").soundEvent(() -> SoundEvents.ENTITY_ITEM_PICKUP).build() ,
+                new AudioSound.AudioSoundBuilder().tag("book_turn", "Book Turn").soundEvent(() -> SoundEvents.ITEM_BOOK_PAGE_TURN).build());
     }
 
     /**
@@ -81,22 +81,22 @@ public class AudioSoundRegistryHandler {
         private static final HashMap<String, AudioSound> DEFINED_SOUND_MAP = new HashMap<String, AudioSound>();
 
         private Supplier<AudioSound> registryDef(String registryName) {
-            AudioSound registryAudioSound = new AudioSound.audioSoundBuilder().tag(registryName , getDisplayName(registryName)).build();
+            AudioSound registryAudioSound = new AudioSound.AudioSoundBuilder().tag(registryName , getDisplayName(registryName)).build();
             return construct(registryAudioSound);
         }
 
         private Supplier<AudioSound> registryDef(String registryName , String displayName) {
-            AudioSound registryAudioSound = new AudioSound.audioSoundBuilder().tag(registryName, displayName).build();
+            AudioSound registryAudioSound = new AudioSound.AudioSoundBuilder().tag(registryName, displayName).build();
             return construct(registryAudioSound);
         }
 
         private Supplier<AudioSound> registryDef(String registryName , SoundChannel registryChannel) {
-            AudioSound registryAudioSound = new AudioSound.audioSoundBuilder().tag(registryName , getDisplayName(registryName)).build().into(registryChannel);
+            AudioSound registryAudioSound = new AudioSound.AudioSoundBuilder().tag(registryName , getDisplayName(registryName)).build().into(registryChannel);
             return construct(registryAudioSound);
         }
 
         private Supplier<AudioSound> registryDef(String registryName , String displayName, SoundChannel registryChannel) {
-            AudioSound registryAudioSound = new AudioSound.audioSoundBuilder().tag(registryName, displayName).build().into(registryChannel);
+            AudioSound registryAudioSound = new AudioSound.AudioSoundBuilder().tag(registryName, displayName).build().into(registryChannel);
             return construct(registryAudioSound);
         }
 
@@ -110,7 +110,7 @@ public class AudioSoundRegistryHandler {
          * Notice that this method should NOT be used individually, it should be called in method or loop.
          */
         private void registryCus() {
-            AudioSound registryAudioSound = new AudioSound.audioSoundBuilder().build();
+            AudioSound registryAudioSound = new AudioSound.AudioSoundBuilder().build();
             CUSTOM_SOUND_MAP.put(registryAudioSound.getRegistryName() , registryAudioSound);
         }
 

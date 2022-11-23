@@ -20,7 +20,6 @@ public class SoundChannel {
     public static final SoundChannel MUSIC_BOX_CHANNEL = new SoundChannel(MUSIC_BOX_CLEW_TONE);
     public static final SoundChannel KATANA_ZERO_CHANNEL = new SoundChannel(KATANA_ZERO);
 
-
     private SoundChannel(List<AudioSound> channelSoundList) {
         this.channelSoundList = channelSoundList;
     }

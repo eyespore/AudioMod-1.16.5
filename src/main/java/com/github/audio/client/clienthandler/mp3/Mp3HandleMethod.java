@@ -120,16 +120,6 @@ public final class Mp3HandleMethod {
             toReturn = RANDOM_INDEX_LIST.size() - 1;
         }
         shouldInitRandomList = false;
-
-        Audio.getLOGGER().info("--------------- Summon new Random ---------------");
-        RANDOM_INDEX_LIST.forEach(integer -> {
-            if (RANDOM_INDEX_LIST.indexOf(integer) != RANDOM_INDEX_LIST.size() -1) {
-                System.out.print(integer + " , ");
-            } else {
-                System.out.println(integer);
-            }
-        });
-
         return toReturn;
     }
 
@@ -285,9 +275,6 @@ public final class Mp3HandleMethod {
             toBeSolved = HandleMethodFactory.HandleMethodType.NULL;
             Mp3Context.currentSourceHasChanged = true;
             Mp3Context.isPaused = false;
-
-            System.out.println("285 : current sound index : " + getChannelSoundList().indexOf(currentAudioSound));
-
         }
     }
 
@@ -305,8 +292,6 @@ public final class Mp3HandleMethod {
             Mp3Context.isPaused = false;
             Mp3Context.currentSourceHasChanged = true;
             toBeSolved = HandleMethodFactory.HandleMethodType.NULL;
-
-            System.out.println("305 : current sound index : " + getChannelSoundList().indexOf(currentAudioSound));
         }
     }
 
