@@ -1,8 +1,9 @@
 package com.github.audio.client.clienthandler.mp3;
 
+import com.github.audio.api.AudioContext;
 import com.github.audio.item.mp3.Mp3;
 import com.github.audio.sound.AudioSound;
-import com.github.audio.sound.SoundEventRegistryHandler;
+import com.github.audio.sound.SoundChannel;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.SoundSource;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
@@ -11,13 +12,13 @@ import java.util.ArrayList;
 import java.util.UUID;
 import java.util.function.Supplier;
 
-public class Mp3Statues {
+public class Mp3Context extends AudioContext {
 
     /**
      * The sound channel using for playing now.
      */
-    public static final SoundEventRegistryHandler.SoundChannel CURRENT_SOUND_CHANNEL =
-            SoundEventRegistryHandler.SoundChannel.KATANA_ZERO_CHANNEL;
+    public static final SoundChannel CURRENT_SOUND_CHANNEL =
+            SoundChannel.KATANA_ZERO_CHANNEL;
 
     /* If you change the value "CURRENT_SOUND_CHANNEL", at the same time you should change this field as well. */
     static final int SOUND_STOP_CHECK_INTERVAL = 10;
@@ -29,7 +30,7 @@ public class Mp3Statues {
     public static String currentSongNameRollingBar;
     public static final ArrayList<String> soundSourcePath = new ArrayList<String>();
 
-    private static Enum<Mp3.RelayMode> recoedMode;
+    private static Enum<Mp3.RelayMode> recordMode;
     private static boolean hasCheckedLastTickMode = false;
 
     protected static boolean gonnaPlay = false;
@@ -44,7 +45,7 @@ public class Mp3Statues {
     }
 
     /* Call this method only in client side, reset all mark defined in the class. */
-    public static void resetAllParameter() {
+    public static void reset() {
         isPaused = false;
         isPlaySong = false;
         hasPlayInit = false;
@@ -64,27 +65,27 @@ public class Mp3Statues {
     /**
      * gathering the information for play itickable sound to player or entity.
      */
-    public static class Mp3SoundContext {
+    public static class Mp3SoundContext{
         public int entityID;
         public UUID clientPlayerUUID;
         public AudioSound currentAudioSound;
-        public SoundEventRegistryHandler.SoundChannel currentChannel = CURRENT_SOUND_CHANNEL;
-        public Enum<Mp3.RelayMode> recordMode = recoedMode;
-        public boolean hasCheckedLastTickMode = Mp3Statues.hasCheckedLastTickMode;
+        public SoundChannel currentChannel = CURRENT_SOUND_CHANNEL;
+        public Enum<Mp3.RelayMode> recordMode = Mp3Context.recordMode;
+        public boolean hasCheckedLastTickMode = Mp3Context.hasCheckedLastTickMode;
 
 
-        private Mp3SoundContext(SoundEventRegistryHandler.SoundChannel currentChannel, UUID clientPlayerUUID, int entityID) {
+        private Mp3SoundContext(SoundChannel currentChannel, UUID clientPlayerUUID, int entityID) {
             this.entityID = entityID;
             this.currentChannel = currentChannel;
             this.clientPlayerUUID = clientPlayerUUID;
-            this.currentAudioSound = Mp3Statues.currentAudioSound;
+            this.currentAudioSound = Mp3Context.currentAudioSound;
         }
 
         public static class Mp3SoundCtxBuilder {
 
             private int entityID;
             private UUID clientPlayerUUID;
-            private SoundEventRegistryHandler.SoundChannel currentChannel;
+            private SoundChannel currentChannel;
 
             private Mp3SoundCtxBuilder() {
             }
@@ -93,7 +94,7 @@ public class Mp3Statues {
                 return new Mp3SoundCtxBuilder();
             }
 
-            public Mp3SoundCtxBuilder currentChannel(SoundEventRegistryHandler.SoundChannel channel) {
+            public Mp3SoundCtxBuilder currentChannel(SoundChannel channel) {
                 this.currentChannel = channel;
                 return this;
             }

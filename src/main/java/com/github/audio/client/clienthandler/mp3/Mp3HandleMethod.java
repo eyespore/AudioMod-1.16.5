@@ -2,13 +2,13 @@ package com.github.audio.client.clienthandler.mp3;
 
 import com.github.audio.Audio;
 import com.github.audio.Utils;
-import com.github.audio.api.AudioAnnotation;
-import com.github.audio.api.ISoundHandlerBranch;
+import com.github.audio.api.annotation.ClientOnly;
+import com.github.audio.api.Interface.ISoundHandlerBranch;
 import com.github.audio.client.clienthandler.ClientEventHandler;
 import com.github.audio.client.gui.AudioToastMessage;
 import com.github.audio.item.mp3.Mp3;
 import com.github.audio.sound.AudioSound;
-import com.github.audio.sound.SoundEventRegistryHandler;
+import com.github.audio.sound.AudioSoundRegistryHandler;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.EntityTickableSound;
 import net.minecraft.client.audio.ISound;
@@ -26,7 +26,7 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
 
-import static com.github.audio.client.clienthandler.mp3.Mp3Statues.currentAudioSound;
+import static com.github.audio.client.clienthandler.mp3.Mp3Context.currentAudioSound;
 
 /**
  * Specific method and function about how the soundEvent from audio correctly runs, the logic of how those method
@@ -139,7 +139,7 @@ public final class Mp3HandleMethod {
 
     public static void flushCurrentRollingBar() {
         rfb = Utils.getRollingBar(getCurrentAudioSound().getDisplayName()).get();
-        Mp3Statues.currentSongNameRollingBar = rfb.nextRollingFormat();
+        Mp3Context.currentSongNameRollingBar = rfb.nextRollingFormat();
         Mp3SoundHandler.timeTicker = 0;
     }
 
@@ -150,9 +150,9 @@ public final class Mp3HandleMethod {
 
     protected static void preventAutoSwitch() {
         if (Minecraft.getInstance().world != null) {
-            Mp3Statues.lastPreventAutoSwitchChecked = Minecraft.getInstance().world.getGameTime();
+            Mp3Context.lastPreventAutoSwitchChecked = Minecraft.getInstance().world.getGameTime();
         }
-        Mp3Statues.preventAutoSwitch = true;
+        Mp3Context.preventAutoSwitch = true;
     }
 
     /*---------------- Sound Play&Stop Operation --------------------------*/
@@ -212,7 +212,7 @@ public final class Mp3HandleMethod {
     /**
      * Main method to play itickable sound to player
      */
-    public static void playTickableSound(Mp3Statues.Mp3SoundContext context, Supplier<AudioSound> sup, boolean renderLast) {
+    public static void playTickableSound(Mp3Context.Mp3SoundContext context, Supplier<AudioSound> sup, boolean renderLast) {
         ClientWorld world = Minecraft.getInstance().world;
         if (world == null) {
             return;
@@ -245,20 +245,20 @@ public final class Mp3HandleMethod {
 
     /*------------------------- GETTER -------------------------------------*/
     static int getChannelSize() {
-        return Mp3Statues.CURRENT_SOUND_CHANNEL.getChannelSoundList().size();
+        return Mp3Context.CURRENT_SOUND_CHANNEL.getChannelSoundList().size();
     }
 
     protected static boolean isChannelEmpty() {
-        return Mp3Statues.CURRENT_SOUND_CHANNEL.getChannelSoundList().isEmpty();
+        return Mp3Context.CURRENT_SOUND_CHANNEL.getChannelSoundList().isEmpty();
     }
 
     protected static List<AudioSound> getChannelSoundList() {
-        return Mp3Statues.CURRENT_SOUND_CHANNEL.getChannelSoundList();
+        return Mp3Context.CURRENT_SOUND_CHANNEL.getChannelSoundList();
     }
 
     /* To judge when exactly the custom sound source has changed */
     public static void initSoundList() {
-        Utils.CollectionHelper.add(Mp3Statues.soundSourcePath, "a_fine_red_mist", "blue_room", "breath_of_a_serpent", "chemical_brew", "china_town",
+        Utils.CollectionHelper.add(Mp3Context.soundSourcePath, "a_fine_red_mist", "blue_room", "breath_of_a_serpent", "chemical_brew", "china_town",
                 "come_and_see", "driving_force", "end_of_the_road", "full_confession", "hit_the_floor", "katana_zero",
                 "meat_grinder", "nocturne", "overdose", "prison_2", "rain_on_bricks", "silhouette", "sneaky_driver",
                 "snow", "worst_neighbor_ever", "third_district", "you_will_never_know", "start_up" , "katana_zero_init" , "katana_zero_end");
@@ -268,101 +268,101 @@ public final class Mp3HandleMethod {
             SOUND_INDEX_LIST.add(i, i);
         }
 
-        currentAudioSound = Mp3Statues.CURRENT_SOUND_CHANNEL.getChannelSoundList().get(0);
+        currentAudioSound = Mp3Context.CURRENT_SOUND_CHANNEL.getChannelSoundList().get(0);
     }
 
     public static final class ToNext implements ISoundHandlerBranch {
         @Override
-        public void withBranch(ClientPlayerEntity clientPlayer, Mp3Statues.Mp3SoundContext context) {
-            if (Mp3Statues.isPaused || !Mp3Statues.isPlaySong) {
+        public void withBranch(ClientPlayerEntity clientPlayer, Mp3Context.Mp3SoundContext context) {
+            if (Mp3Context.isPaused || !Mp3Context.isPlaySong) {
                 currentAudioSound = toNext();
             } else {
                 stopSound(clientPlayer.getUniqueID());
                 playTickableSound(context, Mp3HandleMethod::toNext, true);
                 audioToastDraw();
-                Mp3Statues.isPlaySong = true;
+                Mp3Context.isPlaySong = true;
             }
             toBeSolved = HandleMethodFactory.HandleMethodType.NULL;
-            Mp3Statues.currentSourceHasChanged = true;
-            Mp3Statues.isPaused = false;
+            Mp3Context.currentSourceHasChanged = true;
+            Mp3Context.isPaused = false;
 
             System.out.println("285 : current sound index : " + getChannelSoundList().indexOf(currentAudioSound));
 
         }
     }
 
-    @AudioAnnotation.ClientOnly
+    @ClientOnly
     public static final class ToLast implements ISoundHandlerBranch {
         @Override
-        public void withBranch(ClientPlayerEntity clientPlayer, Mp3Statues.Mp3SoundContext context) {
-            if (Mp3Statues.isPaused || !Mp3Statues.isPlaySong) {
+        public void withBranch(ClientPlayerEntity clientPlayer, Mp3Context.Mp3SoundContext context) {
+            if (Mp3Context.isPaused || !Mp3Context.isPlaySong) {
                 currentAudioSound = toLast();
             } else {
                 stopSound(clientPlayer.getUniqueID());
                 playTickableSound(context, Mp3HandleMethod::toLast, true);
-                Mp3Statues.isPlaySong = true;
+                Mp3Context.isPlaySong = true;
             }
-            Mp3Statues.isPaused = false;
-            Mp3Statues.currentSourceHasChanged = true;
+            Mp3Context.isPaused = false;
+            Mp3Context.currentSourceHasChanged = true;
             toBeSolved = HandleMethodFactory.HandleMethodType.NULL;
 
             System.out.println("305 : current sound index : " + getChannelSoundList().indexOf(currentAudioSound));
         }
     }
 
-    @AudioAnnotation.ClientOnly
+    @ClientOnly
     public static class PauseOrResume implements ISoundHandlerBranch {
         @Override
-        public void withBranch(ClientPlayerEntity clientPlayer, Mp3Statues.Mp3SoundContext context) {
-            if (!Mp3Statues.isPlaySong && !Mp3Statues.isPaused) {
-                if (!Mp3Statues.hasPlayInit) {
+        public void withBranch(ClientPlayerEntity clientPlayer, Mp3Context.Mp3SoundContext context) {
+            if (!Mp3Context.isPlaySong && !Mp3Context.isPaused) {
+                if (!Mp3Context.hasPlayInit) {
                     recordNow();
                     playInitMusic(context);
-                    Mp3Statues.hasPlayInit = true;
-                    Mp3Statues.gonnaPlay = true;
+                    Mp3Context.hasPlayInit = true;
+                    Mp3Context.gonnaPlay = true;
                 }
-            } else if (Mp3Statues.isPlaySong && !Mp3Statues.isPaused) {
-                if (Mp3Statues.currentSource == null) return;
+            } else if (Mp3Context.isPlaySong && !Mp3Context.isPaused) {
+                if (Mp3Context.currentSource == null) return;
                 /* If the sound has started to player, first press button turn into pause. */
-                Mp3Statues.currentSource.pause();
-                Mp3Statues.isPaused = true;
-                Mp3Statues.isPlaySong = false;
-            } else if (!Mp3Statues.isPlaySong) {
+                Mp3Context.currentSource.pause();
+                Mp3Context.isPaused = true;
+                Mp3Context.isPlaySong = false;
+            } else if (!Mp3Context.isPlaySong) {
                 /* The second time when player press the button it turns into resume the sound. */
-                Mp3Statues.currentSource.resume();
-                Mp3Statues.isPaused = false;
-                Mp3Statues.isPlaySong = true;
+                Mp3Context.currentSource.resume();
+                Mp3Context.isPaused = false;
+                Mp3Context.isPlaySong = true;
             }
             toBeSolved = HandleMethodFactory.HandleMethodType.NULL;
         }
     }
 
-    @AudioAnnotation.ClientOnly
+    @ClientOnly
     public static class GonnaPlay implements ISoundHandlerBranch {
         @Override
-        public void withBranch(ClientPlayerEntity clientPlayer, Mp3Statues.Mp3SoundContext context) {
+        public void withBranch(ClientPlayerEntity clientPlayer, Mp3Context.Mp3SoundContext context) {
             ClientWorld clientWorld = Minecraft.getInstance().world;
             if (clientWorld == null) return;
-            if (clientWorld.getGameTime() - firstRecord > SoundEventRegistryHandler.katanaZeroInit.getDuration() - 10) {
+            if (clientWorld.getGameTime() - firstRecord > AudioSoundRegistryHandler.KATANA_ZERO_INIT.getDuration() - 10) {
                 /* The sound haven't started yet, start from the one displaying in to tooltip of mp3. */
                 playTickableSound(context, Mp3HandleMethod::onCurrent, false);
                 audioToastDraw();
-                Mp3Statues.isPaused = false;
-                Mp3Statues.isPlaySong = true;
-                Mp3Statues.gonnaPlay = false;
+                Mp3Context.isPaused = false;
+                Mp3Context.isPlaySong = true;
+                Mp3Context.gonnaPlay = false;
             }
         }
     }
 
     public static class AutoSwitch implements ISoundHandlerBranch {
         @Override
-        public void withBranch(ClientPlayerEntity clientPlayer, Mp3Statues.Mp3SoundContext context) {
+        public void withBranch(ClientPlayerEntity clientPlayer, Mp3Context.Mp3SoundContext context) {
             ClientEventHandler.trySwitchToNext();
         }
     }
 
-    public static void playInitMusic(Mp3Statues.Mp3SoundContext context) {
-        playTickableSound(context, () -> SoundEventRegistryHandler.katanaZeroInit, true);
+    public static void playInitMusic(Mp3Context.Mp3SoundContext context) {
+        playTickableSound(context, () -> AudioSoundRegistryHandler.KATANA_ZERO_INIT, true);
     }
 
 }

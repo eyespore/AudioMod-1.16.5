@@ -3,7 +3,7 @@ package com.github.audio.client.clienthandler;
 import com.github.audio.Utils;
 import com.github.audio.client.clienthandler.mp3.HandleMethodFactory;
 import com.github.audio.client.clienthandler.mp3.Mp3HandleMethod;
-import com.github.audio.client.clienthandler.mp3.Mp3Statues;
+import com.github.audio.client.clienthandler.mp3.Mp3Context;
 import com.github.audio.client.config.Config;
 import com.github.audio.client.gui.ConfigScreen;
 import com.github.audio.item.mp3.Mp3;
@@ -11,7 +11,7 @@ import com.github.audio.item.mp3.Mp3Utils;
 import com.github.audio.keybind.KeyBinds;
 import com.github.audio.networking.NetworkingHandler;
 import com.github.audio.networking.BackPackSoundPack;
-import com.github.audio.sound.SoundEventRegistryHandler;
+import com.github.audio.sound.AudioSoundRegistryHandler;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.client.gui.screen.inventory.InventoryScreen;
@@ -44,9 +44,9 @@ public class ClientEventHandler {
             Mp3HandleMethod.hasInitSoundSourcePath = true;
         }
 
-        if (Mp3Statues.soundSourcePath.contains(event.getName())) {
-            Mp3Statues.currentSource = event.getSource();
-            Mp3Statues.currentSourceHasChanged = true;
+        if (Mp3Context.soundSourcePath.contains(event.getName())) {
+            Mp3Context.currentSource = event.getSource();
+            Mp3Context.currentSourceHasChanged = true;
         }
     }
 
@@ -68,7 +68,7 @@ public class ClientEventHandler {
             ClientPlayerEntity playerClient = Minecraft.getInstance().player;
             if (playerClient != null) {
                 if (Config.BACK_PACK_SOUND_STATUE.get() == 0 || Config.BACK_PACK_SOUND_STATUE.get() == 1) {
-                    playerClient.playSound(SoundEventRegistryHandler.BACKPACK_UNFOLD_SOUND.get(), SoundCategory.PLAYERS, 3f, 1f);
+                    playerClient.playSound(AudioSoundRegistryHandler.BACKPACK_UNFOLD_SOUND.getSoundEvent(), SoundCategory.PLAYERS, 3f, 1f);
                 }
                 NetworkingHandler.BACKPACK_SOUND_CHANNEL.sendToServer(
                         new BackPackSoundPack(playerClient.getUniqueID(),
@@ -87,7 +87,7 @@ public class ClientEventHandler {
         ClientPlayerEntity playerClient = Minecraft.getInstance().player;
         if (playerClient != null) {
             Objects.requireNonNull(Minecraft.getInstance().world)
-                    .playSound(playerClient, soundPlayPos, SoundEventRegistryHandler.BACKPACK_FOLD_SOUND.get(),
+                    .playSound(playerClient, soundPlayPos, AudioSoundRegistryHandler.BACKPACK_FOLD_SOUND.getSoundEvent(),
                             SoundCategory.PLAYERS, 3f, 1f);
         }
     }
@@ -103,9 +103,9 @@ public class ClientEventHandler {
 
     public static void onPlayerUnFoldBackpack(BlockPos soundPlayPos) {
         ClientPlayerEntity playerClient = Minecraft.getInstance().player;
-        if (playerClient != null && SoundEventRegistryHandler.BACKPACK_UNFOLD_SOUND != null) {
+        if (playerClient != null && AudioSoundRegistryHandler.BACKPACK_UNFOLD_SOUND != null) {
             Objects.requireNonNull(Minecraft.getInstance().world).playSound(playerClient, soundPlayPos,
-                    SoundEventRegistryHandler.BACKPACK_UNFOLD_SOUND.get(), SoundCategory.PLAYERS, 3f, 1f);
+                    AudioSoundRegistryHandler.BACKPACK_UNFOLD_SOUND.getSoundEvent(), SoundCategory.PLAYERS, 3f, 1f);
         }
     }
 

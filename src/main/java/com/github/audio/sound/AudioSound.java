@@ -1,26 +1,43 @@
 package com.github.audio.sound;
 
+import com.github.audio.Utils;
+import com.github.audio.api.AudioContext;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundEvent;
+import net.minecraft.util.SoundEvents;
+import net.minecraftforge.fml.RegistryObject;
+import net.minecraftforge.registries.DeferredRegister;
+import net.minecraftforge.registries.ForgeRegistries;
+import org.lwjgl.system.CallbackI;
+
+import java.util.function.Supplier;
 
 /* sound with complete information */
 public class AudioSound {
-    protected String registryName;
-    protected String displayName;
-    protected long duration;
-    protected SoundEvent soundEvent;
 
-    public AudioSound(String registryName, String displayName, SoundEvent soundEvent, long duration) {
+    protected static final DeferredRegister<SoundEvent> SOUND_REGISTER = DeferredRegister.create(ForgeRegistries.SOUND_EVENTS, Utils.MOD_ID);
+
+    /* Default means song but not normal sound event. */
+    protected static final long DEF_DURATION = 50;
+    /* Default means the song's name has not been reinitialized yet. */
+    static final String NON_NAMED = "non_named";
+    /* Return the unique registryID for each auto-registry AudioSound. */
+    private static int customRegistryID = 0;
+    private static int registryID = 0;
+
+    private int id;
+    private long duration;
+    private String displayName;
+    private String registryName;
+    private Supplier<SoundEvent> soundEvent;
+
+    private AudioSound(int id, String registryName, String displayName,
+                       Supplier<SoundEvent> soundEvent, long duration) {
+        this.id = id;
         this.registryName = registryName;
         this.displayName = displayName;
         this.soundEvent = soundEvent;
         this.duration = duration;
-    }
-
-    public void reset(AudioSound audioSound) {
-        this.registryName = audioSound.registryName;
-        this.displayName = audioSound.displayName;
-        this.soundEvent = audioSound.soundEvent;
-        this.duration = audioSound.duration;
     }
 
     public String getRegistryName() {
@@ -31,16 +48,96 @@ public class AudioSound {
         return displayName;
     }
 
-    /**
-     * get the duration of a song, means the length of how long the song is ganna play.
-     *
-     * @return the length of song, unit has been translated into "ticks" already.
-     */
     public long getDuration() {
         return duration;
     }
 
     public SoundEvent getSoundEvent() {
-        return soundEvent;
+        return soundEvent.get();
     }
+
+    public int getID() {
+        return this.id;
+    }
+
+    public void reset(AudioSound audioSound) {
+        this.id = audioSound.id;
+        this.registryName = audioSound.registryName;
+        this.displayName = audioSound.displayName;
+        this.soundEvent = audioSound.soundEvent;
+        this.duration = audioSound.duration;
+    }
+
+    protected AudioSound into(final SoundChannel channel) {
+        channel.getChannelSoundList().add(this);
+        return this;
+    }
+
+    public static class audioSoundBuilder extends AudioContext {
+        private long duration;
+        private String registryName;
+        private String displayName;
+        private Supplier<SoundEvent> soundEvent;
+
+        public audioSoundBuilder() {
+            this.init();
+        }
+
+        public audioSoundBuilder tag(String registryName, String displayName) {
+            this.registryName = registryName;
+            this.displayName = displayName;
+            return this;
+        }
+
+        public audioSoundBuilder duration(long duration) {
+            this.duration = duration;
+            return this;
+        }
+
+        public audioSoundBuilder soundEvent(Supplier<SoundEvent> soundEvent) {
+            this.soundEvent = soundEvent;
+            return this;
+        }
+
+        public AudioSound build() {
+
+            if (registryName.equals(NON_NAMED)) {
+                registryName = getCustomSoundRegistryID();
+                displayName = NON_NAMED;
+            }
+
+            if (duration == -1) {
+                duration = DEF_DURATION;
+            }
+
+            if (soundEvent == null) {
+                soundEvent = SOUND_REGISTER.register(registryName , () -> new SoundEvent(new ResourceLocation(Utils.MOD_ID , registryName)));
+            }
+            return new AudioSound(getRegistryID(), registryName, displayName, soundEvent ,duration);
+        }
+
+        @Override
+        public void init() {
+            duration = -1;
+            registryName = NON_NAMED;
+            displayName = NON_NAMED;
+            soundEvent = null;
+        }
+
+        /**
+         * get the registryID from steady static field.
+         *
+         * @return registry: this should be the unique mark to differ different auto-registry sound event.
+         */
+        private static String getCustomSoundRegistryID() {
+            return "custom_" + (++customRegistryID);
+        }
+
+        private static int getRegistryID() {
+            return ++registryID;
+        }
+    }
+
 }
+
+

@@ -2,7 +2,7 @@ package com.github.audio.client.gui;
 
 import com.github.audio.client.config.Config;
 import com.github.audio.keybind.KeyBinds;
-import com.github.audio.sound.SoundEventRegistryHandler;
+import com.github.audio.sound.SoundChannel;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.Screen;
@@ -114,26 +114,25 @@ public final class ConfigScreen extends Screen {
         //MusicBoxClewTone Button
         this.musicBoxClewToneButton = new Button(this.width / 2 - 75, getY(), DEF_WIDTH, DEF_HEIGHT,
                 new TranslationTextComponent("gui.audio.configScreen.musicBoxClewToneButton",
-                        SoundEventRegistryHandler.SoundChannel.MUSIC_BOX_CHANNEL.
+                        SoundChannel.MUSIC_BOX_CHANNEL.
                                 getChannelSoundList().get(TOAST_MSG_TONE_PARA.para).getDisplayName()),
                 button -> {
                     if (TOAST_MSG_TONE_PARA.para ==
-                            SoundEventRegistryHandler.SoundChannel.MUSIC_BOX_CHANNEL.getChannelSoundList().size() - 1) {
+                            SoundChannel.MUSIC_BOX_CHANNEL.getChannelSoundList().size() - 1) {
                         TOAST_MSG_TONE_PARA.para = 0;
                     } else {
                         TOAST_MSG_TONE_PARA.para++;
                     }
 
-                    SoundEvent soundEvent = SoundEventRegistryHandler.SoundChannel.MUSIC_BOX_CHANNEL
-                            .getChannelSoundList().get(TOAST_MSG_TONE_PARA.ensureIn(0, SoundEventRegistryHandler
-                                    .SoundChannel.MUSIC_BOX_CHANNEL.getChannelSoundList().size() - 1)).getSoundEvent();
+                    SoundEvent soundEvent = SoundChannel.MUSIC_BOX_CHANNEL
+                            .getChannelSoundList().get(TOAST_MSG_TONE_PARA.ensureIn(0, SoundChannel.MUSIC_BOX_CHANNEL.getChannelSoundList().size() - 1)).getSoundEvent();
 
                     Config.MUSIC_BOX_CLEW_TONE.set(TOAST_MSG_TONE_PARA.para);
                     Config.MUSIC_BOX_CLEW_TONE.save();
 
                     this.musicBoxClewToneButton.setMessage(new TranslationTextComponent(
                             "gui.audio.configScreen.musicBoxClewToneButton",
-                            SoundEventRegistryHandler.SoundChannel.MUSIC_BOX_CHANNEL.
+                            SoundChannel.MUSIC_BOX_CHANNEL.
                                     getChannelSoundList().get(TOAST_MSG_TONE_PARA.para).getDisplayName()));
                     if (soundEvent != null) {
                         Objects.requireNonNull(Minecraft.getInstance().player).playSound(soundEvent, 2, 1);

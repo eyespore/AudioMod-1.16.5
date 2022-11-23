@@ -46,5 +46,14 @@
         "stream": true
       }
     ]
+  },
+  "null_sound_event": {
+    "sounds": [
+      {
+        "name": "audio:null_sound_event",
+        "stream": true
+      }
+    ]
   }
 }
+

@@ -55,7 +55,7 @@ public class SoundEventHelper {
         Arrays.stream(Objects.requireNonNull(audioFile.listFiles())).forEach(file -> {
             String registryName = file.getName().substring(0 , file.getName().lastIndexOf("."));
             try {
-                System.out.println(registryName + " : " + getSongDuration(registryName).orElse(SoundEventRegistryHandler.DEF_DURATION));;
+                System.out.println(registryName + " : " + getSongDuration(registryName).orElse(AudioSound.DEF_DURATION));;
             } catch (IOException | CannotReadException e) {
                 e.printStackTrace();
             }

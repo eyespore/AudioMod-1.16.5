@@ -3,13 +3,9 @@ package com.github.audio;
 import com.github.audio.client.config.Config;
 import com.github.audio.item.ItemRegisterHandler;
 import com.github.audio.keybind.KeyBinds;
-import com.github.audio.sound.SoundEventRegistryHandler;
-import net.minecraft.block.Block;
-import net.minecraft.util.SoundEvent;
+import com.github.audio.sound.AudioSoundRegistryHandler;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.ExtensionPoint;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
@@ -18,7 +14,6 @@ import net.minecraftforge.fml.event.lifecycle.*;
 import net.minecraftforge.fml.event.server.FMLServerStartingEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.fml.network.FMLNetworkConstants;
-import net.minecraftforge.registries.ForgeRegistries;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -33,7 +28,7 @@ public class Audio
         ModLoadingContext context = ModLoadingContext.get();
 
         ItemRegisterHandler.register(eventBus);
-        SoundEventRegistryHandler.register(eventBus);
+        AudioSoundRegistryHandler.register(eventBus);
 
         eventBus.addListener(this::onRegistry);
         eventBus.addListener(this::setup);

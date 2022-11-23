@@ -1,6 +1,6 @@
 package com.github.audio.client.clienthandler.mp3;
 
-import com.github.audio.api.ISoundHandlerBranch;
+import com.github.audio.api.Interface.ISoundHandlerBranch;
 import com.github.audio.item.mp3.Mp3;
 
 import java.util.HashMap;

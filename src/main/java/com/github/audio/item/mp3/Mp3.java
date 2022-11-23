@@ -1,9 +1,9 @@
 package com.github.audio.item.mp3;
 
-import com.github.audio.client.clienthandler.mp3.Mp3Statues;
+import com.github.audio.client.clienthandler.mp3.Mp3Context;
 import com.github.audio.client.clienthandler.mp3.Mp3HandleMethod;
 import com.github.audio.creativetab.ModCreativeTab;
-import com.github.audio.sound.SoundEventRegistryHandler;
+import com.github.audio.sound.AudioSoundRegistryHandler;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.client.gui.screen.Screen;
@@ -59,13 +59,13 @@ public class Mp3 extends Item {
 
     public static void stopMp3(ClientPlayerEntity clientPlayer) {
         Mp3HandleMethod.stopSound(clientPlayer.getUniqueID());
-        Mp3Statues.resetAllParameter();
+        Mp3Context.reset();
         playMp3EndSound(clientPlayer);
     }
 
     public static void playMp3EndSound(ClientPlayerEntity clientPlayer) {
-        Mp3HandleMethod.playTickableSound(Mp3Statues.getCtx().get(),
-                () -> SoundEventRegistryHandler.katanaZeroEnd, false);
+        Mp3HandleMethod.playTickableSound(Mp3Context.getCtx().get(),
+                () -> AudioSoundRegistryHandler.KATANA_ZERO_END, false);
     }
 
     @Override
@@ -76,14 +76,14 @@ public class Mp3 extends Item {
     }
 
     public static ITextComponent getCurrentSoundITextComponent(String translationKey) {
-        return new TranslationTextComponent(translationKey, Mp3Statues.currentSongNameRollingBar);
+        return new TranslationTextComponent(translationKey, Mp3Context.currentSongNameRollingBar);
     }
 
     private static ITextComponent getTooltip() {
-        return Mp3Statues.isPlaySong ?
+        return Mp3Context.isPlaySong ?
                 new TranslationTextComponent("item.audio.audio.hasSong",
                         getCurrentSoundITextComponent("item.audio.audio.nowPlaySong"))
-                : Mp3Statues.isPaused ?
+                : Mp3Context.isPaused ?
                 new TranslationTextComponent("item.audio.audio.hasSong",
                         getCurrentSoundITextComponent("item.audio.audio.isPauseNow"))
                 : new TranslationTextComponent("item.audio.audio.hasSong",
@@ -96,8 +96,8 @@ public class Mp3 extends Item {
 
     @Override
     public ITextComponent getDisplayName(ItemStack p_200295_1_) {
-        return Mp3Statues.isPlaySong ? new TranslationTextComponent("displayName.audio.audio.playingNow", getModeName())
-                : Mp3Statues.isPaused ? new TranslationTextComponent("displayName.audio.audio.pausingNow", getModeName())
+        return Mp3Context.isPlaySong ? new TranslationTextComponent("displayName.audio.audio.playingNow", getModeName())
+                : Mp3Context.isPaused ? new TranslationTextComponent("displayName.audio.audio.pausingNow", getModeName())
                 : new TranslationTextComponent("displayName.audio.audio.waitToPlay", getModeName());
     }
 

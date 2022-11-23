@@ -4,7 +4,7 @@ import com.github.audio.Utils;
 import com.github.audio.item.ItemRegisterHandler;
 import com.github.audio.item.mp3.Mp3;
 import com.github.audio.networking.*;
-import com.github.audio.sound.SoundEventRegistryHandler;
+import com.github.audio.sound.AudioSoundRegistryHandler;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
@@ -143,7 +143,7 @@ public class EventHandler {
 
     @Deprecated
     public static void onPlayerUnfoldBackPack(PlayerEntity playerIn, World worldIn) {
-        worldIn.playSound(playerIn, playerIn.getPosition(), SoundEventRegistryHandler.BACKPACK_UNFOLD_SOUND.get(),
+        worldIn.playSound(playerIn, playerIn.getPosition(), AudioSoundRegistryHandler.BACKPACK_UNFOLD_SOUND.getSoundEvent(),
                 SoundCategory.PLAYERS, 1f, 1f);
     }
 }

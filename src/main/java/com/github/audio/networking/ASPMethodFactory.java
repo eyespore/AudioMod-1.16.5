@@ -1,6 +1,6 @@
 package com.github.audio.networking;
 
-import com.github.audio.api.IAudioSoundPackBranch;
+import com.github.audio.api.Interface.IAudioSoundPackBranch;
 
 import java.util.HashMap;
 
