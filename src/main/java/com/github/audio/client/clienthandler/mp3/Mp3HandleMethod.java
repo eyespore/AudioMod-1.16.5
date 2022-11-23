@@ -25,7 +25,6 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
 
-import static com.github.audio.client.clienthandler.mp3.Mp3Context.currentAudioSound;
 
 /**
  * Specific method and function about how the soundEvent from audio correctly runs, the logic of how those method
@@ -33,6 +32,7 @@ import static com.github.audio.client.clienthandler.mp3.Mp3Context.currentAudioS
  */
 public final class Mp3HandleMethod {
 
+    public static final ArrayList<String> SOUND_SOURCE_PATH = new ArrayList<String>();
     static final Map<UUID, ISound> PLAYER_UUID_LIST = new ConcurrentHashMap<>();
     static final int SOUND_AUTO_SWITCH_CHECK_INTERVAL = 60;
 
@@ -64,14 +64,14 @@ public final class Mp3HandleMethod {
     static AudioSound toNext() {
         if (isChannelEmpty()) return null;
         if (Mp3.currentMode == Mp3.RelayMode.DEFAULT || Mp3.getCurrentMode() == Mp3.RelayMode.SINGLE) {
-            int currentIndex = getChannelSoundList().indexOf(currentAudioSound);
+            int currentIndex = getChannelSoundList().indexOf(Mp3Context.Mp3Ctx.currentAudioSound);
             currentIndex = currentIndex + 1 > getChannelSize() - 1 ? 0 : currentIndex + 1;
-            return currentAudioSound = getChannelSoundList().get(currentIndex);
+            return Mp3Context.Mp3Ctx.currentAudioSound = getChannelSoundList().get(currentIndex);
 
         } else if (Mp3.currentMode == Mp3.RelayMode.RANDOM) {
             if (shouldInitRandomList) initRandomSoundList(true);
-            int nextIndex = RANDOM_INDEX_LIST.indexOf(getChannelSoundList().indexOf(currentAudioSound)) + 1;
-            return currentAudioSound = getChannelSoundList().get(RANDOM_INDEX_LIST
+            int nextIndex = RANDOM_INDEX_LIST.indexOf(getChannelSoundList().indexOf(Mp3Context.Mp3Ctx.currentAudioSound)) + 1;
+            return Mp3Context.Mp3Ctx.currentAudioSound = getChannelSoundList().get(RANDOM_INDEX_LIST
                     .get(nextIndex > RANDOM_INDEX_LIST.size() - 1 ? initRandomSoundList(true) + 1 : nextIndex));
         }
         return null;
@@ -80,13 +80,13 @@ public final class Mp3HandleMethod {
     static AudioSound toLast() {
         if (isChannelEmpty()) return null;
         if (Mp3.currentMode == Mp3.RelayMode.DEFAULT || Mp3.getCurrentMode() == Mp3.RelayMode.SINGLE) {
-            int currentIndex = getChannelSoundList().indexOf(currentAudioSound);
+            int currentIndex = getChannelSoundList().indexOf(Mp3Context.Mp3Ctx.currentAudioSound);
             currentIndex = currentIndex - 1 < 0 ? getChannelSize() - 1 : currentIndex - 1;
-            return currentAudioSound = getChannelSoundList().get(currentIndex);
+            return Mp3Context.Mp3Ctx.currentAudioSound = getChannelSoundList().get(currentIndex);
 
         } else if (Mp3.currentMode == Mp3.RelayMode.RANDOM) {
-            int lastIndex = RANDOM_INDEX_LIST.indexOf(getChannelSoundList().indexOf(currentAudioSound)) - 1;
-            return currentAudioSound = getChannelSoundList().get(RANDOM_INDEX_LIST
+            int lastIndex = RANDOM_INDEX_LIST.indexOf(getChannelSoundList().indexOf(Mp3Context.Mp3Ctx.currentAudioSound)) - 1;
+            return Mp3Context.Mp3Ctx.currentAudioSound = getChannelSoundList().get(RANDOM_INDEX_LIST
                     .get(lastIndex < 0 ? initRandomSoundList(false) - 1 : lastIndex));
         }
         return null;
@@ -94,7 +94,7 @@ public final class Mp3HandleMethod {
 
     protected static AudioSound onCurrent() {
         if (isChannelEmpty()) return null;
-        return currentAudioSound;
+        return Mp3Context.Mp3Ctx.currentAudioSound;
     }
 
     /**
@@ -110,12 +110,12 @@ public final class Mp3HandleMethod {
         RANDOM_INDEX_LIST.clear();
         RANDOM_INDEX_LIST.addAll(SOUND_INDEX_LIST);
         Collections.shuffle(RANDOM_INDEX_LIST);
-        RANDOM_INDEX_LIST.removeIf(integer -> integer == getChannelSoundList().indexOf(currentAudioSound));
+        RANDOM_INDEX_LIST.removeIf(integer -> integer == getChannelSoundList().indexOf(Mp3Context.Mp3Ctx.currentAudioSound));
         if (startFromBeginning) {
-            RANDOM_INDEX_LIST.addFirst(getChannelSoundList().indexOf(currentAudioSound));
+            RANDOM_INDEX_LIST.addFirst(getChannelSoundList().indexOf(Mp3Context.Mp3Ctx.currentAudioSound));
             toReturn = 0;
         } else {
-            RANDOM_INDEX_LIST.addLast(getChannelSoundList().indexOf(currentAudioSound));
+            RANDOM_INDEX_LIST.addLast(getChannelSoundList().indexOf(Mp3Context.Mp3Ctx.currentAudioSound));
             toReturn = RANDOM_INDEX_LIST.size() - 1;
         }
         shouldInitRandomList = false;
@@ -123,12 +123,12 @@ public final class Mp3HandleMethod {
     }
 
     public static AudioSound getCurrentAudioSound() {
-        return currentAudioSound;
+        return Mp3Context.Mp3Ctx.currentAudioSound;
     }
 
     public static void flushCurrentRollingBar() {
         rfb = Utils.getRollingBar(getCurrentAudioSound().getSignedName()).get();
-        Mp3Context.currentSongNameRollingBar = rfb.nextRollingFormat();
+        Mp3Context.Mp3Ctx.currentSongNameRollingBar = rfb.nextRollingFormat();
         Mp3SoundHandler.timeTicker = 0;
     }
 
@@ -139,9 +139,9 @@ public final class Mp3HandleMethod {
 
     protected static void preventAutoSwitch() {
         if (Minecraft.getInstance().world != null) {
-            Mp3Context.lastPreventAutoSwitchChecked = Minecraft.getInstance().world.getGameTime();
+            Mp3Context.Mp3Ctx.lastPreventAutoSwitchChecked = Minecraft.getInstance().world.getGameTime();
         }
-        Mp3Context.preventAutoSwitch = true;
+        Mp3Context.Mp3Ctx.preventAutoSwitch = true;
     }
 
     /*---------------- Sound Play&Stop Operation --------------------------*/
@@ -247,7 +247,7 @@ public final class Mp3HandleMethod {
 
     /* To judge when exactly the custom sound source has changed */
     public static void initSoundList() {
-        Utils.CollectionHelper.add(Mp3Context.soundSourcePath, "a_fine_red_mist", "blue_room", "breath_of_a_serpent", "chemical_brew", "china_town",
+        Utils.CollectionHelper.add(SOUND_SOURCE_PATH, "a_fine_red_mist", "blue_room", "breath_of_a_serpent", "chemical_brew", "china_town",
                 "come_and_see", "driving_force", "end_of_the_road", "full_confession", "hit_the_floor", "katana_zero",
                 "meat_grinder", "nocturne", "overdose", "prison_2", "rain_on_bricks", "silhouette", "sneaky_driver",
                 "snow", "worst_neighbor_ever", "third_district", "you_will_never_know", "start_up" , "katana_zero_init" , "katana_zero_end");
@@ -257,23 +257,23 @@ public final class Mp3HandleMethod {
             SOUND_INDEX_LIST.add(i, i);
         }
 
-        currentAudioSound = Mp3Context.CURRENT_SOUND_CHANNEL.getChannelSoundList().get(0);
+        Mp3Context.Mp3Ctx.currentAudioSound = Mp3Context.CURRENT_SOUND_CHANNEL.getChannelSoundList().get(0);
     }
 
     public static final class ToNext implements ISoundHandlerBranch {
         @Override
         public void withBranch(ClientPlayerEntity clientPlayer, Mp3Context.Mp3SoundContext context) {
-            if (Mp3Context.isPaused || !Mp3Context.isPlaySong) {
-                currentAudioSound = toNext();
+            if (Mp3Context.Mp3Ctx.isPaused || !Mp3Context.Mp3Ctx.isPlaySong) {
+                Mp3Context.Mp3Ctx.currentAudioSound = toNext();
             } else {
                 stopSound(clientPlayer.getUniqueID());
                 playTickableSound(context, Mp3HandleMethod::toNext, true);
                 audioToastDraw();
-                Mp3Context.isPlaySong = true;
+                Mp3Context.Mp3Ctx.isPlaySong = true;
             }
             toBeSolved = HandleMethodFactory.HandleMethodType.NULL;
-            Mp3Context.currentSourceHasChanged = true;
-            Mp3Context.isPaused = false;
+            Mp3Context.Mp3Ctx.currentSourceHasChanged = true;
+            Mp3Context.Mp3Ctx.isPaused = false;
         }
     }
 
@@ -281,15 +281,15 @@ public final class Mp3HandleMethod {
     public static final class ToLast implements ISoundHandlerBranch {
         @Override
         public void withBranch(ClientPlayerEntity clientPlayer, Mp3Context.Mp3SoundContext context) {
-            if (Mp3Context.isPaused || !Mp3Context.isPlaySong) {
-                currentAudioSound = toLast();
+            if (Mp3Context.Mp3Ctx.isPaused || !Mp3Context.Mp3Ctx.isPlaySong) {
+                Mp3Context.Mp3Ctx.currentAudioSound = toLast();
             } else {
                 stopSound(clientPlayer.getUniqueID());
                 playTickableSound(context, Mp3HandleMethod::toLast, true);
-                Mp3Context.isPlaySong = true;
+                Mp3Context.Mp3Ctx.isPlaySong = true;
             }
-            Mp3Context.isPaused = false;
-            Mp3Context.currentSourceHasChanged = true;
+            Mp3Context.Mp3Ctx.isPaused = false;
+            Mp3Context.Mp3Ctx.currentSourceHasChanged = true;
             toBeSolved = HandleMethodFactory.HandleMethodType.NULL;
         }
     }
@@ -298,24 +298,24 @@ public final class Mp3HandleMethod {
     public static class PauseOrResume implements ISoundHandlerBranch {
         @Override
         public void withBranch(ClientPlayerEntity clientPlayer, Mp3Context.Mp3SoundContext context) {
-            if (!Mp3Context.isPlaySong && !Mp3Context.isPaused) {
-                if (!Mp3Context.hasPlayInit) {
+            if (!Mp3Context.Mp3Ctx.isPlaySong && !Mp3Context.Mp3Ctx.isPaused) {
+                if (!Mp3Context.Mp3Ctx.hasPlayInit) {
                     recordNow();
                     playInitMusic(context);
-                    Mp3Context.hasPlayInit = true;
-                    Mp3Context.gonnaPlay = true;
+                    Mp3Context.Mp3Ctx.hasPlayInit = true;
+                    Mp3Context.Mp3Ctx.gonnaPlay = true;
                 }
-            } else if (Mp3Context.isPlaySong && !Mp3Context.isPaused) {
-                if (Mp3Context.currentSource == null) return;
+            } else if (Mp3Context.Mp3Ctx.isPlaySong && !Mp3Context.Mp3Ctx.isPaused) {
+                if (Mp3Context.Mp3Ctx.currentSource == null) return;
                 /* If the sound has started to player, first press button turn into pause. */
-                Mp3Context.currentSource.pause();
-                Mp3Context.isPaused = true;
-                Mp3Context.isPlaySong = false;
-            } else if (!Mp3Context.isPlaySong) {
+                Mp3Context.Mp3Ctx.currentSource.pause();
+                Mp3Context.Mp3Ctx.isPaused = true;
+                Mp3Context.Mp3Ctx.isPlaySong = false;
+            } else if (!Mp3Context.Mp3Ctx.isPlaySong) {
                 /* The second time when player press the button it turns into resume the sound. */
-                Mp3Context.currentSource.resume();
-                Mp3Context.isPaused = false;
-                Mp3Context.isPlaySong = true;
+                Mp3Context.Mp3Ctx.currentSource.resume();
+                Mp3Context.Mp3Ctx.isPaused = false;
+                Mp3Context.Mp3Ctx.isPlaySong = true;
             }
             toBeSolved = HandleMethodFactory.HandleMethodType.NULL;
         }
@@ -331,9 +331,9 @@ public final class Mp3HandleMethod {
                 /* The sound haven't started yet, start from the one displaying in to tooltip of mp3. */
                 playTickableSound(context, Mp3HandleMethod::onCurrent, false);
                 audioToastDraw();
-                Mp3Context.isPaused = false;
-                Mp3Context.isPlaySong = true;
-                Mp3Context.gonnaPlay = false;
+                Mp3Context.Mp3Ctx.isPaused = false;
+                Mp3Context.Mp3Ctx.isPlaySong = true;
+                Mp3Context.Mp3Ctx.gonnaPlay = false;
             }
         }
     }

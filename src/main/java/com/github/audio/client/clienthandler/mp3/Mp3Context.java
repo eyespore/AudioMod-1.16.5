@@ -8,57 +8,60 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.SoundSource;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
 
-import java.util.ArrayList;
 import java.util.UUID;
 import java.util.function.Supplier;
 
 public class Mp3Context extends AudioContext {
 
-    public static final Mp3Context playerMp3Context = new Mp3Context();
+    public static final Mp3Context Mp3Ctx = new Mp3Context();
 
     public static final SoundChannel CURRENT_SOUND_CHANNEL =
             SoundChannel.KATANA_ZERO_CHANNEL;
 
     /* If you change the value "CURRENT_SOUND_CHANNEL", at the same time you should change this field as well. */
     static final int SOUND_STOP_CHECK_INTERVAL = 10;
-    public static boolean isPaused;
-    public static boolean isPlaySong;
-    public static boolean hasPlayInit;
-    public static SoundSource currentSource;
-    public static AudioSound currentAudioSound;
-    public static String currentSongNameRollingBar;
-    public static final ArrayList<String> soundSourcePath = new ArrayList<String>();
+    public boolean isPaused;
+    public boolean isPlaySong;
+    public boolean hasPlayInit;
+    public SoundSource currentSource;
+    public AudioSound currentAudioSound;
+    public String currentSongNameRollingBar;
 
-    private static Enum<Mp3.RelayMode> recordMode;
-    private static boolean hasCheckedLastTickMode = false;
+    private Enum<Mp3.RelayMode> recordMode;
+    private boolean hasCheckedLastTickMode = false;
 
-    protected static boolean gonnaPlay = false;
-    protected static boolean preventAutoSwitch = false;
+    protected boolean gonnaPlay = false;
+    protected boolean preventAutoSwitch = false;
 
-    static long lastPreventAutoSwitchChecked = 0;
-    static long lastAutoSwitchChecked = 0;
-    public static boolean currentSourceHasChanged = false;
+    public long lastPreventAutoSwitchChecked = 0;
+    public long lastAutoSwitchChecked = 0;
+    public boolean currentSourceHasChanged = false;
 
     protected static Enum<HandleMethodFactory.HandleMethodType> getHandler() {
         return Mp3HandleMethod.toBeSolved;
     }
 
     /* Call this method only in client side, reset all mark defined in the class. */
-    public static void reset() {
-        isPaused = false;
-        isPlaySong = false;
-        hasPlayInit = false;
-        gonnaPlay = false;
-
-        preventAutoSwitch = false;
-        currentSourceHasChanged = false;
-        hasCheckedLastTickMode = false;
-
+    private static void reset() {
         Mp3.isHoldingMp3 = false;
         Mp3HandleMethod.hasRecord = false;
         Mp3HandleMethod.hasInitRFB = false;
         Mp3HandleMethod.shouldInitRandomList = (Mp3.currentMode == Mp3.RelayMode.RANDOM);
         Mp3HandleMethod.toBeSolved = HandleMethodFactory.HandleMethodType.NULL;
+    }
+
+    @Override
+    public void init() {
+        isPaused = false;
+        gonnaPlay = false;
+        isPlaySong = false;
+        hasPlayInit = false;
+
+        preventAutoSwitch = false;
+        hasCheckedLastTickMode = false;
+        currentSourceHasChanged = false;
+
+        reset();
     }
 
     /**
@@ -68,16 +71,14 @@ public class Mp3Context extends AudioContext {
         public int entityID;
         public UUID clientPlayerUUID;
         public AudioSound currentAudioSound;
-        public SoundChannel currentChannel = CURRENT_SOUND_CHANNEL;
-        public Enum<Mp3.RelayMode> recordMode = Mp3Context.recordMode;
-        public boolean hasCheckedLastTickMode = Mp3Context.hasCheckedLastTickMode;
+        public Enum<Mp3.RelayMode> recordMode = Mp3Context.Mp3Ctx.recordMode;
+        public boolean hasCheckedLastTickMode = Mp3Context.Mp3Ctx.hasCheckedLastTickMode;
 
 
         private Mp3SoundContext(SoundChannel currentChannel, UUID clientPlayerUUID, int entityID) {
             this.entityID = entityID;
-            this.currentChannel = currentChannel;
             this.clientPlayerUUID = clientPlayerUUID;
-            this.currentAudioSound = Mp3Context.currentAudioSound;
+            this.currentAudioSound = Mp3Context.Mp3Ctx.currentAudioSound;
         }
 
         public static class Mp3SoundCtxBuilder {

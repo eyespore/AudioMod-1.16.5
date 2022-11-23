@@ -74,7 +74,7 @@ public class AudioToastMessage implements IToast {
         //TODO : make function to control the hide and show mode of toast Message.
 
         boolean flag1 = clientWorldTime - this.firstDrawTime >= 2000L;
-        boolean flag2 = !Mp3Context.isPlaySong;
+        boolean flag2 = !Mp3Context.Mp3Ctx.isPlaySong;
 
         return (flag1 || flag2) ? Visibility.HIDE : Visibility.SHOW;
     }
