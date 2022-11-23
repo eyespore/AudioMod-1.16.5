@@ -1,5 +1,6 @@
 package com.github.audio.sound;
 
+import com.github.audio.Utils;
 import net.minecraft.util.SoundEvents;
 import net.minecraftforge.eventbus.api.IEventBus;
 
@@ -14,7 +15,12 @@ import static com.github.audio.sound.AudioSound.SOUND_REGISTER;
  * @since 1.0.0
  */
 public class AudioSoundRegistryHandler {
+    public static final HashMap<String, Long> CUSTOM_FILE_MAP = new HashMap<>();
 
+
+    static {
+        Utils.AudioHelper.initMusicFolderMap(CUSTOM_FILE_MAP);
+    }
     private static boolean hasInit = false;
     private static final AudioSoundRegister REGISTER = new AudioSoundRegister();
 
@@ -74,12 +80,10 @@ public class AudioSoundRegistryHandler {
      * one or more AudioSound instance.
      */
     private static class AudioSoundRegister {
-
         /* For registry those AudioSound that need to be defined in the code rather than outside. */
         private static final HashMap<String, AudioSound> CUSTOM_SOUND_MAP = new HashMap<String, AudioSound>();
         /* The AudioSound instance in this map should be defined in the inside. */
         private static final HashMap<String, AudioSound> DEFINED_SOUND_MAP = new HashMap<String, AudioSound>();
-
         private Supplier<AudioSound> registryDef(String registryName) {
             AudioSound registryAudioSound = new AudioSound.AudioSoundBuilder().tag(registryName , getDisplayName(registryName)).build();
             return construct(registryAudioSound);
@@ -111,6 +115,11 @@ public class AudioSoundRegistryHandler {
          */
         private void registryCus() {
             AudioSound registryAudioSound = new AudioSound.AudioSoundBuilder().build();
+            CUSTOM_SOUND_MAP.put(registryAudioSound.getRegistryName() , registryAudioSound);
+        }
+        @SuppressWarnings("deprecation")
+        private void registryCus(String signedName, long duration) {
+            AudioSound registryAudioSound = new AudioSound.AudioSoundBuilder().duration(CUSTOM_FILE_MAP.get(signedName)).build();
             CUSTOM_SOUND_MAP.put(registryAudioSound.getRegistryName() , registryAudioSound);
         }
 
