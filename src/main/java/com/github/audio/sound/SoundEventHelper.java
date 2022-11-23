@@ -1,10 +1,8 @@
 package com.github.audio.sound;
 
-import com.github.audio.client.clientevent.SoundHandler;
 import org.jaudiotagger.audio.exceptions.CannotReadException;
 import org.jaudiotagger.audio.generic.GenericAudioHeader;
 import org.jaudiotagger.audio.ogg.util.OggInfoReader;
-import org.lwjgl.system.CallbackI;
 
 import java.io.*;
 import java.util.Arrays;
@@ -57,11 +55,10 @@ public class SoundEventHelper {
         Arrays.stream(Objects.requireNonNull(audioFile.listFiles())).forEach(file -> {
             String registryName = file.getName().substring(0 , file.getName().lastIndexOf("."));
             try {
-                System.out.println(registryName + " : " + getSongDuration(registryName).orElse(SoundEventRegistryHandler.DEF_DURATION));;
+                System.out.println(registryName + " : " + getSongDuration(registryName).orElse(AudioSound.DEF_DURATION));;
             } catch (IOException | CannotReadException e) {
                 e.printStackTrace();
             }
         });
     }
-
 }

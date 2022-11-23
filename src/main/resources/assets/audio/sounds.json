@@ -1,0 +1,59 @@
+{
+  "backpack_unfold": {
+    "subtitle": "backpack",
+    "replace": true,
+    "sounds": [
+      {
+        "name": "audio:backpackunfold_1",
+        "stream": true
+      },
+      {
+        "name": "audio:backpackunfold_2",
+        "stream": true
+      },
+      {
+        "name": "audio:backpackunfold_3",
+        "stream": true
+      },
+      {
+        "name": "audio:backpackunfold_4",
+        "stream": true
+      }
+    ]
+  },
+  "backpack_fold": {
+    "subtitle": "backpack",
+    "replace": true,
+    "sounds": [
+      {
+        "name": "audio:backpackfold_1",
+        "stream": true
+      }
+    ]
+  },
+  "katana_zero_init": {
+    "sounds": [
+      {
+        "name": "audio:katana_zero_init",
+        "stream": true
+      }
+    ]
+  },
+  "katana_zero_end": {
+    "sounds": [
+      {
+        "name": "audio:katana_zero_end",
+        "stream": true
+      }
+    ]
+  },
+  "null_sound_event": {
+    "sounds": [
+      {
+        "name": "audio:null_sound_event",
+        "stream": true
+      }
+    ]
+  }
+}
+

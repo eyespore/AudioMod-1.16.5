@@ -1,9 +1,9 @@
 package com.github.audio.networking;
 
-import com.github.audio.api.AudioAnnotation;
-import com.github.audio.api.IAudioSoundPackBranch;
-import com.github.audio.client.clientevent.SoundHandleMethod;
-import com.github.audio.client.clientevent.SoundHandler;
+import com.github.audio.api.annotation.ClientOnly;
+import com.github.audio.api.Interface.IAudioSoundPackBranch;
+import com.github.audio.client.clienthandler.mp3.Mp3HandleMethod;
+import com.github.audio.client.clienthandler.mp3.Mp3Context;
 import com.github.audio.item.mp3.Mp3;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
@@ -12,25 +12,25 @@ import java.util.Objects;
 
 public class ASPHandleMethod {
 
-    @AudioAnnotation.ClientOnly
+    @ClientOnly
     protected static class PlayerReborn implements IAudioSoundPackBranch {
         @Override
         public void withBranch(ClientPlayerEntity clientPlayer) {
-            SoundHandleMethod.resetAllParameter();
+            Mp3Context.reset();
         }
     }
 
-    @AudioAnnotation.ClientOnly
+    @ClientOnly
     protected static class PlayerChangeDimension implements IAudioSoundPackBranch {
         @Override
         public void withBranch(ClientPlayerEntity clientPlayer) {
-            SoundHandler.stopSound(clientPlayer.getUniqueID());
-            SoundHandleMethod.resetAllParameter();
+            Mp3HandleMethod.stopSound(clientPlayer.getUniqueID());
+            Mp3Context.reset();
             Mp3.playMp3EndSound(Objects.requireNonNull(Minecraft.getInstance().player));
         }
     }
 
-    @AudioAnnotation.ClientOnly
+    @ClientOnly
     protected static class PlayerTossMp3 implements IAudioSoundPackBranch {
         @Override
         public void withBranch(ClientPlayerEntity clientPlayer) {
@@ -39,16 +39,17 @@ public class ASPHandleMethod {
         }
     }
 
-    @AudioAnnotation.ClientOnly
+    @ClientOnly
     protected static class PlayerCloseGUI implements IAudioSoundPackBranch {
         @Override
         public void withBranch(ClientPlayerEntity clientPlayer) {
-            if (SoundHandler.currentSource != null && SoundHandleMethod.isPaused) {
-                SoundHandler.currentSource.pause();
+            if (Mp3Context.currentSource != null && Mp3Context.isPaused) {
+                Mp3Context.currentSource.pause();
             }
         }
     }
 
+    //TODO : make sure the logic has no problem in it.
     protected static class PlayerMissMp3 implements IAudioSoundPackBranch {
         @Override
         public void withBranch(ClientPlayerEntity clientPlayer) {

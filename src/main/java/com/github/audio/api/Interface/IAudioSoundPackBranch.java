@@ -1,4 +1,4 @@
-package com.github.audio.api;
+package com.github.audio.api.Interface;
 
 import net.minecraft.client.entity.player.ClientPlayerEntity;
 

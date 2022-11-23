@@ -3,20 +3,14 @@ package com.github.audio;
 import com.github.audio.client.config.Config;
 import com.github.audio.item.ItemRegisterHandler;
 import com.github.audio.keybind.KeyBinds;
-import com.github.audio.sound.SoundEventRegistryHandler;
-import net.minecraft.block.Block;
+import com.github.audio.sound.AudioSoundRegistryHandler;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.ExtensionPoint;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
-import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
-import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
-import net.minecraftforge.fml.event.lifecycle.InterModEnqueueEvent;
-import net.minecraftforge.fml.event.lifecycle.InterModProcessEvent;
+import net.minecraftforge.fml.event.lifecycle.*;
 import net.minecraftforge.fml.event.server.FMLServerStartingEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.fml.network.FMLNetworkConstants;
@@ -34,8 +28,9 @@ public class Audio
         ModLoadingContext context = ModLoadingContext.get();
 
         ItemRegisterHandler.register(eventBus);
-        SoundEventRegistryHandler.SOUND_REGISTER.register(eventBus);
+        AudioSoundRegistryHandler.register(eventBus);
 
+        eventBus.addListener(this::onRegistry);
         eventBus.addListener(this::setup);
         eventBus.addListener(this::enqueueIMC);
         eventBus.addListener(this::processIMC);
@@ -54,7 +49,6 @@ public class Audio
 
     }
 
-    @SubscribeEvent
     public void doClientStuff(final FMLClientSetupEvent event) {
         KeyBinds.register();
     }
@@ -64,8 +58,12 @@ public class Audio
 
     private void processIMC(final InterModProcessEvent event) {
     }
-    @SubscribeEvent
+
     public void onServerStarting(FMLServerStartingEvent event) {
+    }
+
+    public void onRegistry(final FMLModIdMappingEvent event) {
+        getLOGGER().info("------------------------- marked event detected -------------------------");
     }
 
     public static Logger getLOGGER() {
