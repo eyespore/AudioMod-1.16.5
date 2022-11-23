@@ -1,6 +1,5 @@
 package com.github.audio;
 
-import com.github.audio.sound.AudioSoundRegistryHandler;
 import net.minecraft.util.text.*;
 import org.jaudiotagger.audio.exceptions.CannotReadException;
 import org.jaudiotagger.audio.generic.GenericAudioHeader;
@@ -9,8 +8,6 @@ import org.jaudiotagger.audio.ogg.util.OggInfoReader;
 import java.io.*;
 import java.util.*;
 import java.util.function.Supplier;
-import java.util.jar.JarEntry;
-import java.util.jar.JarFile;
 
 public class Utils {
 
@@ -126,9 +123,11 @@ public class Utils {
             String folderPath = "./music";
             File musicFolder = new File(folderPath);
             if (!musicFolder.exists()) {
-                if (musicFolder.mkdir()) {
-                    Audio.getLOGGER().info("folder created!");
-                }
+//                if (musicFolder.mkdir()) {
+//                    Audio.getLOGGER().info("folder created!");
+//                }
+                Audio.getLOGGER().info(musicFolder.mkdir() ? "Folder created!" : "Folder create fail.");
+
             }
             if (musicFolder.list() != null) {
                 String[] fileList = musicFolder.list();
@@ -143,8 +142,7 @@ public class Utils {
                     }
                 }
                 //Debug
-                Set keyset = DURATION.keySet();
-                for (Object key : keyset) {
+                for (Object key : DURATION.keySet()) {
                     Object val = DURATION.get(key);
                     Audio.getLOGGER().info("duration now " + key + " : " + val);
                 }
@@ -152,11 +150,9 @@ public class Utils {
 
         }
 
-
         public static <T extends Number> long toTicks(T second) {
             return Math.round(second.doubleValue() * 20);
         }
-
     }
 
 }

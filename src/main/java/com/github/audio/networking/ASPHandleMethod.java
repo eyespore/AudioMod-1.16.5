@@ -16,7 +16,7 @@ public class ASPHandleMethod {
     protected static class PlayerReborn implements IAudioSoundPackBranch {
         @Override
         public void withBranch(ClientPlayerEntity clientPlayer) {
-            Mp3Context.reset();
+            Mp3Context.Mp3Ctx.init();
         }
     }
 
@@ -25,7 +25,7 @@ public class ASPHandleMethod {
         @Override
         public void withBranch(ClientPlayerEntity clientPlayer) {
             Mp3HandleMethod.stopSound(clientPlayer.getUniqueID());
-            Mp3Context.reset();
+            Mp3Context.Mp3Ctx.init();
             Mp3.playMp3EndSound(Objects.requireNonNull(Minecraft.getInstance().player));
         }
     }
@@ -43,8 +43,8 @@ public class ASPHandleMethod {
     protected static class PlayerCloseGUI implements IAudioSoundPackBranch {
         @Override
         public void withBranch(ClientPlayerEntity clientPlayer) {
-            if (Mp3Context.currentSource != null && Mp3Context.isPaused) {
-                Mp3Context.currentSource.pause();
+            if (Mp3Context.Mp3Ctx.currentSource != null && Mp3Context.Mp3Ctx.isPaused) {
+                Mp3Context.Mp3Ctx.currentSource.pause();
             }
         }
     }

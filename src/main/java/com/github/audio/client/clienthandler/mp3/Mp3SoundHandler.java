@@ -34,19 +34,19 @@ public final class Mp3SoundHandler {
 
         Mp3Context.Mp3SoundContext context = Mp3Context.getCtx().get();
 
-        if (Mp3Context.currentSourceHasChanged || !Mp3HandleMethod.hasInitRFB) {
+        if (Mp3Context.Mp3Ctx.currentSourceHasChanged || !Mp3HandleMethod.hasInitRFB) {
             Mp3HandleMethod.flushCurrentRollingBar();
-            Mp3Context.currentSourceHasChanged = false;
+            Mp3Context.Mp3Ctx.currentSourceHasChanged = false;
             Mp3HandleMethod.hasInitRFB = true;
         }
 
         timeTicker++;
         if (timeTicker >= 50) {
-            Mp3Context.currentSongNameRollingBar = Mp3HandleMethod.rfb.nextRollingFormat();
+            Mp3Context.Mp3Ctx.currentSongNameRollingBar = Mp3HandleMethod.rfb.nextRollingFormat();
             timeTicker = 0;
         }
 
-        if (Mp3Context.gonnaPlay) {
+        if (Mp3Context.Mp3Ctx.gonnaPlay) {
             Mp3HandleMethod.preventAutoSwitch();
             HandleMethodFactory.DEFAULT_SOUND_HANDLER_MAP.get(HandleMethodFactory.HandleMethodType.GONNA_PLAY).withBranch(clientPlayer, context);
         }
@@ -76,18 +76,18 @@ public final class Mp3SoundHandler {
             HandleMethodFactory.DEFAULT_SOUND_HANDLER_MAP.get(Mp3HandleMethod.toBeSolved).withBranch(clientPlayer, context);
         }
 
-        boolean flag1 = Mp3Context.currentSource != null && Mp3Context.currentSource.isStopped() && Mp3Context.isPlaySong && !Mp3Context.gonnaPlay;
-        boolean flag2 = Minecraft.getInstance().world.getGameTime() > Mp3Context.lastAutoSwitchChecked + Mp3HandleMethod.SOUND_AUTO_SWITCH_CHECK_INTERVAL;
-        boolean flag3 = Minecraft.getInstance().world.getGameTime() > Mp3Context.lastPreventAutoSwitchChecked + Mp3HandleMethod.SOUND_AUTO_SWITCH_CHECK_INTERVAL;
-        boolean flag4 = Mp3Context.getHandler() == HandleMethodFactory.HandleMethodType.NULL && !Mp3Context.gonnaPlay && Mp3.getCurrentMode() != Mp3.RelayMode.SINGLE;
+        boolean flag1 = Mp3Context.Mp3Ctx.currentSource != null && Mp3Context.Mp3Ctx.currentSource.isStopped() && Mp3Context.Mp3Ctx.isPlaySong && !Mp3Context.Mp3Ctx.gonnaPlay;
+        boolean flag2 = Minecraft.getInstance().world.getGameTime() > Mp3Context.Mp3Ctx.lastAutoSwitchChecked + Mp3HandleMethod.SOUND_AUTO_SWITCH_CHECK_INTERVAL;
+        boolean flag3 = Minecraft.getInstance().world.getGameTime() > Mp3Context.Mp3Ctx.lastPreventAutoSwitchChecked + Mp3HandleMethod.SOUND_AUTO_SWITCH_CHECK_INTERVAL;
+        boolean flag4 = Mp3Context.getHandler() == HandleMethodFactory.HandleMethodType.NULL && !Mp3Context.Mp3Ctx.gonnaPlay && Mp3.getCurrentMode() != Mp3.RelayMode.SINGLE;
 
         if (flag3) {
-            Mp3Context.preventAutoSwitch = false;
-            Mp3Context.lastPreventAutoSwitchChecked = Minecraft.getInstance().world.getGameTime();
+            Mp3Context.Mp3Ctx.preventAutoSwitch = false;
+            Mp3Context.Mp3Ctx.lastPreventAutoSwitchChecked = Minecraft.getInstance().world.getGameTime();
         }
 
-        if (flag1 && flag2 && flag4 && !Mp3Context.preventAutoSwitch) {
-            Mp3Context.lastAutoSwitchChecked = Minecraft.getInstance().world.getGameTime();
+        if (flag1 && flag2 && flag4 && !Mp3Context.Mp3Ctx.preventAutoSwitch) {
+            Mp3Context.Mp3Ctx.lastAutoSwitchChecked = Minecraft.getInstance().world.getGameTime();
             HandleMethodFactory.DEFAULT_SOUND_HANDLER_MAP.get(HandleMethodFactory.HandleMethodType.AUTO_SWITCH_NEXT).withBranch(clientPlayer, context);
         }
     }

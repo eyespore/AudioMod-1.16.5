@@ -115,7 +115,7 @@ public final class ConfigScreen extends Screen {
         this.musicBoxClewToneButton = new Button(this.width / 2 - 75, getY(), DEF_WIDTH, DEF_HEIGHT,
                 new TranslationTextComponent("gui.audio.configScreen.musicBoxClewToneButton",
                         SoundChannel.MUSIC_BOX_CHANNEL.
-                                getChannelSoundList().get(TOAST_MSG_TONE_PARA.para).getDisplayName()),
+                                getChannelSoundList().get(TOAST_MSG_TONE_PARA.para).getSignedName()),
                 button -> {
                     if (TOAST_MSG_TONE_PARA.para ==
                             SoundChannel.MUSIC_BOX_CHANNEL.getChannelSoundList().size() - 1) {
@@ -133,7 +133,7 @@ public final class ConfigScreen extends Screen {
                     this.musicBoxClewToneButton.setMessage(new TranslationTextComponent(
                             "gui.audio.configScreen.musicBoxClewToneButton",
                             SoundChannel.MUSIC_BOX_CHANNEL.
-                                    getChannelSoundList().get(TOAST_MSG_TONE_PARA.para).getDisplayName()));
+                                    getChannelSoundList().get(TOAST_MSG_TONE_PARA.para).getSignedName()));
                     if (soundEvent != null) {
                         Objects.requireNonNull(Minecraft.getInstance().player).playSound(soundEvent, 2, 1);
                     }
@@ -152,7 +152,6 @@ public final class ConfigScreen extends Screen {
                 new TranslationTextComponent("gui.audio.configScreen.done"),
                 button -> ConfigScreen.this.closeScreen());
         this.addButton(done);
-
     }
 
     @Override

@@ -24,25 +24,30 @@ public class AudioSound {
 
     private int id;
     private long duration;
-    private String displayName;
+    private String signedName;
     private String registryName;
     private Supplier<SoundEvent> soundEvent;
 
-    private AudioSound(int id, String registryName, String displayName,
+    private AudioSound(int id, String registryName, String signedName,
                        Supplier<SoundEvent> soundEvent, long duration) {
         this.id = id;
         this.registryName = registryName;
-        this.displayName = displayName;
+        this.signedName = signedName;
         this.soundEvent = soundEvent;
         this.duration = duration;
     }
+
+    /**
+     * the song registry name should be the lower case and make sure they have been divided into part
+     * by underscore such as "breath_of_a_serpent".
+     */
 
     public String getRegistryName() {
         return registryName;
     }
 
-    public String getDisplayName() {
-        return displayName;
+    public String getSignedName() {
+        return signedName;
     }
 
     public long getDuration() {
@@ -53,6 +58,11 @@ public class AudioSound {
         return soundEvent.get();
     }
 
+    public String getDisplayName() {
+        //TODO : implement the logic how signedName translated into DisplayName here.
+        return null;
+    }
+
     public int getID() {
         return this.id;
     }
@@ -60,7 +70,7 @@ public class AudioSound {
     public void reset(AudioSound audioSound) {
         this.id = audioSound.id;
         this.registryName = audioSound.registryName;
-        this.displayName = audioSound.displayName;
+        this.signedName = audioSound.signedName;
         this.soundEvent = audioSound.soundEvent;
         this.duration = audioSound.duration;
     }
@@ -73,24 +83,23 @@ public class AudioSound {
     public static class AudioSoundBuilder extends AudioContext {
         private long duration;
         private String registryName;
-        private String displayName;
+        private String signedName;
         private Supplier<SoundEvent> soundEvent;
 
         public AudioSoundBuilder() {
             this.init();
         }
 
-        public AudioSoundBuilder tag(String registryName, String displayName) {
+        public AudioSoundBuilder tag(String registryName, String signedName) {
             this.registryName = registryName;
-            this.displayName = displayName;
+            this.signedName = signedName;
             return this;
         }
 
         /**
-         *  This method should not be used, as duration should be defined in the inner part, the method
+         *  This method should not be used to create song, as duration should be defined in the inner part, the method
          *  to get duration could be using AudioAPI method to read .ogg file or defining with *DEF_DURATION*.
          */
-        @Deprecated
         public AudioSoundBuilder duration(long duration) {
             this.duration = duration;
             return this;
@@ -101,8 +110,8 @@ public class AudioSound {
             return this;
         }
 
-        public AudioSoundBuilder displayName(String displayName) {
-            this.displayName = displayName;
+        public AudioSoundBuilder signedName(String signedName) {
+            this.signedName = signedName;
             return this;
         }
 
@@ -120,14 +129,14 @@ public class AudioSound {
             if (soundEvent == null) {
                 soundEvent = SOUND_REGISTER.register(registryName, () -> new SoundEvent(new ResourceLocation(Utils.MOD_ID, registryName)));
             }
-            return new AudioSound(getRegistryID(), registryName, displayName, soundEvent, duration);
+            return new AudioSound(getRegistryID(), registryName, signedName, soundEvent, duration);
         }
 
         @Override
         public void init() {
             duration = -1;
             registryName = NON_NAMED;
-            displayName = NON_NAMED;
+            signedName = NON_NAMED;
             soundEvent = null;
         }
 

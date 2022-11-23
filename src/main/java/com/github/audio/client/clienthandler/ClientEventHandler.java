@@ -44,9 +44,9 @@ public class ClientEventHandler {
             Mp3HandleMethod.hasInitSoundSourcePath = true;
         }
 
-        if (Mp3Context.soundSourcePath.contains(event.getName())) {
-            Mp3Context.currentSource = event.getSource();
-            Mp3Context.currentSourceHasChanged = true;
+        if (Mp3HandleMethod.SOUND_SOURCE_PATH.contains(event.getName())) {
+            Mp3Context.Mp3Ctx.currentSource = event.getSource();
+            Mp3Context.Mp3Ctx.currentSourceHasChanged = true;
         }
     }
 
