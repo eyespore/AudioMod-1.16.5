@@ -89,6 +89,11 @@ public class AudioSound {
             return this;
         }
 
+        /**
+         *  This method should not be used, as duration should be defined in the inner part, the method
+         *  to get duration could be using AudioAPI method to read .ogg file or defining with *DEF_DURATION*.
+         */
+        @Deprecated
         public audioSoundBuilder duration(long duration) {
             this.duration = duration;
             return this;
@@ -106,14 +111,15 @@ public class AudioSound {
                 displayName = NON_NAMED;
             }
 
+            //TODO : gain the exact duration and implement here.
             if (duration == -1) {
                 duration = DEF_DURATION;
             }
 
             if (soundEvent == null) {
-                soundEvent = SOUND_REGISTER.register(registryName , () -> new SoundEvent(new ResourceLocation(Utils.MOD_ID , registryName)));
+                soundEvent = SOUND_REGISTER.register(registryName, () -> new SoundEvent(new ResourceLocation(Utils.MOD_ID, registryName)));
             }
-            return new AudioSound(getRegistryID(), registryName, displayName, soundEvent ,duration);
+            return new AudioSound(getRegistryID(), registryName, displayName, soundEvent, duration);
         }
 
         @Override
