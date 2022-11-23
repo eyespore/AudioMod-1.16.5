@@ -1,8 +1,9 @@
 package com.github.audio.item.mp3;
 
-import com.github.audio.client.clientevent.SoundHandleMethod;
-import com.github.audio.client.clientevent.SoundHandler;
-import com.github.audio.sound.SoundEventRegistryHandler;
+import com.github.audio.client.clienthandler.mp3.Mp3Context;
+import com.github.audio.client.clienthandler.mp3.Mp3HandleMethod;
+import com.github.audio.creativetab.ModCreativeTab;
+import com.github.audio.sound.AudioSoundRegistryHandler;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.client.gui.screen.Screen;
@@ -34,8 +35,8 @@ public class Mp3 extends Item {
         return currentMode;
     }
 
-    public Mp3(Properties properties) {
-        super(properties);
+    public Mp3() {
+        super(new Item.Properties().group(ModCreativeTab.TAB_AUDIO).maxStackSize(1));
     }
 
     @Override
@@ -57,16 +58,14 @@ public class Mp3 extends Item {
     }
 
     public static void stopMp3(ClientPlayerEntity clientPlayer) {
-        SoundHandler.stopSound(clientPlayer.getUniqueID());
-        SoundHandleMethod.resetAllParameter();
+        Mp3HandleMethod.stopSound(clientPlayer.getUniqueID());
+        Mp3Context.reset();
         playMp3EndSound(clientPlayer);
     }
 
-
     public static void playMp3EndSound(ClientPlayerEntity clientPlayer) {
-        SoundHandler.playTickableSound(new SoundHandleMethod.AudioPlayerContext(SoundHandler.CURRENT_SOUND_CHANNEL,
-                        clientPlayer.getUniqueID(), clientPlayer.getEntityId()),
-                () -> SoundEventRegistryHandler.katanaZeroEnd, false);
+        Mp3HandleMethod.playTickableSound(Mp3Context.getCtx().get(),
+                () -> AudioSoundRegistryHandler.KATANA_ZERO_END, false);
     }
 
     @Override
@@ -77,14 +76,14 @@ public class Mp3 extends Item {
     }
 
     public static ITextComponent getCurrentSoundITextComponent(String translationKey) {
-        return new TranslationTextComponent(translationKey, SoundHandler.currentSongNameRollingBar);
+        return new TranslationTextComponent(translationKey, Mp3Context.currentSongNameRollingBar);
     }
 
     private static ITextComponent getTooltip() {
-        return SoundHandleMethod.isPlaySong ?
+        return Mp3Context.isPlaySong ?
                 new TranslationTextComponent("item.audio.audio.hasSong",
                         getCurrentSoundITextComponent("item.audio.audio.nowPlaySong"))
-                : SoundHandleMethod.isPaused ?
+                : Mp3Context.isPaused ?
                 new TranslationTextComponent("item.audio.audio.hasSong",
                         getCurrentSoundITextComponent("item.audio.audio.isPauseNow"))
                 : new TranslationTextComponent("item.audio.audio.hasSong",
@@ -97,14 +96,18 @@ public class Mp3 extends Item {
 
     @Override
     public ITextComponent getDisplayName(ItemStack p_200295_1_) {
-        return SoundHandleMethod.isPlaySong ? new TranslationTextComponent("displayName.audio.audio.playingNow", getModeName())
-                : SoundHandleMethod.isPaused ? new TranslationTextComponent("displayName.audio.audio.pausingNow", getModeName())
+        return Mp3Context.isPlaySong ? new TranslationTextComponent("displayName.audio.audio.playingNow", getModeName())
+                : Mp3Context.isPaused ? new TranslationTextComponent("displayName.audio.audio.pausingNow", getModeName())
                 : new TranslationTextComponent("displayName.audio.audio.waitToPlay", getModeName());
     }
 
     @SuppressWarnings("NullableProblems")
     @Override
     public void inventoryTick(ItemStack stackIn, World worldIn, Entity entityIn, int itemSlot, boolean isSelected) {
+        if (worldIn.isRemote) {
+            hasMp3InInventory = true;
+        }
+
         if (entityIn instanceof PlayerEntity &&
                 ((((PlayerEntity) entityIn).getHeldItemMainhand().isItemEqual(stackIn))
                         || ((PlayerEntity) entityIn).getHeldItemOffhand().isItemEqual(stackIn))) {

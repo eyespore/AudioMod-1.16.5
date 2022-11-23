@@ -5,7 +5,7 @@ import net.minecraftforge.common.ForgeConfigSpec;
 public class Config {
 
     public static ForgeConfigSpec AUDIO_CONFIG;
-    public static ForgeConfigSpec.BooleanValue DISABLE_BACKPACKSOUND;
+    public static ForgeConfigSpec.BooleanValue DISABLE_BACKPACK_SOUND;
     public static ForgeConfigSpec.IntValue BACK_PACK_SOUND_STATUE;
     public static ForgeConfigSpec.IntValue MUSIC_BOX_CLEW_TONE;
     public static ForgeConfigSpec.LongValue MUSIC_BOX_TIP_EXIST;
@@ -16,7 +16,7 @@ public class Config {
         //upload options into builder with "push", and refresh the data with "pop".
         CONFIG_BUILDER.comment("General Setting").push("general");
 
-        DISABLE_BACKPACKSOUND = CONFIG_BUILDER.comment("Disable backpack sound")
+        DISABLE_BACKPACK_SOUND = CONFIG_BUILDER.comment("Disable backpack sound")
                 .define("disable backpack sound", false);
 
         BACK_PACK_SOUND_STATUE = CONFIG_BUILDER.comment("Parameter of backpack sound setting , " +

@@ -1,9 +1,10 @@
 package com.github.audio;
 
-import com.github.audio.sound.SoundEventHelper;
-import com.github.audio.sound.SoundEventRegistryHandler;
+import com.github.audio.sound.AudioSoundRegistryHandler;
 import net.minecraft.util.text.*;
 import org.jaudiotagger.audio.exceptions.CannotReadException;
+import org.jaudiotagger.audio.generic.GenericAudioHeader;
+import org.jaudiotagger.audio.ogg.util.OggInfoReader;
 
 import java.io.*;
 import java.util.*;
@@ -87,72 +88,75 @@ public class Utils {
     }
 
     public static class AudioHelper {
-        public static void extractMusic() {
-            InputStream inputStream = null;
-            OutputStream outputStream = null;
-            String folderPath = "./music";
-            File file = new File(folderPath);
-            if (!file.exists()) {
-                if (file.mkdir()) {
-                    Audio.getLOGGER().info("folder created!");
-                }
-            }
-            if (Objects.requireNonNull(file.list()).length == 0) {
-                try {
-                    JarFile modJar = new JarFile("./mods/qqa's Mp3-1.1.1.jar");
-                    for (Enumeration<JarEntry> entry = modJar.entries(); entry.hasMoreElements(); ) {
-                        JarEntry jarEntry = entry.nextElement();
-                        if (jarEntry.getName().contains("ogg")) {
-                            inputStream = modJar.getInputStream(jarEntry);
-                            String[] split = jarEntry.getName().split("/");
-                            String fileName = split[split.length - 1];
-                            File targetFile = new File(folderPath + File.separator + fileName);
-                            outputStream = new BufferedOutputStream(new FileOutputStream(targetFile));
-                            byte[] bytes = new byte[2048];
-                            int len;
-                            while ((len = inputStream.read(bytes)) != -1) {
-                                outputStream.write(bytes, 0, len);
-                            }
-                            outputStream.close();
-                        }
-                    }
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
+        /**
+         * @param registryName registry name of some, divided into part with underscore and lowercase
+         *                     such as "breath_of_a_serpent".
+         * @return the length of song, the file for the song must be .ogg format.
+         */
+        public static Optional<Long> getSongDuration(String registryName) throws IOException, CannotReadException {
+            File file = new File("src\\main\\resources\\assets\\audio\\sounds\\" + registryName + ".ogg");
+            return getSongDuration(file);
         }
 
-        public static void getDurationFromFile() {
+        public static Optional<Long> getSongDuration(File file) throws IOException, CannotReadException {
+            RandomAccessFile randomAccessFile = new RandomAccessFile(file, "rwd");
+            OggInfoReader oggInfoReader = new OggInfoReader();
+            GenericAudioHeader read = oggInfoReader.read(randomAccessFile);
+            return Optional.of(toTicks(read.getPreciseTrackLength()));
+        }
+
+        /**
+         * the song registry name should be the lower case and make sure they have been divided into part
+         * by underscore such as "breath_of_a_serpent".
+         */
+        protected static String getSongName(String registryName) {
+            String[] strings = registryName.split("_");
+            StringBuilder toReturn = new StringBuilder();
+            int i = 0;
+            for (String str : strings) {
+                str = str.substring(0, 1).toUpperCase() + str.substring(1);
+                if (i < strings.length - 1) toReturn.append(str).append(" ");
+                else toReturn.append(str);
+                i++;
+            }
+            return toReturn.toString();
+        }
+
+        public static void initMusicFolderMap(final HashMap<String , Long> DURATION) {
             String folderPath = "./music";
-            File file = new File(folderPath);
-            if (!file.exists()) {
-                if (file.mkdir()) {
+            File musicFolder = new File(folderPath);
+            if (!musicFolder.exists()) {
+                if (musicFolder.mkdir()) {
                     Audio.getLOGGER().info("folder created!");
                 }
             }
-            if (file.list() != null) {
-                String[] fileList = file.list();
-                for(String fileName : fileList) {
-                    file = new File(folderPath + File.separator + fileName);
+            if (musicFolder.list() != null) {
+                String[] fileList = musicFolder.list();
+                for (String fileName : fileList) {
+                    File musicFile = new File(folderPath + File.separator + fileName);
 
-                        if (!fileName.contains("backpack")) {
-                            String registryName = fileName.split(".ogg")[0];
-                            try {
-                                SoundEventRegistryHandler.DURATION.put(registryName, SoundEventHelper.getSongDuration(file).get());
-                            } catch (IOException | CannotReadException e) {
-                                e.printStackTrace();
-                                }
-                        }
+                    String signedName = fileName.split(".ogg")[0];
+                    try {
+                            DURATION.put(signedName, getSongDuration(musicFile).get());
+                    } catch (IOException | CannotReadException e) {
+                        e.printStackTrace();
+                    }
                 }
                 //Debug
-                Set keyset = SoundEventRegistryHandler.DURATION.keySet();
+                Set keyset = DURATION.keySet();
                 for (Object key : keyset) {
-                    Object val = SoundEventRegistryHandler.DURATION.get(key);
+                    Object val = DURATION.get(key);
                     Audio.getLOGGER().info("duration now " + key + " : " + val);
                 }
             }
 
         }
+
+
+        public static <T extends Number> long toTicks(T second) {
+            return Math.round(second.doubleValue() * 20);
+        }
+
     }
 
 }

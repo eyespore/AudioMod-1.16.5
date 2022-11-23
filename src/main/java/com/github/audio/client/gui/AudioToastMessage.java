@@ -1,10 +1,10 @@
 package com.github.audio.client.gui;
 
 import com.github.audio.Utils;
-import com.github.audio.client.clientevent.SoundHandleMethod;
+import com.github.audio.client.clienthandler.mp3.Mp3Context;
 import com.github.audio.client.config.Config;
 import com.github.audio.item.ItemRegisterHandler;
-import com.github.audio.sound.SoundEventRegistryHandler;
+import com.github.audio.sound.SoundChannel;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.platform.GlStateManager;
 import net.minecraft.client.Minecraft;
@@ -60,7 +60,7 @@ public class AudioToastMessage implements IToast {
         toastGui.getMinecraft().fontRenderer.drawString(matrixStack, description, 30, getStringPosY(), 100000);
         if (!this.hasPlayedSound && clientWorldTime > 0L) {
             this.hasPlayedSound = true;
-            SoundEvent soundEvent = SoundEventRegistryHandler.SoundChannel.MUSIC_BOX_CHANNEL
+            SoundEvent soundEvent = SoundChannel.MUSIC_BOX_CHANNEL
                     .getChannelSoundList().get(Config.MUSIC_BOX_CLEW_TONE.get()).getSoundEvent();
             if (soundEvent != null) {
                 toastGui.getMinecraft().getSoundHandler().play(
@@ -74,7 +74,7 @@ public class AudioToastMessage implements IToast {
         //TODO : make function to control the hide and show mode of toast Message.
 
         boolean flag1 = clientWorldTime - this.firstDrawTime >= 2000L;
-        boolean flag2 = !SoundHandleMethod.isPlaySong;
+        boolean flag2 = !Mp3Context.isPlaySong;
 
         return (flag1 || flag2) ? Visibility.HIDE : Visibility.SHOW;
     }

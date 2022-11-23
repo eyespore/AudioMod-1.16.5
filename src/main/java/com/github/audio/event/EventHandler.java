@@ -1,17 +1,15 @@
 package com.github.audio.event;
 
-import com.github.audio.Audio;
 import com.github.audio.Utils;
 import com.github.audio.item.ItemRegisterHandler;
+import com.github.audio.item.mp3.Mp3;
 import com.github.audio.networking.*;
-import com.github.audio.sound.AudioSound;
-import com.github.audio.sound.SoundEventRegistryHandler;
+import com.github.audio.sound.AudioSoundRegistryHandler;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.management.PlayerList;
-import net.minecraft.util.NonNullList;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.world.World;
 import net.minecraftforge.event.OnDatapackSyncEvent;
@@ -27,13 +25,12 @@ import net.minecraftforge.fml.server.ServerLifecycleHooks;
 
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 
 @Mod.EventBusSubscriber(modid = Utils.MOD_ID)
 public class EventHandler {
 
-    private static final long CHECK_PLAYER_INVENTORY_DELAY = 120;
+    private static final long CHECK_PLAYER_INVENTORY_DELAY = 80L;
     private static long lastPlayerInventoryChecked = 0L;
 
     /**
@@ -47,7 +44,7 @@ public class EventHandler {
     }
 
     @SubscribeEvent
-    public static void tick(TickEvent.WorldTickEvent event) {
+    public static void tick(final TickEvent.WorldTickEvent event) {
         if (event.world.isRemote && event.phase != TickEvent.Phase.END) return;
         if (event.world.getGameTime() < lastPlayerInventoryChecked + CHECK_PLAYER_INVENTORY_DELAY) return;
         lastPlayerInventoryChecked = event.world.getGameTime();
@@ -100,7 +97,7 @@ public class EventHandler {
             NetworkingHandler.BACKPACK_SOUND_CHANNEL.send(
                     PacketDistributor.PLAYER.with(
                             () -> player),
-                    new BackPackSoundPack(clientPack.getUuid(),
+                    new BackPackSoundPack(clientPack.getUUID(),
                             false, clientPack.isUnfold(), clientPack.getPos())
             );
         }
@@ -139,13 +136,14 @@ public class EventHandler {
                 //Client Thread
                 ASPMethodFactory.BRANCH_MAP.get(ASPMethodFactory.ASPJudgementType.TOSS)
                         .withBranch((ClientPlayerEntity) event.getPlayer());
+                Mp3.hasMp3InInventory = false;
             }
         }
     }
 
     @Deprecated
     public static void onPlayerUnfoldBackPack(PlayerEntity playerIn, World worldIn) {
-        worldIn.playSound(playerIn, playerIn.getPosition(), SoundEventRegistryHandler.BACKPACK_UNFOLD_SOUND.get(),
+        worldIn.playSound(playerIn, playerIn.getPosition(), AudioSoundRegistryHandler.BACKPACK_UNFOLD_SOUND.getSoundEvent(),
                 SoundCategory.PLAYERS, 1f, 1f);
     }
 }

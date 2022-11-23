@@ -1,6 +1,9 @@
-package com.github.audio.client.clientevent;
+package com.github.audio.client.clienthandler;
 
 import com.github.audio.Utils;
+import com.github.audio.client.clienthandler.mp3.HandleMethodFactory;
+import com.github.audio.client.clienthandler.mp3.Mp3HandleMethod;
+import com.github.audio.client.clienthandler.mp3.Mp3Context;
 import com.github.audio.client.config.Config;
 import com.github.audio.client.gui.ConfigScreen;
 import com.github.audio.item.mp3.Mp3;
@@ -8,7 +11,7 @@ import com.github.audio.item.mp3.Mp3Utils;
 import com.github.audio.keybind.KeyBinds;
 import com.github.audio.networking.NetworkingHandler;
 import com.github.audio.networking.BackPackSoundPack;
-import com.github.audio.sound.SoundEventRegistryHandler;
+import com.github.audio.sound.AudioSoundRegistryHandler;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.client.gui.screen.inventory.InventoryScreen;
@@ -30,22 +33,20 @@ import java.util.Objects;
 @Mod.EventBusSubscriber(modid = Utils.MOD_ID, value = Dist.CLIENT)
 public class ClientEventHandler {
 
-    public static boolean hasInitSoundSourcePath = false;
-
     private static long clientTickChecked = 0L;
     private static final long CLIENT_TICK_CHECK_INTERVAL = 40L;
 
     @SubscribeEvent
     public static void onSoundSourceChange(SoundEvent.SoundSourceEvent event) {
 
-        if (!hasInitSoundSourcePath) {
-            SoundHandler.initSoundList();
-            hasInitSoundSourcePath = true;
+        if (!Mp3HandleMethod.hasInitSoundSourcePath) {
+            Mp3HandleMethod.initSoundList();
+            Mp3HandleMethod.hasInitSoundSourcePath = true;
         }
 
-        if (SoundHandler.soundSourcePath.contains(event.getName())) {
-            SoundHandler.currentSource = event.getSource();
-            SoundHandler.currentSourceHasChanged = true;
+        if (Mp3Context.soundSourcePath.contains(event.getName())) {
+            Mp3Context.currentSource = event.getSource();
+            Mp3Context.currentSourceHasChanged = true;
         }
     }
 
@@ -67,7 +68,7 @@ public class ClientEventHandler {
             ClientPlayerEntity playerClient = Minecraft.getInstance().player;
             if (playerClient != null) {
                 if (Config.BACK_PACK_SOUND_STATUE.get() == 0 || Config.BACK_PACK_SOUND_STATUE.get() == 1) {
-                    playerClient.playSound(SoundEventRegistryHandler.BACKPACK_UNFOLD_SOUND.get(), SoundCategory.PLAYERS, 3f, 1f);
+                    playerClient.playSound(AudioSoundRegistryHandler.BACKPACK_UNFOLD_SOUND.getSoundEvent(), SoundCategory.PLAYERS, 3f, 1f);
                 }
                 NetworkingHandler.BACKPACK_SOUND_CHANNEL.sendToServer(
                         new BackPackSoundPack(playerClient.getUniqueID(),
@@ -86,7 +87,7 @@ public class ClientEventHandler {
         ClientPlayerEntity playerClient = Minecraft.getInstance().player;
         if (playerClient != null) {
             Objects.requireNonNull(Minecraft.getInstance().world)
-                    .playSound(playerClient, soundPlayPos, SoundEventRegistryHandler.BACKPACK_FOLD_SOUND.get(),
+                    .playSound(playerClient, soundPlayPos, AudioSoundRegistryHandler.BACKPACK_FOLD_SOUND.getSoundEvent(),
                             SoundCategory.PLAYERS, 3f, 1f);
         }
     }
@@ -102,9 +103,9 @@ public class ClientEventHandler {
 
     public static void onPlayerUnFoldBackpack(BlockPos soundPlayPos) {
         ClientPlayerEntity playerClient = Minecraft.getInstance().player;
-        if (playerClient != null && SoundEventRegistryHandler.BACKPACK_UNFOLD_SOUND != null) {
+        if (playerClient != null && AudioSoundRegistryHandler.BACKPACK_UNFOLD_SOUND != null) {
             Objects.requireNonNull(Minecraft.getInstance().world).playSound(playerClient, soundPlayPos,
-                    SoundEventRegistryHandler.BACKPACK_UNFOLD_SOUND.get(), SoundCategory.PLAYERS, 3f, 1f);
+                    AudioSoundRegistryHandler.BACKPACK_UNFOLD_SOUND.getSoundEvent(), SoundCategory.PLAYERS, 3f, 1f);
         }
     }
 
@@ -119,7 +120,7 @@ public class ClientEventHandler {
     }
 
     /**
-     * Key input event
+     * Key input event for mp3
      */
     @SubscribeEvent
     public static void onKeyInput(InputEvent.KeyInputEvent event) {
@@ -136,20 +137,22 @@ public class ClientEventHandler {
                 if (KeyBinds.relayNext.isPressed()) trySwitchToNext();
                 //try pause or resume the current disc
                 if (KeyBinds.pauseOrResume.isPressed()) tryPauseOrResume();
-            } else return;
+            } else {
+                return;
+            }
         }
     }
 
     public static void trySwitchToLast() {
-        SoundHandleMethod.toBeSolved = HandleMethodFactory.HandleMethodType.SWITCH_TO_LAST;
+        Mp3HandleMethod.toBeSolved = HandleMethodFactory.HandleMethodType.SWITCH_TO_LAST;
     }
 
     public static void trySwitchToNext() {
-        SoundHandleMethod.toBeSolved = HandleMethodFactory.HandleMethodType.SWITCH_TO_NEXT;
+        Mp3HandleMethod.toBeSolved = HandleMethodFactory.HandleMethodType.SWITCH_TO_NEXT;
     }
 
     public static void tryPauseOrResume() {
-        SoundHandleMethod.toBeSolved = HandleMethodFactory.HandleMethodType.PAUSE_OR_RESUME;
+        Mp3HandleMethod.toBeSolved = HandleMethodFactory.HandleMethodType.PAUSE_OR_RESUME;
     }
 }
 

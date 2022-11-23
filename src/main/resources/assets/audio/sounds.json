@@ -31,170 +31,10 @@
       }
     ]
   },
-  "rain_on_bricks": {
-    "sounds": [
-      {
-        "name": "audio:rain_on_bricks",
-        "stream": true
-      }
-    ]
-  },
-  "hit_the_floor": {
-    "sounds": [
-      {
-        "name": "audio:hit_the_floor",
-        "stream": true
-      }
-    ]
-  },
-  "come_and_see": {
-    "sounds": [
-      {
-        "name": "audio:come_and_see",
-        "stream": true
-      }
-    ]
-  },
-  "nocturne": {
-    "sounds": [
-      {
-        "name": "audio:nocturne",
-        "stream": true
-      }
-    ]
-  },
-  "a_fine_red_mist": {
-    "sounds": [
-      {
-        "name": "audio:a_fine_red_mist",
-        "stream": true
-      }
-    ]
-  },
-  "end_of_the_road": {
-    "sounds": [
-      {
-        "name": "audio:end_of_the_road",
-        "stream": true
-      }
-    ]
-  },
-  "prison_2": {
-    "sounds": [
-      {
-        "name": "audio:prison_2",
-        "stream": true
-      }
-    ]
-  },
-  "silhouette": {
-    "sounds": [
-      {
-        "name": "audio:silhouette",
-        "stream": true
-      }
-    ]
-  },
-  "chemical_brew": {
-    "sounds": [
-      {
-        "name": "audio:chemical_brew",
-        "stream": true
-      }
-    ]
-  },
-  "you_will_never_know": {
-    "sounds": [
-      {
-        "name": "audio:you_will_never_know",
-        "stream": true
-      }
-    ]
-  },
-  "worst_neighbor_ever": {
-    "sounds": [
-      {
-        "name": "audio:worst_neighbor_ever",
-        "stream": true
-      }
-    ]
-  },
-  "blue_room": {
-    "sounds": [
-      {
-        "name": "audio:blue_room",
-        "stream": true
-      }
-    ]
-  },
-  "full_confession": {
-    "sounds": [
-      {
-        "name": "audio:full_confession",
-        "stream": true
-      }
-    ]
-  },
-  "snow": {
-    "sounds": [
-      {
-        "name": "audio:snow",
-        "stream": true
-      }
-    ]
-  },
-  "china_town": {
-    "sounds": [
-      {
-        "name": "audio:china_town",
-        "stream": true
-      }
-    ]
-  },
-  "breath_of_a_serpent": {
-    "sounds": [
-      {
-        "name": "audio:breath_of_a_serpent",
-        "stream": true
-      }
-    ]
-  },
-  "driving_force": {
-    "sounds": [
-      {
-        "name": "audio:driving_force",
-        "stream": true
-      }
-    ]
-  },
-  "null": {
-    "sounds": [
-      {
-        "name": "audio:null",
-        "stream": true
-      }
-    ]
-  },
   "katana_zero_init": {
     "sounds": [
       {
         "name": "audio:katana_zero_init",
-        "stream": true
-      }
-    ]
-  },
-  "sneaky_driver": {
-    "sounds": [
-      {
-        "name": "audio:sneaky_driver",
-        "stream": true
-      }
-    ]
-  },
-  "third_district": {
-    "sounds": [
-      {
-        "name": "audio:third_district",
         "stream": true
       }
     ]
@@ -207,36 +47,13 @@
       }
     ]
   },
-  "katana_zero": {
+  "null_sound_event": {
     "sounds": [
       {
-        "name": "audio:katana_zero",
-        "stream": true
-      }
-    ]
-  },
-  "overdose": {
-    "sounds": [
-      {
-        "name": "audio:overdose",
-        "stream": true
-      }
-    ]
-  },
-  "meat_grinder": {
-    "sounds": [
-      {
-        "name": "audio:meat_grinder",
-        "stream": true
-      }
-    ]
-  },
-  "start_up": {
-    "sounds": [
-      {
-        "name": "audio:start_up",
+        "name": "audio:null_sound_event",
         "stream": true
       }
     ]
   }
 }
+
