@@ -101,11 +101,15 @@ public class AudioSound {
             return this;
         }
 
+        public AudioSoundBuilder displayName(String displayName) {
+            this.displayName = displayName;
+            return this;
+        }
+
         public AudioSound build() {
 
             if (registryName.equals(NON_NAMED)) {
                 registryName = getCustomSoundRegistryID();
-                displayName = NON_NAMED;
             }
 
             //TODO : gain the exact duration and implement here.
