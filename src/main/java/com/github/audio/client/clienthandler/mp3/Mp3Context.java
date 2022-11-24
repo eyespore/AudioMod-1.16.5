@@ -22,7 +22,6 @@ public class Mp3Context extends AudioContext {
     static final int SOUND_STOP_CHECK_INTERVAL = 10;
     public boolean isPaused;
     public boolean isPlaySong;
-    public boolean hasPlayInit;
     public SoundSource currentSource;
     public AudioSound currentAudioSound;
     public String currentSongNameRollingBar;
@@ -44,7 +43,7 @@ public class Mp3Context extends AudioContext {
     /* Call this method only in client side, reset all mark defined in the class. */
     private static void reset() {
         Mp3.isHoldingMp3 = false;
-        Mp3HandleMethod.hasRecord = false;
+        Mp3.hasMp3InInventory = false;
         Mp3HandleMethod.hasInitRFB = false;
         Mp3HandleMethod.shouldInitRandomList = (Mp3.currentMode == Mp3.RelayMode.RANDOM);
         Mp3HandleMethod.toBeSolved = HandleMethodFactory.HandleMethodType.NULL;
@@ -55,7 +54,6 @@ public class Mp3Context extends AudioContext {
         isPaused = false;
         gonnaPlay = false;
         isPlaySong = false;
-        hasPlayInit = false;
 
         preventAutoSwitch = false;
         hasCheckedLastTickMode = false;
@@ -88,6 +86,7 @@ public class Mp3Context extends AudioContext {
             private SoundChannel currentChannel;
 
             private Mp3SoundCtxBuilder() {
+
             }
 
             public static Mp3SoundCtxBuilder ctxBuilder() {

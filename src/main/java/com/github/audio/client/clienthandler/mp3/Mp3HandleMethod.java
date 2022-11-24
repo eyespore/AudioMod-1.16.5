@@ -1,7 +1,6 @@
 package com.github.audio.client.clienthandler.mp3;
 
 import com.github.audio.Utils;
-import com.github.audio.api.annotation.ClientOnly;
 import com.github.audio.api.Interface.ISoundHandlerBranch;
 import com.github.audio.client.clienthandler.ClientEventHandler;
 import com.github.audio.client.gui.AudioToastMessage;
@@ -44,17 +43,13 @@ public final class Mp3HandleMethod {
     public static Enum<HandleMethodFactory.HandleMethodType> toBeSolved = HandleMethodFactory.HandleMethodType.NULL;
     static final LinkedList<Integer> RANDOM_INDEX_LIST = new LinkedList<>();
     static boolean shouldInitRandomList = false;
-    static boolean hasRecord = false;
     static long firstRecord;
     static long lastPlaybackChecked = 0;
 
     private static final ArrayList<Integer> SOUND_INDEX_LIST = new ArrayList<>();
 
     static void recordNow() {
-        if (!hasRecord) {
-            firstRecord = Objects.requireNonNull(Minecraft.getInstance().world).getGameTime();
-            hasRecord = true;
-        }
+        firstRecord = Objects.requireNonNull(Minecraft.getInstance().world).getGameTime();
     }
 
     /**
@@ -250,7 +245,7 @@ public final class Mp3HandleMethod {
         Utils.CollectionHelper.add(SOUND_SOURCE_PATH, "a_fine_red_mist", "blue_room", "breath_of_a_serpent", "chemical_brew", "china_town",
                 "come_and_see", "driving_force", "end_of_the_road", "full_confession", "hit_the_floor", "katana_zero",
                 "meat_grinder", "nocturne", "overdose", "prison_2", "rain_on_bricks", "silhouette", "sneaky_driver",
-                "snow", "worst_neighbor_ever", "third_district", "you_will_never_know", "start_up" , "katana_zero_init" , "katana_zero_end");
+                "snow", "worst_neighbor_ever", "third_district", "you_will_never_know", "start_up", "katana_zero_init", "katana_zero_end");
         Utils.CollectionHelper.add(Mp3.MODE_LIST, Mp3.RelayMode.DEFAULT, Mp3.RelayMode.SINGLE, Mp3.RelayMode.RANDOM);
 
         for (int i = 0; i < getChannelSize(); i++) {
@@ -277,7 +272,6 @@ public final class Mp3HandleMethod {
         }
     }
 
-    @ClientOnly
     public static final class ToLast implements ISoundHandlerBranch {
         @Override
         public void withBranch(ClientPlayerEntity clientPlayer, Mp3Context.Mp3SoundContext context) {
@@ -294,17 +288,13 @@ public final class Mp3HandleMethod {
         }
     }
 
-    @ClientOnly
     public static class PauseOrResume implements ISoundHandlerBranch {
         @Override
         public void withBranch(ClientPlayerEntity clientPlayer, Mp3Context.Mp3SoundContext context) {
             if (!Mp3Context.Mp3Ctx.isPlaySong && !Mp3Context.Mp3Ctx.isPaused) {
-                if (!Mp3Context.Mp3Ctx.hasPlayInit) {
-                    recordNow();
-                    playInitMusic(context);
-                    Mp3Context.Mp3Ctx.hasPlayInit = true;
-                    Mp3Context.Mp3Ctx.gonnaPlay = true;
-                }
+                recordNow();
+                playInitMusic(context);
+                Mp3Context.Mp3Ctx.gonnaPlay = true;
             } else if (Mp3Context.Mp3Ctx.isPlaySong && !Mp3Context.Mp3Ctx.isPaused) {
                 if (Mp3Context.Mp3Ctx.currentSource == null) return;
                 /* If the sound has started to player, first press button turn into pause. */
@@ -321,7 +311,6 @@ public final class Mp3HandleMethod {
         }
     }
 
-    @ClientOnly
     public static class GonnaPlay implements ISoundHandlerBranch {
         @Override
         public void withBranch(ClientPlayerEntity clientPlayer, Mp3Context.Mp3SoundContext context) {

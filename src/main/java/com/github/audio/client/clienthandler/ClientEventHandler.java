@@ -1,14 +1,18 @@
 package com.github.audio.client.clienthandler;
 
+import com.github.audio.Audio;
 import com.github.audio.Utils;
 import com.github.audio.client.clienthandler.mp3.HandleMethodFactory;
 import com.github.audio.client.clienthandler.mp3.Mp3HandleMethod;
 import com.github.audio.client.clienthandler.mp3.Mp3Context;
+import com.github.audio.client.commands.ReloadResourceCommand;
 import com.github.audio.client.config.Config;
 import com.github.audio.client.gui.ConfigScreen;
 import com.github.audio.item.mp3.Mp3;
 import com.github.audio.item.mp3.Mp3Utils;
 import com.github.audio.keybind.KeyBinds;
+import com.github.audio.networking.ASPMethodFactory;
+import com.github.audio.networking.AudioSoundPack;
 import com.github.audio.networking.NetworkingHandler;
 import com.github.audio.networking.BackPackSoundPack;
 import com.github.audio.sound.AudioSoundRegistryHandler;
@@ -16,6 +20,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.client.gui.screen.inventory.InventoryScreen;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.api.distmarker.Dist;
@@ -23,10 +28,13 @@ import net.minecraftforge.client.event.GuiOpenEvent;
 import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraftforge.client.event.InputEvent;
 import net.minecraftforge.client.event.sound.SoundEvent;
+import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.network.PacketDistributor;
+import net.minecraftforge.server.command.ConfigCommand;
 
 import java.util.Objects;
 
@@ -35,6 +43,12 @@ public class ClientEventHandler {
 
     private static long clientTickChecked = 0L;
     private static final long CLIENT_TICK_CHECK_INTERVAL = 40L;
+
+    @SubscribeEvent
+    public static void onCommandRegister(RegisterCommandsEvent event){
+        new ReloadResourceCommand(event.getDispatcher());
+        ConfigCommand.register(event.getDispatcher());
+    }
 
     @SubscribeEvent
     public static void onSoundSourceChange(SoundEvent.SoundSourceEvent event) {
@@ -53,10 +67,11 @@ public class ClientEventHandler {
     @SubscribeEvent
     public static void onPlayerLoggedOut(PlayerEvent.PlayerLoggedOutEvent event) {
         if (!event.isCanceled() && event.getEntity() instanceof PlayerEntity) {
-            ClientPlayerEntity playerClient = Minecraft.getInstance().player;
-            if (playerClient != null) {
-                if (event.getEntity().getUniqueID() == playerClient.getUniqueID()) {
-                }
+            if (event.getPlayer() != null) {
+                NetworkingHandler.AUDIO_SOUND_CHANNEL.send(
+                        PacketDistributor.PLAYER.with(
+                                () -> (ServerPlayerEntity) event.getPlayer()),
+                        new AudioSoundPack(ASPMethodFactory.ASPJudgementType.PLAYER_LOGOUT));
             }
         }
     }
