@@ -8,7 +8,7 @@ import com.github.audio.api.annotation.Experimental;
  * various kinds of parameters which are for called in the other class to use.
  */
 @Experimental
-public abstract class AudioContext {
+public abstract class IContext {
 
     /**
      * The class which extended this abstract class can override this method, this method should
@@ -22,11 +22,11 @@ public abstract class AudioContext {
      * parameters which the caller instance original have to the new parameter that introduced.
      * @param context the parameter that is used for initialize the caller instance.
      */
-    public void reset(AudioContext context) {}
+    public void reset(IContext context) {}
 
     /**
-     * The sign return is the class extends {@link AudioContext} class as super class.
-     * @return if the sign is the subclass from {@link AudioContext}
+     * The sign return is the class extends {@link IContext} class as super class.
+     * @return if the sign is the subclass from {@link IContext}
      */
     public final boolean isCtx() {
         return true;

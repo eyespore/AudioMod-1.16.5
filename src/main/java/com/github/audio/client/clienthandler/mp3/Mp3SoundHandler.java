@@ -95,7 +95,7 @@ public final class Mp3SoundHandler {
     @SubscribeEvent
     public static void onWorldTick(TickEvent.WorldTickEvent event) {
         if (!event.world.isRemote) return;
-        if (!Mp3HandleMethod.PLAYER_UUID_LIST.isEmpty() && Mp3HandleMethod.lastPlaybackChecked < event.world.getGameTime() - Mp3Context.SOUND_STOP_CHECK_INTERVAL) {
+        if (!Mp3HandleMethod.PLAYER_UUID_LIST.isEmpty() && Mp3HandleMethod.lastPlaybackChecked < event.world.getGameTime()) {
             Mp3HandleMethod.lastPlaybackChecked = event.world.getGameTime();
             Mp3HandleMethod.PLAYER_UUID_LIST.entrySet().removeIf(entry -> {
                 if (!Minecraft.getInstance().getSoundHandler().isPlaying(entry.getValue())) {

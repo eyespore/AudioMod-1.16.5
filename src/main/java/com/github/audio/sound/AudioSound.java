@@ -1,7 +1,6 @@
 package com.github.audio.sound;
 
 import com.github.audio.Utils;
-import com.github.audio.api.AudioContext;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundEvent;
 import net.minecraftforge.registries.DeferredRegister;
@@ -22,11 +21,11 @@ public class AudioSound {
     private static int customRegistryID = 0;
     private static int registryID = 0;
 
-    private int id;
+    private final int id;
     private long duration;
     private String signedName;
     private String registryName;
-    private Supplier<SoundEvent> soundEvent;
+    private final Supplier<SoundEvent> soundEvent;
 
     private AudioSound(int id, String registryName, String signedName,
                        Supplier<SoundEvent> soundEvent, long duration) {
@@ -67,20 +66,12 @@ public class AudioSound {
         return this.id;
     }
 
-    public void reset(AudioSound audioSound) {
-        this.id = audioSound.id;
-        this.registryName = audioSound.registryName;
-        this.signedName = audioSound.signedName;
-        this.soundEvent = audioSound.soundEvent;
-        this.duration = audioSound.duration;
-    }
-
     protected AudioSound into(final SoundChannel channel) {
         channel.getChannelSoundList().add(this);
         return this;
     }
 
-    public static class AudioSoundBuilder extends AudioContext {
+    public static class AudioSoundBuilder{
         private long duration;
         private String registryName;
         private String signedName;
@@ -132,7 +123,6 @@ public class AudioSound {
             return new AudioSound(getRegistryID(), registryName, signedName, soundEvent, duration);
         }
 
-        @Override
         public void init() {
             duration = -1;
             registryName = NON_NAMED;

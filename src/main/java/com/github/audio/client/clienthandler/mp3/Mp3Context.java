@@ -1,6 +1,6 @@
 package com.github.audio.client.clienthandler.mp3;
 
-import com.github.audio.api.AudioContext;
+import com.github.audio.api.IContext;
 import com.github.audio.item.mp3.Mp3;
 import com.github.audio.sound.AudioSound;
 import com.github.audio.sound.SoundChannel;
@@ -11,7 +11,7 @@ import net.minecraft.client.entity.player.ClientPlayerEntity;
 import java.util.UUID;
 import java.util.function.Supplier;
 
-public class Mp3Context extends AudioContext {
+public class Mp3Context extends IContext {
 
     public static final Mp3Context Mp3Ctx = new Mp3Context();
 
@@ -19,13 +19,12 @@ public class Mp3Context extends AudioContext {
             SoundChannel.KATANA_ZERO_CHANNEL;
 
     /* If you change the value "CURRENT_SOUND_CHANNEL", at the same time you should change this field as well. */
-    static final int SOUND_STOP_CHECK_INTERVAL = 10;
     public boolean isPaused;
     public boolean isPlaySong;
     public SoundSource currentSource;
     public AudioSound currentAudioSound;
-    public String currentSongNameRollingBar;
 
+    public String currentSongNameRollingBar;
     private Enum<Mp3.RelayMode> recordMode;
     private boolean hasCheckedLastTickMode = false;
 

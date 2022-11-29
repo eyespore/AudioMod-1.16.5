@@ -17,7 +17,6 @@ import static com.github.audio.sound.AudioSound.SOUND_REGISTER;
 public class AudioSoundRegistryHandler {
     public static final HashMap<String, Long> CUSTOM_FILE_MAP = new HashMap<>();
 
-
     static {
         Utils.AudioHelper.initMusicFolderMap(CUSTOM_FILE_MAP);
     }
@@ -86,7 +85,7 @@ public class AudioSoundRegistryHandler {
         private static final HashMap<String, AudioSound> DEFINED_SOUND_MAP = new HashMap<String, AudioSound>();
 
         private Supplier<AudioSound> registryDef(String registryName) {
-            AudioSound registryAudioSound = new AudioSound.AudioSoundBuilder().tag(registryName , toDisPlayName(registryName)).build();
+            AudioSound registryAudioSound = new AudioSound.AudioSoundBuilder().tag(registryName , toDisplayName(registryName)).build();
             return construct(registryAudioSound);
         }
 
@@ -96,7 +95,7 @@ public class AudioSoundRegistryHandler {
         }
 
         private Supplier<AudioSound> registryDef(String registryName , SoundChannel registryChannel) {
-            AudioSound registryAudioSound = new AudioSound.AudioSoundBuilder().tag(registryName , toDisPlayName(registryName)).build().into(registryChannel);
+            AudioSound registryAudioSound = new AudioSound.AudioSoundBuilder().tag(registryName , toDisplayName(registryName)).build().into(registryChannel);
             return construct(registryAudioSound);
         }
 
@@ -136,11 +135,11 @@ public class AudioSoundRegistryHandler {
 
         /**
          * this method should not be used at *registryCus*.
-         * @param registryName The name introduced manually by the developer.
-         * @return return displayName transform from registryName.
+         * @param signedName The name introduced manually by the developer.
+         * @return return displayName transform from signedName.
          */
-        private static String toDisPlayName(String registryName) {
-            String[] strings = registryName.split("_");
+        private static String toDisplayName(String signedName) {
+            String[] strings = signedName.split("_");
             StringBuilder toReturn = new StringBuilder();
             int i = 0;
             for (String str : strings) {

@@ -9,11 +9,9 @@ import java.io.*;
 import java.util.*;
 import java.util.function.Supplier;
 
-public class Utils {
+public class Utils implements Serializable {
 
     public static final String MOD_ID = "audio";
-
-    //For font
 
     /**
      * Normal item tool tip.
@@ -85,38 +83,11 @@ public class Utils {
     }
 
     public static class AudioHelper {
-        /**
-         * @param registryName registry name of some, divided into part with underscore and lowercase
-         *                     such as "breath_of_a_serpent".
-         * @return the length of song, the file for the song must be .ogg format.
-         */
-        public static Optional<Long> getSongDuration(String registryName) throws IOException, CannotReadException {
-            File file = new File("src\\main\\resources\\assets\\audio\\sounds\\" + registryName + ".ogg");
-            return getSongDuration(file);
-        }
-
         public static Optional<Long> getSongDuration(File file) throws IOException, CannotReadException {
             RandomAccessFile randomAccessFile = new RandomAccessFile(file, "rwd");
             OggInfoReader oggInfoReader = new OggInfoReader();
             GenericAudioHeader read = oggInfoReader.read(randomAccessFile);
             return Optional.of(toTicks(read.getPreciseTrackLength()));
-        }
-
-        /**
-         * the song registry name should be the lower case and make sure they have been divided into part
-         * by underscore such as "breath_of_a_serpent".
-         */
-        protected static String getSongName(String registryName) {
-            String[] strings = registryName.split("_");
-            StringBuilder toReturn = new StringBuilder();
-            int i = 0;
-            for (String str : strings) {
-                str = str.substring(0, 1).toUpperCase() + str.substring(1);
-                if (i < strings.length - 1) toReturn.append(str).append(" ");
-                else toReturn.append(str);
-                i++;
-            }
-            return toReturn.toString();
         }
 
         public static void initMusicFolderMap(final HashMap<String , Long> DURATION) {
@@ -133,7 +104,6 @@ public class Utils {
                 String[] fileList = musicFolder.list();
                 for (String fileName : fileList) {
                     File musicFile = new File(folderPath + File.separator + fileName);
-
                     String signedName = fileName.split(".ogg")[0];
                     try {
                             DURATION.put(signedName, getSongDuration(musicFile).get());
@@ -147,12 +117,29 @@ public class Utils {
                     Audio.getLOGGER().info("duration now " + key + " : " + val);
                 }
             }
-
         }
 
         public static <T extends Number> long toTicks(T second) {
             return Math.round(second.doubleValue() * 20);
         }
+    }
+
+    public static Utils getUtils() {
+        return UtilsHolder.UTILS;
+    }
+
+    private Utils() {
+        if (UtilsHolder.UTILS != null) {
+            throw new RuntimeException("UTILS cannot be created more than once.");
+        }
+    }
+
+    private static class UtilsHolder {
+        private static final Utils UTILS = new Utils();
+    }
+
+    private Object readResolve() {
+        return UtilsHolder.UTILS;
     }
 
 }
