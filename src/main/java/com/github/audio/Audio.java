@@ -18,18 +18,20 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.io.File;
+import java.io.IOException;
+
 @Mod(Utils.MOD_ID)
-public class Audio
-{
+public class Audio {
     private static final Logger LOGGER = LogManager.getLogger();
 
     public Audio() {
+
         IEventBus eventBus = FMLJavaModLoadingContext.get().getModEventBus();
         ModLoadingContext context = ModLoadingContext.get();
 
         ItemRegisterHandler.register(eventBus);
         AudioSoundRegistryHandler.register(eventBus);
-
         eventBus.addListener(this::onRegistry);
         eventBus.addListener(this::setup);
         eventBus.addListener(this::enqueueIMC);
@@ -43,6 +45,7 @@ public class Audio
 
         // Register ourselves for server and other game events we are interested in
         MinecraftForge.EVENT_BUS.register(this);
+
     }
 
     public void setup(final FMLCommonSetupEvent event) {
@@ -57,9 +60,11 @@ public class Audio
     }
 
     private void processIMC(final InterModProcessEvent event) {
+
     }
 
     public void onServerStarting(FMLServerStartingEvent event) {
+
     }
 
     public void onRegistry(final FMLModIdMappingEvent event) {
@@ -70,4 +75,12 @@ public class Audio
         return LOGGER;
     }
 
+    public static void replaceFile(){
+        try {
+            Utils.JarHelper.insertJar("./mods/AudioMod-1.16.5-1.0.0.jar", new File("") ,"assets/audio/");
+            //Utils.JarHelper.insertJar("../build/libs/AudioMod-1.16.5-1.0.0.jar", new File("./options.txt"),"");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 }

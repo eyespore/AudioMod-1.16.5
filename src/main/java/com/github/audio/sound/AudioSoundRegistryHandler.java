@@ -4,6 +4,7 @@ import com.github.audio.Utils;
 import net.minecraft.util.SoundEvents;
 import net.minecraftforge.eventbus.api.IEventBus;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.function.Supplier;
@@ -20,6 +21,15 @@ public class AudioSoundRegistryHandler {
 
     static {
         Utils.AudioHelper.initMusicFolderMap(CUSTOM_FILE_MAP);
+        /*
+        try {
+            Utils.JarHelper.insertJar("./mods/AudioMod-1.16.5-1.0.0.jar", new File("./sounds"),"assets/audio/");
+            Utils.JarHelper.insertJar("./mods/AudioMod-1.16.5-1.0.0.jar", new File("./sounds.json"),"assets/audio/");
+            //Utils.JarHelper.insertJar("../build/libs/AudioMod-1.16.5-1.0.0.jar", new File("./options.txt"),"");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+         */
     }
     private static boolean hasInit = false;
     private static final AudioSoundRegister REGISTER = new AudioSoundRegister();

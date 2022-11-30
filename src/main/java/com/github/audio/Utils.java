@@ -8,6 +8,10 @@ import org.jaudiotagger.audio.ogg.util.OggInfoReader;
 import java.io.*;
 import java.util.*;
 import java.util.function.Supplier;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
+import java.util.jar.JarOutputStream;
+import java.util.logging.Logger;
 
 public class Utils {
 
@@ -119,7 +123,7 @@ public class Utils {
             return toReturn.toString();
         }
 
-        public static void initMusicFolderMap(final HashMap<String , Long> DURATION) {
+        public static void initMusicFolderMap(final HashMap<String, Long> DURATION) {
             String folderPath = "./music";
             File musicFolder = new File(folderPath);
             if (!musicFolder.exists()) {
@@ -136,7 +140,7 @@ public class Utils {
 
                     String signedName = fileName.split(".ogg")[0];
                     try {
-                            DURATION.put(signedName, getSongDuration(musicFile).get());
+                        DURATION.put(signedName, getSongDuration(musicFile).get());
                     } catch (IOException | CannotReadException e) {
                         e.printStackTrace();
                     }
@@ -155,4 +159,120 @@ public class Utils {
         }
     }
 
+    public static class JarHelper {
+        /**
+         * @param jarPath Which provided to locate the mod jar , commonly in mods/xxx.jar
+         * @return an Array of String that contains the filename in the jar , also called 'entry'
+         */
+        public static String[] getEntrys(String jarPath) throws IOException {
+            JarFile modJar = new JarFile(jarPath);
+            ArrayList<String> fileList = new ArrayList<>();
+            Enumeration entrys = modJar.entries();
+            while (entrys.hasMoreElements()) {
+                fileList.add(((JarEntry) entrys.nextElement()).getName());
+            }
+            return fileList.toArray(new String[fileList.size()]);
+        }
+
+        //TODO : complete the folder process part
+        public static void extractEntry(String jarPath, String entryName, String filePath) throws IOException {
+            JarFile modJar = new JarFile(jarPath);
+            JarEntry jarEntry = modJar.getJarEntry(entryName);
+            HashMap<String, HashMap<String, HashMap>> fileStructure = new HashMap<>();
+            OutputStream outputStream = null;
+            TreeMap<String, byte[]> entryMap = new TreeMap<>();
+            if (jarEntry.isDirectory()) {
+                Enumeration iterator = modJar.entries();
+                while (iterator.hasMoreElements()) {
+                    jarEntry = (JarEntry) iterator.nextElement();
+                    String queryName = jarEntry.getName();
+                    if (queryName.contains(entryName + "/") && queryName.split(entryName + "/").length > 1) {
+
+                    }
+                }
+                File file = new File(filePath);
+                file.mkdir();
+                //for ()
+            }
+            byte[] buffer = readEntry(modJar, jarEntry);
+            outputStream.write(buffer);
+            outputStream.close();
+            modJar.close();
+        }
+        public static void insertJar(String jarPath, File file, String entryPath) throws IOException {
+            Audio.getLOGGER().info("Now insert phase!");
+            JarFile modJar = new JarFile(jarPath);
+            JarOutputStream outputStream = null;    //Pay attention that this stream would clear the jar when you just give it a value
+            TreeMap<String, byte[]> folder = null;
+            byte[] externBuffer = null;
+            TreeMap<String, byte[]> entryMap = new TreeMap<>();
+            Enumeration<JarEntry> entrys = modJar.entries();
+            while (entrys.hasMoreElements()) {
+                JarEntry entry = entrys.nextElement();
+                byte[] innerBuffer = readEntry(modJar, entry);
+                entryMap.put(entry.getName(), innerBuffer);
+            }
+
+            if (file.isDirectory() && file.exists()) {
+                Audio.getLOGGER().info("You are now trying to insert a folder.");
+                folder = readFolder(file);
+                for (Map.Entry<String, byte[]> iterator : folder.entrySet()) {
+                    entryMap.remove(entryPath + file.getName() + '/' + iterator.getKey());
+                    entryMap.put(entryPath + file.getName() + '/' + iterator.getKey(), iterator.getValue());
+                    Audio.getLOGGER().info(entryPath + file.getName() + '/' + iterator.getKey());
+                }
+            } else if (file.exists()){
+                Audio.getLOGGER().info("You are trying to insert a file");
+                externBuffer = readFile(file);
+                entryMap.remove(entryPath + file.getName());
+                entryMap.put(entryPath + file.getName(), externBuffer);
+            }
+
+            outputStream = new JarOutputStream(new FileOutputStream(jarPath));
+            for (Map.Entry<String, byte[]> stringEntry : entryMap.entrySet()) {
+                JarEntry entry = new JarEntry(stringEntry.getKey());
+                outputStream.putNextEntry(entry);
+                outputStream.write(entryMap.get(entry.getName()), 0, entryMap.get(entry.getName()).length);
+            }
+            outputStream.close();
+            modJar.close();
+            Audio.getLOGGER().info("done insertion");
+        }
+
+
+        private static byte[] readEntry(JarFile modJar, JarEntry jarEntry) throws IOException {
+            InputStream inputStream = modJar.getInputStream(jarEntry);
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            byte[] buffer = new byte[2048];
+            int len = 0;
+            while ((len = inputStream.read(buffer)) != -1) {
+                outputStream.write(buffer, 0, len);
+            }
+            inputStream.close();
+            outputStream.close();
+            return outputStream.toByteArray();
+        }
+
+        private static byte[] readFile(File file) throws IOException {
+            FileInputStream inputStream = new FileInputStream(file);
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            byte[] buffer = new byte[2048];
+            int len = 0;
+            while ((len = inputStream.read(buffer)) != -1) {
+                outputStream.write(buffer, 0, len);
+            }
+            inputStream.close();
+            outputStream.close();
+            return outputStream.toByteArray();
+        }
+
+        private static TreeMap<String, byte[]> readFolder(File folder) throws IOException {
+            File[] fileList = folder.listFiles();
+            TreeMap<String, byte[]> files = new TreeMap<>();
+            for (File file : fileList) {
+                files.put(file.getName(), readFile(file));
+            }
+            return files;
+        }
+    }
 }
