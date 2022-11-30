@@ -1,5 +1,6 @@
 package com.github.audio;
 
+import com.github.audio.client.audio.mp3.Mp3Context;
 import com.github.audio.client.config.Config;
 import com.github.audio.item.ItemRegisterHandler;
 import com.github.audio.keybind.KeyBinds;
@@ -27,10 +28,10 @@ public class Audio
         IEventBus eventBus = FMLJavaModLoadingContext.get().getModEventBus();
         ModLoadingContext context = ModLoadingContext.get();
 
+
         ItemRegisterHandler.register(eventBus);
         AudioSoundRegistryHandler.register(eventBus);
 
-        eventBus.addListener(this::onRegistry);
         eventBus.addListener(this::setup);
         eventBus.addListener(this::enqueueIMC);
         eventBus.addListener(this::processIMC);
@@ -43,6 +44,8 @@ public class Audio
 
         // Register ourselves for server and other game events we are interested in
         MinecraftForge.EVENT_BUS.register(this);
+
+        MinecraftForge.EVENT_BUS.register(Mp3Context.getCtx().new EventBus());
     }
 
     public void setup(final FMLCommonSetupEvent event) {
@@ -60,10 +63,6 @@ public class Audio
     }
 
     public void onServerStarting(FMLServerStartingEvent event) {
-    }
-
-    public void onRegistry(final FMLModIdMappingEvent event) {
-        getLOGGER().info("------------------------- marked event detected -------------------------");
     }
 
     public static Logger getLOGGER() {

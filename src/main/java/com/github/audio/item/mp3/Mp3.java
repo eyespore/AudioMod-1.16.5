@@ -1,9 +1,7 @@
 package com.github.audio.item.mp3;
 
-import com.github.audio.client.clienthandler.mp3.Mp3Context;
-import com.github.audio.client.clienthandler.mp3.Mp3HandleMethod;
+import com.github.audio.client.audio.mp3.Mp3Context;
 import com.github.audio.creativetab.ModCreativeTab;
-import com.github.audio.sound.AudioSoundRegistryHandler;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.client.gui.screen.Screen;
@@ -15,6 +13,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.World;
 
@@ -26,10 +25,12 @@ import java.util.List;
 public class Mp3 extends Item {
 
     public static boolean isHoldingMp3 = false;
-    public static boolean hasMp3InInventory = false;
+    public static boolean isMp3InInventory = false;
 
     public static Enum<RelayMode> currentMode = RelayMode.DEFAULT;
     public static final ArrayList<RelayMode> MODE_LIST = new ArrayList<RelayMode>();
+
+    public static boolean hasInitStatue;
 
     public static Enum<RelayMode> getCurrentMode() {
         return currentMode;
@@ -47,7 +48,7 @@ public class Mp3 extends Item {
             ClientPlayerEntity clientPlayer = client.player;
             if (clientPlayer != null) {
                 if (Screen.hasShiftDown()) {
-                    stopMp3(clientPlayer);
+                    Mp3Context.getCtx().toStop();
                 } else {
                     currentMode = Mp3.MODE_LIST.get(Mp3.MODE_LIST.indexOf(currentMode) + 1 > Mp3.MODE_LIST.size() - 1 ?
                             0 : Mp3.MODE_LIST.indexOf(currentMode) + 1);
@@ -55,17 +56,6 @@ public class Mp3 extends Item {
             }
         }
         return super.onItemRightClick(worldIn, playerIn, handIn);
-    }
-
-    public static void stopMp3(ClientPlayerEntity clientPlayer) {
-        Mp3HandleMethod.stopSound(clientPlayer.getUniqueID());
-        Mp3Context.Mp3Ctx.init();
-        playMp3EndSound(clientPlayer);
-    }
-
-    public static void playMp3EndSound(ClientPlayerEntity clientPlayer) {
-        Mp3HandleMethod.playTickableSound(Mp3Context.getCtx().get(),
-                () -> AudioSoundRegistryHandler.KATANA_ZERO_END, false);
     }
 
     @Override
@@ -76,14 +66,15 @@ public class Mp3 extends Item {
     }
 
     public static ITextComponent getCurrentSoundITextComponent(String translationKey) {
-        return new TranslationTextComponent(translationKey, Mp3Context.Mp3Ctx.currentSongNameRollingBar);
+        return new TranslationTextComponent(translationKey, Mp3Context.getCtx().currentSongNameRollingBar);
     }
 
     private static ITextComponent getTooltip() {
-        return Mp3Context.Mp3Ctx.isPlaySong ?
+        if (Minecraft.getInstance().player == null) return new StringTextComponent("Mp3");
+        return Mp3Context.getCtx().isPlaySong ?
                 new TranslationTextComponent("item.audio.audio.hasSong",
                         getCurrentSoundITextComponent("item.audio.audio.nowPlaySong"))
-                : Mp3Context.Mp3Ctx.isPaused ?
+                : Mp3Context.getCtx().isPaused ?
                 new TranslationTextComponent("item.audio.audio.hasSong",
                         getCurrentSoundITextComponent("item.audio.audio.isPauseNow"))
                 : new TranslationTextComponent("item.audio.audio.hasSong",
@@ -96,8 +87,9 @@ public class Mp3 extends Item {
 
     @Override
     public ITextComponent getDisplayName(ItemStack p_200295_1_) {
-        return Mp3Context.Mp3Ctx.isPlaySong ? new TranslationTextComponent("displayName.audio.audio.playingNow", getModeName())
-                : Mp3Context.Mp3Ctx.isPaused ? new TranslationTextComponent("displayName.audio.audio.pausingNow", getModeName())
+        if (Minecraft.getInstance().player == null) return new StringTextComponent("Mp3");
+        return Mp3Context.getCtx().isPlaySong ? new TranslationTextComponent("displayName.audio.audio.playingNow", getModeName())
+                : Mp3Context.getCtx().isPaused ? new TranslationTextComponent("displayName.audio.audio.pausingNow", getModeName())
                 : new TranslationTextComponent("displayName.audio.audio.waitToPlay", getModeName());
     }
 
@@ -105,22 +97,21 @@ public class Mp3 extends Item {
     @Override
     public void inventoryTick(ItemStack stackIn, World worldIn, Entity entityIn, int itemSlot, boolean isSelected) {
         if (worldIn.isRemote) {
-            hasMp3InInventory = true;
+            isMp3InInventory = true;
         }
 
-        if (entityIn instanceof PlayerEntity &&
-                ((((PlayerEntity) entityIn).getHeldItemMainhand().isItemEqual(stackIn))
-                        || ((PlayerEntity) entityIn).getHeldItemOffhand().isItemEqual(stackIn))) {
-            if (worldIn.isRemote) {
-                ClientPlayerEntity clientPlayer = Minecraft.getInstance().player;
-                if (clientPlayer == null) return;
-                clientPlayer.sendStatusMessage(getTooltip(), true);
-                isHoldingMp3 = true;
-            }
-        } else {
-            if (worldIn.isRemote) {
-                isHoldingMp3 = false;
-            }
+        if (isMp3InInventory && !hasInitStatue) {
+            Mp3Context.getCtx().initSoundIndexList();
+            hasInitStatue = true;
+        }
+
+        if (entityIn instanceof PlayerEntity && isSelected && worldIn.isRemote) {
+            ClientPlayerEntity clientPlayer = Minecraft.getInstance().player;
+            if (clientPlayer == null) return;
+            clientPlayer.sendStatusMessage(getTooltip(), true);
+            isHoldingMp3 = true;
+        } else if (worldIn.isRemote) {
+            isHoldingMp3 = false;
         }
     }
 

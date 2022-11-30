@@ -1,26 +1,21 @@
-package com.github.audio.client.clienthandler;
+package com.github.audio.client;
 
-import com.github.audio.Audio;
 import com.github.audio.Utils;
-import com.github.audio.client.clienthandler.mp3.HandleMethodFactory;
-import com.github.audio.client.clienthandler.mp3.Mp3HandleMethod;
-import com.github.audio.client.clienthandler.mp3.Mp3Context;
+import com.github.audio.client.audio.mp3.HandleMethodFactory;
+import com.github.audio.client.audio.mp3.Mp3HandleMethod;
+import com.github.audio.client.audio.mp3.Mp3Context;
 import com.github.audio.client.commands.ReloadResourceCommand;
 import com.github.audio.client.config.Config;
 import com.github.audio.client.gui.ConfigScreen;
 import com.github.audio.item.mp3.Mp3;
 import com.github.audio.item.mp3.Mp3Utils;
 import com.github.audio.keybind.KeyBinds;
-import com.github.audio.networking.ASPMethodFactory;
-import com.github.audio.networking.AudioSoundPack;
 import com.github.audio.networking.NetworkingHandler;
 import com.github.audio.networking.BackPackSoundPack;
 import com.github.audio.sound.AudioSoundRegistryHandler;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.client.gui.screen.inventory.InventoryScreen;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.api.distmarker.Dist;
@@ -30,10 +25,8 @@ import net.minecraftforge.client.event.InputEvent;
 import net.minecraftforge.client.event.sound.SoundEvent;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.network.PacketDistributor;
 import net.minecraftforge.server.command.ConfigCommand;
 
 import java.util.Objects;
@@ -50,6 +43,8 @@ public class ClientEventHandler {
         ConfigCommand.register(event.getDispatcher());
     }
 
+
+
     @SubscribeEvent
     public static void onSoundSourceChange(SoundEvent.SoundSourceEvent event) {
 
@@ -59,20 +54,8 @@ public class ClientEventHandler {
         }
 
         if (Mp3HandleMethod.SOUND_SOURCE_PATH.contains(event.getName())) {
-            Mp3Context.Mp3Ctx.currentSource = event.getSource();
-            Mp3Context.Mp3Ctx.currentSourceHasChanged = true;
-        }
-    }
-
-    @SubscribeEvent
-    public static void onPlayerLoggedOut(PlayerEvent.PlayerLoggedOutEvent event) {
-        if (!event.isCanceled() && event.getEntity() instanceof PlayerEntity) {
-            if (event.getPlayer() != null) {
-                NetworkingHandler.AUDIO_SOUND_CHANNEL.send(
-                        PacketDistributor.PLAYER.with(
-                                () -> (ServerPlayerEntity) event.getPlayer()),
-                        new AudioSoundPack(ASPMethodFactory.ASPJudgementType.PLAYER_LOGOUT));
-            }
+            Mp3Context.getCtx().currentSource = event.getSource();
+            Mp3Context.getCtx().currentSourceHasChanged = true;
         }
     }
 
@@ -159,15 +142,15 @@ public class ClientEventHandler {
     }
 
     public static void trySwitchToLast() {
-        Mp3HandleMethod.toBeSolved = HandleMethodFactory.HandleMethodType.SWITCH_TO_LAST;
+        Mp3HandleMethod.handler = HandleMethodFactory.HandleMethodType.SWITCH_TO_LAST;
     }
 
     public static void trySwitchToNext() {
-        Mp3HandleMethod.toBeSolved = HandleMethodFactory.HandleMethodType.SWITCH_TO_NEXT;
+        Mp3HandleMethod.handler = HandleMethodFactory.HandleMethodType.SWITCH_TO_NEXT;
     }
 
     public static void tryPauseOrResume() {
-        Mp3HandleMethod.toBeSolved = HandleMethodFactory.HandleMethodType.PAUSE_OR_RESUME;
+        Mp3HandleMethod.handler = HandleMethodFactory.HandleMethodType.PAUSE_OR_RESUME;
     }
 }
 

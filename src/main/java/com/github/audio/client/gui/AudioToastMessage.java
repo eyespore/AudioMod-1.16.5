@@ -1,7 +1,7 @@
 package com.github.audio.client.gui;
 
 import com.github.audio.Utils;
-import com.github.audio.client.clienthandler.mp3.Mp3Context;
+import com.github.audio.client.audio.mp3.Mp3Context;
 import com.github.audio.client.config.Config;
 import com.github.audio.item.ItemRegisterHandler;
 import com.github.audio.sound.SoundChannel;
@@ -74,7 +74,7 @@ public class AudioToastMessage implements IToast {
         //TODO : make function to control the hide and show mode of toast Message.
 
         boolean flag1 = clientWorldTime - this.firstDrawTime >= 2000L;
-        boolean flag2 = !Mp3Context.Mp3Ctx.isPlaySong;
+        boolean flag2 = !Mp3Context.getCtx().isPlaySong;
 
         return (flag1 || flag2) ? Visibility.HIDE : Visibility.SHOW;
     }

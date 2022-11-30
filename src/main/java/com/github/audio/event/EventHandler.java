@@ -15,6 +15,8 @@ import net.minecraft.world.World;
 import net.minecraftforge.event.OnDatapackSyncEvent;
 
 import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.event.entity.EntityJoinWorldEvent;
+import net.minecraftforge.event.entity.EntityLeaveWorldEvent;
 import net.minecraftforge.event.entity.item.ItemTossEvent;
 import net.minecraftforge.event.entity.player.PlayerContainerEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
@@ -44,6 +46,14 @@ public class EventHandler {
     }
 
     @SubscribeEvent
+    public static void onPlayerJoinIn(EntityJoinWorldEvent event) {
+        if (event.isCanceled() || event.getEntity() == null || !(event.getEntity() instanceof PlayerEntity) ) return;
+        if (event.getEntity().getEntityWorld().isRemote) {
+            Mp3.hasInitStatue = false;
+        }
+    }
+
+    @SubscribeEvent
     public static void tick(final TickEvent.WorldTickEvent event) {
         if (event.world.isRemote && event.phase != TickEvent.Phase.END) return;
         if (event.world.getGameTime() < lastPlayerInventoryChecked + CHECK_PLAYER_INVENTORY_DELAY) return;
@@ -52,7 +62,7 @@ public class EventHandler {
         for (ServerPlayerEntity player : players) {
             if (player == null) return;
             List<ItemStack> collect = player.inventory.mainInventory.stream().filter(
-                    itemStack -> itemStack.isItemEqual(new ItemStack(ItemRegisterHandler.Mp3.get())))
+                            itemStack -> itemStack.isItemEqual(new ItemStack(ItemRegisterHandler.Mp3.get())))
                     .collect(Collectors.toList());
 
             if (collect.isEmpty()) {
@@ -136,7 +146,7 @@ public class EventHandler {
                 //Client Thread
                 ASPMethodFactory.BRANCH_MAP.get(ASPMethodFactory.ASPJudgementType.TOSS)
                         .withBranch((ClientPlayerEntity) event.getPlayer());
-                Mp3.hasMp3InInventory = false;
+                Mp3.isMp3InInventory = false;
             }
         }
     }
@@ -145,6 +155,19 @@ public class EventHandler {
     public static void onPlayerUnfoldBackPack(PlayerEntity playerIn, World worldIn) {
         worldIn.playSound(playerIn, playerIn.getPosition(), AudioSoundRegistryHandler.BACKPACK_UNFOLD_SOUND.getSoundEvent(),
                 SoundCategory.PLAYERS, 1f, 1f);
+    }
+
+
+    @Deprecated
+    public static void onPlayerLoggedOut(EntityLeaveWorldEvent event) {
+        if (!event.isCanceled() && event.getEntity() instanceof PlayerEntity) {
+            if (!event.getEntity().getEntityWorld().isRemote) {
+                NetworkingHandler.AUDIO_SOUND_CHANNEL.send(
+                        PacketDistributor.PLAYER.with(
+                                () -> (ServerPlayerEntity) event.getEntity()),
+                        new AudioSoundPack(ASPMethodFactory.ASPJudgementType.PLAYER_LOGOUT));
+            }
+        }
     }
 }
 

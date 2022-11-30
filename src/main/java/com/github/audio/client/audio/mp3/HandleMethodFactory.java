@@ -1,4 +1,4 @@
-package com.github.audio.client.clienthandler.mp3;
+package com.github.audio.client.audio.mp3;
 
 import com.github.audio.api.Interface.ISoundHandlerBranch;
 import com.github.audio.item.mp3.Mp3;
@@ -11,10 +11,6 @@ public class HandleMethodFactory {
     protected static final HashMap<Enum<Mp3.RelayMode> , HashMap<Enum<HandleMethodType> , ISoundHandlerBranch>> MODE_METHOD = new HashMap<>();
 
     static {
-        DEFAULT_SOUND_HANDLER_MAP.put(HandleMethodType.SWITCH_TO_NEXT , new Mp3HandleMethod.ToNext());
-        DEFAULT_SOUND_HANDLER_MAP.put(HandleMethodType.SWITCH_TO_LAST , new Mp3HandleMethod.ToLast());
-        DEFAULT_SOUND_HANDLER_MAP.put(HandleMethodType.PAUSE_OR_RESUME , new Mp3HandleMethod.PauseOrResume());
-        DEFAULT_SOUND_HANDLER_MAP.put(HandleMethodType.GONNA_PLAY , new Mp3HandleMethod.GonnaPlay());
         DEFAULT_SOUND_HANDLER_MAP.put(HandleMethodType.AUTO_SWITCH_NEXT, new Mp3HandleMethod.AutoSwitch());
     }
 
