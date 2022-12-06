@@ -1,6 +1,6 @@
 package com.github.audio.sound;
 
-import com.github.audio.util.Utils;
+import com.github.audio.util.JarHelper;
 import net.minecraft.util.SoundEvents;
 import net.minecraftforge.eventbus.api.IEventBus;
 

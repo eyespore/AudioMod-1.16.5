@@ -1,10 +1,10 @@
 package com.github.audio.client.gui;
 
-import com.github.audio.util.Utils;
 import com.github.audio.client.audio.exec.Mp3Executor;
 import com.github.audio.client.config.Config;
 import com.github.audio.item.ItemRegisterHandler;
 import com.github.audio.sound.SoundChannel;
+import com.github.audio.util.Utils;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.platform.GlStateManager;
 import net.minecraft.client.Minecraft;
