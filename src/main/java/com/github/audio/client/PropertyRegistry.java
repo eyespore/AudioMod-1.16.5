@@ -1,6 +1,6 @@
 package com.github.audio.client;
 
-import com.github.audio.Utils;
+import com.github.audio.util.Utils;
 import com.github.audio.item.ItemRegisterHandler;
 import net.minecraft.item.ItemModelsProperties;
 import net.minecraft.util.ResourceLocation;

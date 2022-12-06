@@ -5,9 +5,10 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.event.TickEvent;
 
 @OnlyIn(Dist.CLIENT)
-@FunctionalInterface
-public interface ICtxEventThread {
+public interface IAutoSwitchable extends ISwitchable{
 
-    void tick(TickEvent.ClientTickEvent event);
+    long INTERVAL = 60L;
+
+    void checker(TickEvent.ClientTickEvent event);
 
 }

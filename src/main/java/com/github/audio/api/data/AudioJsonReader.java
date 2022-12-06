@@ -1,16 +1,10 @@
 package com.github.audio.api.data;
 
-import com.github.audio.Utils;
 import com.google.gson.Gson;
-import com.google.gson.stream.JsonWriter;
-import jdk.nashorn.internal.runtime.options.Option;
-import net.minecraft.util.ResourceLocation;
 
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.ResourceBundle;
 
 public class AudioJsonReader {
 

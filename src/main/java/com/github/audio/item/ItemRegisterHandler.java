@@ -1,6 +1,6 @@
 package com.github.audio.item;
 
-import com.github.audio.Utils;
+import com.github.audio.util.Utils;
 import com.github.audio.creativetab.ModCreativeTab;
 import com.github.audio.item.mp3.Mp3;
 import com.github.audio.sound.AudioSoundRegistryHandler;

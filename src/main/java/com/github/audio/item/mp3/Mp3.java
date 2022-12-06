@@ -1,6 +1,6 @@
 package com.github.audio.item.mp3;
 
-import com.github.audio.client.audio.mp3.Mp3Context;
+import com.github.audio.client.audio.exec.Mp3Executor;
 import com.github.audio.creativetab.ModCreativeTab;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
@@ -48,7 +48,7 @@ public class Mp3 extends Item {
             ClientPlayerEntity clientPlayer = client.player;
             if (clientPlayer != null) {
                 if (Screen.hasShiftDown()) {
-                    Mp3Context.getCtx().toStop();
+                    Mp3Executor.getExecutor().toStop();
                 } else {
                     currentMode = Mp3.MODE_LIST.get(Mp3.MODE_LIST.indexOf(currentMode) + 1 > Mp3.MODE_LIST.size() - 1 ?
                             0 : Mp3.MODE_LIST.indexOf(currentMode) + 1);
@@ -66,15 +66,15 @@ public class Mp3 extends Item {
     }
 
     public static ITextComponent getCurrentSoundITextComponent(String translationKey) {
-        return new TranslationTextComponent(translationKey, Mp3Context.getCtx().currentSongNameRollingBar);
+        return new TranslationTextComponent(translationKey, Mp3Executor.getExecutor().rollString);
     }
 
     private static ITextComponent getTooltip() {
-        if (Minecraft.getInstance().player == null) return new StringTextComponent("Mp3");
-        return Mp3Context.getCtx().isPlaySong ?
+        if (Minecraft.getInstance().player == null || Mp3Executor.getExecutor().getCtx() == null) return new StringTextComponent("Mp3");
+        return Mp3Executor.getExecutor().getCtx().isPlaySong ?
                 new TranslationTextComponent("item.audio.audio.hasSong",
                         getCurrentSoundITextComponent("item.audio.audio.nowPlaySong"))
-                : Mp3Context.getCtx().isPaused ?
+                : Mp3Executor.getExecutor().getCtx().isPaused ?
                 new TranslationTextComponent("item.audio.audio.hasSong",
                         getCurrentSoundITextComponent("item.audio.audio.isPauseNow"))
                 : new TranslationTextComponent("item.audio.audio.hasSong",
@@ -87,9 +87,9 @@ public class Mp3 extends Item {
 
     @Override
     public ITextComponent getDisplayName(ItemStack p_200295_1_) {
-        if (Minecraft.getInstance().player == null) return new StringTextComponent("Mp3");
-        return Mp3Context.getCtx().isPlaySong ? new TranslationTextComponent("displayName.audio.audio.playingNow", getModeName())
-                : Mp3Context.getCtx().isPaused ? new TranslationTextComponent("displayName.audio.audio.pausingNow", getModeName())
+        if (Minecraft.getInstance().player == null || Mp3Executor.getExecutor().getCtx() == null) return new StringTextComponent("Mp3");
+        return Mp3Executor.getExecutor().getCtx().isPlaySong ? new TranslationTextComponent("displayName.audio.audio.playingNow", getModeName())
+                : Mp3Executor.getExecutor().getCtx().isPaused ? new TranslationTextComponent("displayName.audio.audio.pausingNow", getModeName())
                 : new TranslationTextComponent("displayName.audio.audio.waitToPlay", getModeName());
     }
 
@@ -98,11 +98,6 @@ public class Mp3 extends Item {
     public void inventoryTick(ItemStack stackIn, World worldIn, Entity entityIn, int itemSlot, boolean isSelected) {
         if (worldIn.isRemote) {
             isMp3InInventory = true;
-        }
-
-        if (isMp3InInventory && !hasInitStatue) {
-            Mp3Context.getCtx().initSoundIndexList();
-            hasInitStatue = true;
         }
 
         if (entityIn instanceof PlayerEntity && isSelected && worldIn.isRemote) {

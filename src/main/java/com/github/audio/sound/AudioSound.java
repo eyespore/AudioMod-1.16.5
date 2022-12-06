@@ -1,6 +1,6 @@
 package com.github.audio.sound;
 
-import com.github.audio.Utils;
+import com.github.audio.util.Utils;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundEvent;
 import net.minecraftforge.registries.DeferredRegister;
@@ -67,7 +67,7 @@ public class AudioSound {
     }
 
     protected AudioSound into(final SoundChannel channel) {
-        channel.getChannelSoundList().add(this);
+        channel.getList().add(this);
         return this;
     }
 

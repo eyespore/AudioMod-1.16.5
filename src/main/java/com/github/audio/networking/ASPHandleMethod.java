@@ -1,8 +1,7 @@
 package com.github.audio.networking;
 
 import com.github.audio.api.Interface.IAudioSoundPackBranch;
-import com.github.audio.client.audio.mp3.Mp3HandleMethod;
-import com.github.audio.client.audio.mp3.Mp3Context;
+import com.github.audio.client.audio.exec.Mp3Executor;
 import com.github.audio.item.mp3.Mp3;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
 
@@ -11,16 +10,16 @@ public class ASPHandleMethod {
     protected static class PlayerReborn implements IAudioSoundPackBranch {
         @Override
         public void withBranch(ClientPlayerEntity clientPlayer) {
-            Mp3Context.getCtx().initSoundIndexList();
+            Mp3Executor.getExecutor().getSel().reload();
         }
     }
 
     protected static class PlayerChangeDimension implements IAudioSoundPackBranch {
         @Override
         public void withBranch(ClientPlayerEntity clientPlayer) {
-            Mp3HandleMethod.stopSound(clientPlayer.getUniqueID());
-            Mp3Context.getCtx().initSoundIndexList();
-            Mp3Context.getCtx().playMp3EndSound();
+            Mp3Executor.getExecutor().stopAudio();
+            Mp3Executor.getExecutor().getSel().reload();
+            Mp3Executor.getExecutor().playEnd();
         }
     }
 
@@ -36,8 +35,8 @@ public class ASPHandleMethod {
     protected static class PlayerCloseGUI implements IAudioSoundPackBranch {
         @Override
         public void withBranch(ClientPlayerEntity clientPlayer) {
-            if (Mp3Context.getCtx().currentSource != null && Mp3Context.getCtx().isPaused) {
-                Mp3Context.getCtx().currentSource.pause();
+            if (Mp3Executor.getExecutor().getSel().source != null && Mp3Executor.getExecutor().getCtx().isPaused) {
+                Mp3Executor.getExecutor().getSel().source.pause();
             }
         }
     }
@@ -45,7 +44,7 @@ public class ASPHandleMethod {
     protected static class PlayerMissMp3 implements IAudioSoundPackBranch {
         @Override
         public void withBranch(ClientPlayerEntity clientPlayer) {
-            if (Mp3.isMp3InInventory) Mp3Context.getCtx().toStop();
+            if (Mp3.isMp3InInventory) Mp3Executor.getExecutor().toStop();
             Mp3.isHoldingMp3 = false;
         }
     }

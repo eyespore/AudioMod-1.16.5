@@ -1,14 +1,11 @@
 package com.github.audio.client.commands;
 
-import com.github.audio.Utils;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.minecraft.client.Minecraft;
 import net.minecraft.command.CommandSource;
 import net.minecraft.command.Commands;
-import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.resources.ResourcePackInfo;
-import net.minecraft.resources.ResourcePackType;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -29,10 +26,10 @@ public class ReloadResourceCommand {
 
         Collection<ResourcePackInfo> enabledPacks = Minecraft.getInstance().getResourcePackList().getEnabledPacks();
 
-        for (ResourcePackInfo info : enabledPacks) {
-            enabledPacks.removeIf((i) -> i.getResourcePack().getResourceNamespaces(ResourcePackType.CLIENT_RESOURCES)
-                    .toString().equals("[audio]"));
-        }
+//        for (ResourcePackInfo info : enabledPacks) {
+//            enabledPacks.removeIf((i) -> i.getResourcePack().getResourceNamespaces(ResourcePackType.CLIENT_RESOURCES)
+//                    .toString().equals("[audio]"));
+//        }
 
         Minecraft.getInstance().reloadResources();
         if (Minecraft.getInstance().player != null) {

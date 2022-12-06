@@ -29,15 +29,23 @@ public class SoundChannel {
         return this.channelSoundList.get(collect.contains(registryName) ? collect.indexOf(registryName) : 0);
     }
 
-    public List<AudioSound> getChannelSoundList() {
-        return channelSoundList;
-    }
-
     public void add(AudioSound... audioSounds) {
         this.channelSoundList.addAll(Arrays.asList(audioSounds));
     }
 
     public void delete(AudioSound audioSound) {
         this.channelSoundList.remove(audioSound);
+    }
+
+    public int getSize() {
+        return this.channelSoundList.size();
+    }
+
+    public boolean isEmpty() {
+        return this.channelSoundList.isEmpty();
+    }
+
+    public final List<AudioSound> getList() {
+        return this.channelSoundList;
     }
 }

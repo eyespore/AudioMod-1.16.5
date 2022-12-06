@@ -1,6 +1,6 @@
 package com.github.audio.event;
 
-import com.github.audio.Utils;
+import com.github.audio.util.Utils;
 import com.github.audio.item.ItemRegisterHandler;
 import com.github.audio.item.mp3.Mp3;
 import com.github.audio.networking.*;
