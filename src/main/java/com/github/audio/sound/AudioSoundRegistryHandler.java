@@ -6,6 +6,8 @@ import net.minecraftforge.eventbus.api.IEventBus;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.function.Supplier;
 
 import static com.github.audio.sound.AudioSound.SOUND_REGISTER;
@@ -15,7 +17,9 @@ import static com.github.audio.sound.AudioSound.SOUND_REGISTER;
  * @since 1.0.0
  */
 public class AudioSoundRegistryHandler {
-    public static final HashMap<String, Long> CUSTOM_FILE_MAP = new HashMap<>();
+    public static final LinkedHashMap<String, Long> CUSTOM_FILE_MAP = new LinkedHashMap<>();
+    /* For registry those AudioSound that need to be defined in the code rather than outside. */
+    public static final HashMap<String, AudioSound> CUSTOM_SOUND_MAP = new HashMap<String, AudioSound>();
 
     static {
         Utils.AudioHelper.initMusicFolderMap(CUSTOM_FILE_MAP);
@@ -30,30 +34,29 @@ public class AudioSoundRegistryHandler {
     public static final AudioSound BACKPACK_UNFOLD_SOUND = REGISTER.registryDef("backpack_unfold").get();
     public static final AudioSound BACKPACK_FOLD_SOUND = REGISTER.registryDef("backpack_fold").get();
     /*------------------ Non Default Sound Registry ------------------------*/
-    public static final AudioSound RAIN_ON_BRICKS = REGISTER.registryDef("rain_on_bricks", SoundChannel.KATANA_ZERO_CHANNEL).get();
-    public static final AudioSound HIT_THE_FLOOR = REGISTER.registryDef("hit_the_floor", SoundChannel.KATANA_ZERO_CHANNEL).get();
-    public static final AudioSound COME_AND_SEE = REGISTER.registryDef("come_and_see", SoundChannel.KATANA_ZERO_CHANNEL).get();
-    public static final AudioSound NOCTURNE = REGISTER.registryDef("nocturne", SoundChannel.KATANA_ZERO_CHANNEL).get();
-    public static final AudioSound A_FINE_RED_MIST = REGISTER.registryDef("a_fine_red_mist", SoundChannel.KATANA_ZERO_CHANNEL).get();
-    public static final AudioSound END_OF_THE_ROAD = REGISTER.registryDef("end_of_the_road", SoundChannel.KATANA_ZERO_CHANNEL).get();
-    public static final AudioSound PRISON_TWO = REGISTER.registryDef("prison_2", SoundChannel.KATANA_ZERO_CHANNEL).get();
-    public static final AudioSound SILHOUETTE = REGISTER.registryDef("silhouette", SoundChannel.KATANA_ZERO_CHANNEL).get();
-    public static final AudioSound CHEMICAL_BREW = REGISTER.registryDef("chemical_brew", SoundChannel.KATANA_ZERO_CHANNEL).get();
-    public static final AudioSound YOU_WILL_NEVER_KNOW = REGISTER.registryDef("you_will_never_know", SoundChannel.KATANA_ZERO_CHANNEL).get();
-    //    public static final AudioSound<SoundEvent> WORST_NEIGHBOR_EVER = REGISTER.registryDef("worst_neighbor_ever", SoundChannel.KATANA_ZERO_CHANNEL, 1481).get();
-    public static final AudioSound BLUE_ROOM = REGISTER.registryDef("blue_room", SoundChannel.KATANA_ZERO_CHANNEL).get();
-    public static final AudioSound FULL_CONFESSION = REGISTER.registryDef("full_confession", SoundChannel.KATANA_ZERO_CHANNEL).get();
-    public static final AudioSound SNOW = REGISTER.registryDef("snow", SoundChannel.KATANA_ZERO_CHANNEL).get();
-    public static final AudioSound CHINATOWN = REGISTER.registryDef("china_town", SoundChannel.KATANA_ZERO_CHANNEL).get();
-    public static final AudioSound BREATH_OF_A_SERPENT = REGISTER.registryDef("breath_of_a_serpent", SoundChannel.KATANA_ZERO_CHANNEL).get();
-    public static final AudioSound DRIVING_FORCE = REGISTER.registryDef("driving_force", SoundChannel.KATANA_ZERO_CHANNEL).get();
-    public static final AudioSound SNEAKY_DRIVER = REGISTER.registryDef("sneaky_driver", SoundChannel.KATANA_ZERO_CHANNEL).get();
-    public static final AudioSound THIRD_DISTRICT = REGISTER.registryDef("third_district", SoundChannel.KATANA_ZERO_CHANNEL).get();
-    public static final AudioSound OVERDOSE = REGISTER.registryDef("overdose", SoundChannel.KATANA_ZERO_CHANNEL).get();
-    public static final AudioSound KATANA_ZERO_Z = REGISTER.registryDef("katana_zero", SoundChannel.KATANA_ZERO_CHANNEL).get();
-    public static final AudioSound MEAT_GRINDER = REGISTER.registryDef("meat_grinder", SoundChannel.KATANA_ZERO_CHANNEL).get();
-    public static final AudioSound START_UP = REGISTER.registryDef("start_up", SoundChannel.KATANA_ZERO_CHANNEL).get();
-
+//    public static final AudioSound RAIN_ON_BRICKS = REGISTER.registryDef("rain_on_bricks", SoundChannel.KATANA_ZERO_CHANNEL).get();
+//    public static final AudioSound HIT_THE_FLOOR = REGISTER.registryDef("hit_the_floor", SoundChannel.KATANA_ZERO_CHANNEL).get();
+//    public static final AudioSound COME_AND_SEE = REGISTER.registryDef("come_and_see", SoundChannel.KATANA_ZERO_CHANNEL).get();
+//    public static final AudioSound NOCTURNE = REGISTER.registryDef("nocturne", SoundChannel.KATANA_ZERO_CHANNEL).get();
+//    public static final AudioSound A_FINE_RED_MIST = REGISTER.registryDef("a_fine_red_mist", SoundChannel.KATANA_ZERO_CHANNEL).get();
+//    public static final AudioSound END_OF_THE_ROAD = REGISTER.registryDef("end_of_the_road", SoundChannel.KATANA_ZERO_CHANNEL).get();
+//    public static final AudioSound PRISON_TWO = REGISTER.registryDef("prison_2", SoundChannel.KATANA_ZERO_CHANNEL).get();
+//    public static final AudioSound SILHOUETTE = REGISTER.registryDef("silhouette", SoundChannel.KATANA_ZERO_CHANNEL).get();
+//    public static final AudioSound CHEMICAL_BREW = REGISTER.registryDef("chemical_brew", SoundChannel.KATANA_ZERO_CHANNEL).get();
+//    public static final AudioSound YOU_WILL_NEVER_KNOW = REGISTER.registryDef("you_will_never_know", SoundChannel.KATANA_ZERO_CHANNEL).get();
+//    //    public static final AudioSound<SoundEvent> WORST_NEIGHBOR_EVER = REGISTER.registryDef("worst_neighbor_ever", SoundChannel.KATANA_ZERO_CHANNEL, 1481).get();
+//    public static final AudioSound BLUE_ROOM = REGISTER.registryDef("blue_room", SoundChannel.KATANA_ZERO_CHANNEL).get();
+//    public static final AudioSound FULL_CONFESSION = REGISTER.registryDef("full_confession", SoundChannel.KATANA_ZERO_CHANNEL).get();
+//    public static final AudioSound SNOW = REGISTER.registryDef("snow", SoundChannel.KATANA_ZERO_CHANNEL).get();
+//    public static final AudioSound CHINATOWN = REGISTER.registryDef("china_town", SoundChannel.KATANA_ZERO_CHANNEL).get();
+//    public static final AudioSound BREATH_OF_A_SERPENT = REGISTER.registryDef("breath_of_a_serpent", SoundChannel.KATANA_ZERO_CHANNEL).get();
+//    public static final AudioSound DRIVING_FORCE = REGISTER.registryDef("driving_force", SoundChannel.KATANA_ZERO_CHANNEL).get();
+//    public static final AudioSound SNEAKY_DRIVER = REGISTER.registryDef("sneaky_driver", SoundChannel.KATANA_ZERO_CHANNEL).get();
+//    public static final AudioSound THIRD_DISTRICT = REGISTER.registryDef("third_district", SoundChannel.KATANA_ZERO_CHANNEL).get();
+//    public static final AudioSound OVERDOSE = REGISTER.registryDef("overdose", SoundChannel.KATANA_ZERO_CHANNEL).get();
+//    public static final AudioSound KATANA_ZERO_Z = REGISTER.registryDef("katana_zero", SoundChannel.KATANA_ZERO_CHANNEL).get();
+//    public static final AudioSound MEAT_GRINDER = REGISTER.registryDef("meat_grinder", SoundChannel.KATANA_ZERO_CHANNEL).get();
+//    public static final AudioSound START_UP = REGISTER.registryDef("start_up", SoundChannel.KATANA_ZERO_CHANNEL).get();
     private static void init() throws IOException {
         if (!hasInit) {
             /* Add initialization information here. */
@@ -79,8 +82,6 @@ public class AudioSoundRegistryHandler {
      * one or more AudioSound instance.
      */
     private static class AudioSoundRegister {
-        /* For registry those AudioSound that need to be defined in the code rather than outside. */
-        private static final HashMap<String, AudioSound> CUSTOM_SOUND_MAP = new HashMap<String, AudioSound>();
         /* The AudioSound instance in this map should be defined in the inside. */
         private static final HashMap<String, AudioSound> DEFINED_SOUND_MAP = new HashMap<String, AudioSound>();
 
@@ -120,9 +121,11 @@ public class AudioSoundRegistryHandler {
         }
 
         @SuppressWarnings("deprecation")
-        private void registryCus(String signedName, long duration) {
-            AudioSound registryAudioSound = new AudioSound.AudioSoundBuilder().duration(CUSTOM_FILE_MAP.get(signedName)).build();
-            CUSTOM_SOUND_MAP.put(registryAudioSound.getRegistryName() , registryAudioSound);
+        private void registryCus(String displayName , long duration) {
+            AudioSound registryAudioSound = new AudioSound.AudioSoundBuilder().display(displayName).duration(duration).build();
+            registryAudioSound.into(SoundChannel.KATANA_ZERO_CHANNEL);
+//            CUSTOM_SOUND_MAP.put(registryAudioSound.getRegistryName() , registryAudioSound);
+            AudioSelector.SOUND_SOURCE_PATH.add(registryAudioSound.getRegistryName());
         }
 
         private void autoConstructor(int num) {

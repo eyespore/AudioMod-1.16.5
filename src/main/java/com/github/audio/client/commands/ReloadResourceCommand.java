@@ -1,6 +1,6 @@
 package com.github.audio.client.commands;
 
-import com.github.audio.util.JarHelper;
+import com.github.audio.util.gen.JarHelper;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.minecraft.client.Minecraft;
@@ -33,13 +33,7 @@ public class ReloadResourceCommand {
     @SuppressWarnings("deprecation")
     private int ReloadResource(CommandSource source) throws CommandSyntaxException, IOException {
 
-        Collection<ResourcePackInfo> enabledPacks = Minecraft.getInstance().getResourcePackList().getEnabledPacks();
-
-//        for (ResourcePackInfo info : enabledPacks) {
-//            enabledPacks.removeIf((i) -> i.getResourcePack().getResourceNamespaces(ResourcePackType.CLIENT_RESOURCES)
-//                    .toString().equals("[audio]"));
-//        }
-        JarHelper.JAR_HELPER.folderInsert("./resourcepacks/audio_def_songs_resources_1.0.1.zip", new File("./music"), "assets/audio/sounds/",false);
+        new JarHelper().folderInsert(new File("./music"), "assets/audio/sounds/",false);
         Minecraft.getInstance().reloadResources();
         if (Minecraft.getInstance().player != null) {
             Minecraft.getInstance().player.sendMessage(
