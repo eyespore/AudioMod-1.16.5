@@ -1,6 +1,5 @@
 package com.github.audio.util;
 
-import com.github.audio.api.Interface.ILooper;
 import net.minecraftforge.event.TickEvent;
 
 import java.util.function.Function;
@@ -73,4 +72,5 @@ public class Roller {
             return cur;
         });
     }
+
 }

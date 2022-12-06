@@ -92,7 +92,7 @@ public class JarHelper {
      */
     public void fileInsert(File file, String entryPath) throws IOException {
         if (file.exists() && !file.isDirectory()) {
-            Audio.getLOGGER().info("Start inserting file");
+            Audio.info("Start inserting file");
             TreeMap<String, byte[]> entryMap = readJar(new JarFile(jarPath));
             reWriteMap(entryMap, entryPath + file.getName(), readFile(file));
             writeJar(entryMap, new JarOutputStream(new FileOutputStream(jarPath)));
@@ -222,6 +222,7 @@ public class JarHelper {
                 entryName : entryPiece[entryPiece.length - 1];
         return entryName;
     }
+
 
 
 }

@@ -25,6 +25,7 @@ import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.event.entity.EntityLeaveWorldEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 
+import java.util.Arrays;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -83,6 +84,7 @@ public class Mp3Executor extends AudioExecutor<Mp3Context, RandomSelector>
         ctx = new Mp3Context(player, world);
         sel = new RandomSelector(new DefaultSelector(SoundChannel.KATANA_ZERO_CHANNEL));
         saver = new Saver(() -> sel.getPointer() , 80);
+        Mp3.MODE_LIST.addAll(Arrays.asList(Mp3.RelayMode.DEFAULT, Mp3.RelayMode.SINGLE, Mp3.RelayMode.RANDOM));
         sel.reload();
         ctx.reload();
     }
@@ -261,12 +263,6 @@ public class Mp3Executor extends AudioExecutor<Mp3Context, RandomSelector>
     @Override
     public void onSourceChange(SoundEvent.SoundSourceEvent event) {
         if (isNullEnv()) return;
-
-        if (!hasInitPath) {
-            sel.initList();
-            hasInitPath = true;
-        }
-
         if (AudioSelector.SOUND_SOURCE_PATH.contains(event.getName())) {
             sel.source = event.getSource();
             sel.sourceChange = true;

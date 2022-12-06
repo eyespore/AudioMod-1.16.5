@@ -1,8 +1,10 @@
 package com.github.audio.sound;
 
-import com.github.audio.util.JarHelper;
+import com.github.audio.client.audio.AudioSelector;
+import com.github.audio.util.gen.AudioHelper;
 import net.minecraft.util.SoundEvents;
 import net.minecraftforge.eventbus.api.IEventBus;
+import org.jaudiotagger.audio.exceptions.CannotReadException;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -22,7 +24,11 @@ public class AudioSoundRegistryHandler {
     public static final HashMap<String, AudioSound> CUSTOM_SOUND_MAP = new HashMap<String, AudioSound>();
 
     static {
-        Utils.AudioHelper.initMusicFolderMap(CUSTOM_FILE_MAP);
+        try {
+            AudioHelper.initBeforeRegistry();
+        } catch (IOException | CannotReadException e) {
+            e.printStackTrace();
+        }
     }
     private static boolean hasInit = false;
     private static final AudioSoundRegister REGISTER = new AudioSoundRegister();
@@ -62,7 +68,8 @@ public class AudioSoundRegistryHandler {
             /* Add initialization information here. */
             initSoundEvent();
             /* Maybe registry custom audio sound here. */
-            REGISTER.autoConstructor(20);
+//            REGISTER.autoConstructor(20);
+            REGISTER.autoConstructor();
             hasInit = true;
         }
     }
@@ -90,18 +97,8 @@ public class AudioSoundRegistryHandler {
             return construct(registryAudioSound);
         }
 
-        private Supplier<AudioSound> registryDef(String registryName , String displayName) {
-            AudioSound registryAudioSound = new AudioSound.AudioSoundBuilder().tag(registryName, displayName).build();
-            return construct(registryAudioSound);
-        }
-
         private Supplier<AudioSound> registryDef(String registryName , SoundChannel registryChannel) {
             AudioSound registryAudioSound = new AudioSound.AudioSoundBuilder().tag(registryName , toDisplayName(registryName)).build().into(registryChannel);
-            return construct(registryAudioSound);
-        }
-
-        private Supplier<AudioSound> registryDef(String registryName , String displayName, SoundChannel registryChannel) {
-            AudioSound registryAudioSound = new AudioSound.AudioSoundBuilder().tag(registryName, displayName).build().into(registryChannel);
             return construct(registryAudioSound);
         }
 
@@ -133,6 +130,12 @@ public class AudioSoundRegistryHandler {
             while (i < num) {
                 REGISTER.registryCus();
                 i ++;
+            }
+        }
+
+        private void autoConstructor() {
+            for (Map.Entry<String , Long> entry : CUSTOM_FILE_MAP.entrySet()) {
+                registryCus(entry.getKey() , entry.getValue());
             }
         }
 
