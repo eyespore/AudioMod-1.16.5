@@ -1,6 +1,6 @@
 package com.github.audio.sound;
 
-import com.github.audio.Utils;
+import com.github.audio.util.Utils;
 import net.minecraft.util.SoundEvents;
 import net.minecraftforge.eventbus.api.IEventBus;
 
@@ -16,7 +16,6 @@ import static com.github.audio.sound.AudioSound.SOUND_REGISTER;
  */
 public class AudioSoundRegistryHandler {
     public static final HashMap<String, Long> CUSTOM_FILE_MAP = new HashMap<>();
-
 
     static {
         Utils.AudioHelper.initMusicFolderMap(CUSTOM_FILE_MAP);
@@ -84,8 +83,9 @@ public class AudioSoundRegistryHandler {
         private static final HashMap<String, AudioSound> CUSTOM_SOUND_MAP = new HashMap<String, AudioSound>();
         /* The AudioSound instance in this map should be defined in the inside. */
         private static final HashMap<String, AudioSound> DEFINED_SOUND_MAP = new HashMap<String, AudioSound>();
+
         private Supplier<AudioSound> registryDef(String registryName) {
-            AudioSound registryAudioSound = new AudioSound.AudioSoundBuilder().tag(registryName , getDisplayName(registryName)).build();
+            AudioSound registryAudioSound = new AudioSound.AudioSoundBuilder().tag(registryName , toDisplayName(registryName)).build();
             return construct(registryAudioSound);
         }
 
@@ -95,7 +95,7 @@ public class AudioSoundRegistryHandler {
         }
 
         private Supplier<AudioSound> registryDef(String registryName , SoundChannel registryChannel) {
-            AudioSound registryAudioSound = new AudioSound.AudioSoundBuilder().tag(registryName , getDisplayName(registryName)).build().into(registryChannel);
+            AudioSound registryAudioSound = new AudioSound.AudioSoundBuilder().tag(registryName , toDisplayName(registryName)).build().into(registryChannel);
             return construct(registryAudioSound);
         }
 
@@ -113,10 +113,12 @@ public class AudioSoundRegistryHandler {
          * call this method to registry new sound audio into CUSTOM_SOUND_MAP.
          * Notice that this method should NOT be used individually, it should be called in method or loop.
          */
+        @Deprecated
         private void registryCus() {
             AudioSound registryAudioSound = new AudioSound.AudioSoundBuilder().build();
             CUSTOM_SOUND_MAP.put(registryAudioSound.getRegistryName() , registryAudioSound);
         }
+
         @SuppressWarnings("deprecation")
         private void registryCus(String signedName, long duration) {
             AudioSound registryAudioSound = new AudioSound.AudioSoundBuilder().duration(CUSTOM_FILE_MAP.get(signedName)).build();
@@ -132,11 +134,12 @@ public class AudioSoundRegistryHandler {
         }
 
         /**
-         * the song registry name should be the lower case and make sure they have been divided into part
-         * by underscore such as "breath_of_a_serpent".
+         * this method should not be used at *registryCus*.
+         * @param signedName The name introduced manually by the developer.
+         * @return return displayName transform from signedName.
          */
-        private static String getDisplayName(String registryName) {
-            String[] strings = registryName.split("_");
+        private static String toDisplayName(String signedName) {
+            String[] strings = signedName.split("_");
             StringBuilder toReturn = new StringBuilder();
             int i = 0;
             for (String str : strings) {

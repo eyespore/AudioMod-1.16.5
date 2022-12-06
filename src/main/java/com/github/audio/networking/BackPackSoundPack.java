@@ -1,6 +1,6 @@
 package com.github.audio.networking;
 
-import com.github.audio.client.clienthandler.ClientEventHandler;
+import com.github.audio.client.ClientEventHandler;
 import com.github.audio.client.config.Config;
 import com.github.audio.event.EventHandler;
 import net.minecraft.client.Minecraft;
@@ -27,10 +27,10 @@ public class BackPackSoundPack {
     }
 
     public BackPackSoundPack(UUID uuid, boolean fromClient, boolean isUnfold, BlockPos pos) {
-        this.uuid = uuid;
-        this.fromClient = fromClient;
-        this.isUnfold = isUnfold;
         this.pos = pos;
+        this.uuid = uuid;
+        this.isUnfold = isUnfold;
+        this.fromClient = fromClient;
     }
 
     public void toByte(PacketBuffer buffer) {

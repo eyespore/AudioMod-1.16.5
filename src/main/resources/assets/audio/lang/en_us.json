@@ -74,6 +74,8 @@
   "tooltip.audio.endOfTheRoadMusicDisc.line1": "§4§lA§r§2§ll§r§e§lr§r§a§li§r§9§lg§r§d§lh§r§5§lt§r§4§l.§r§2§lL§r§e§le§r§a§lt§r§9§l'§r§d§ls§r §4§ls§r§2§lp§r§e§li§r§a§ln§r §d§lt§r§5§lh§r§4§la§r§2§lt§r §a§lW§r§9§lh§r§d§le§r§5§le§r§4§ll§r§2§l!§r",
   "tooltip.audio.silhouette.line1": "So... Tell me about the men in masks.",
   "tooltip.audio.snowMusicDisc.line1": "I've never approved of your pet projects.",
-  "tooltip.audio.audio.line1": "Only comfort while in the high school."
+  "tooltip.audio.audio.line1": "Only comfort while in the high school.",
+
+  "command.audio.reloadResource": "§e§lStart Reloading ResourcePack...§r"
 
 }

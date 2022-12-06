@@ -1,7 +1,7 @@
 package com.github.audio.client.gui;
 
-import com.github.audio.Utils;
-import com.github.audio.client.clienthandler.mp3.Mp3Context;
+import com.github.audio.util.Utils;
+import com.github.audio.client.audio.exec.Mp3Executor;
 import com.github.audio.client.config.Config;
 import com.github.audio.item.ItemRegisterHandler;
 import com.github.audio.sound.SoundChannel;
@@ -16,8 +16,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvent;
-
-import java.util.Objects;
 
 public class AudioToastMessage implements IToast {
 
@@ -61,11 +59,11 @@ public class AudioToastMessage implements IToast {
         if (!this.hasPlayedSound && clientWorldTime > 0L) {
             this.hasPlayedSound = true;
             SoundEvent soundEvent = SoundChannel.MUSIC_BOX_CHANNEL
-                    .getChannelSoundList().get(Config.MUSIC_BOX_CLEW_TONE.get()).getSoundEvent();
-            if (soundEvent != null) {
+                    .getList().get(Config.MUSIC_BOX_CLEW_TONE.get()).getSoundEvent();
+            if (soundEvent != null && Minecraft.getInstance().player != null) {
                 toastGui.getMinecraft().getSoundHandler().play(
                         new EntityTickableSound(soundEvent, SoundCategory.RECORDS, 2, 1,
-                                Objects.requireNonNull(Minecraft.getInstance().player)));
+                                Minecraft.getInstance().player));
             }
         }
 
@@ -74,7 +72,7 @@ public class AudioToastMessage implements IToast {
         //TODO : make function to control the hide and show mode of toast Message.
 
         boolean flag1 = clientWorldTime - this.firstDrawTime >= 2000L;
-        boolean flag2 = !Mp3Context.isPlaySong;
+        boolean flag2 = !Mp3Executor.getExecutor().getCtx().isPlaySong;
 
         return (flag1 || flag2) ? Visibility.HIDE : Visibility.SHOW;
     }

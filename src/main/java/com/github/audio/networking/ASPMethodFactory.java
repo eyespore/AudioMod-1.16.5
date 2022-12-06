@@ -6,7 +6,7 @@ import java.util.HashMap;
 
 public class ASPMethodFactory {
 
-    public enum ASPJudgementType {REBORN, TOSS, CHANGE_DIMENSION, CLOSE_GUI, MISS_MP3, HAS_MP3;}
+    public enum ASPJudgementType {REBORN, TOSS, CHANGE_DIMENSION, CLOSE_GUI, MISS_MP3, HAS_MP3, PLAYER_LOGOUT , PLAYER_LOGIN;}
 
     public static final HashMap<Enum<ASPJudgementType>, IAudioSoundPackBranch> BRANCH_MAP = new HashMap<>();
 

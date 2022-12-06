@@ -1,6 +1,6 @@
 package com.github.audio.networking;
 
-import com.github.audio.Utils;
+import com.github.audio.util.Utils;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.network.NetworkRegistry;
 import net.minecraftforge.fml.network.simple.SimpleChannel;

@@ -114,26 +114,24 @@ public final class ConfigScreen extends Screen {
         //MusicBoxClewTone Button
         this.musicBoxClewToneButton = new Button(this.width / 2 - 75, getY(), DEF_WIDTH, DEF_HEIGHT,
                 new TranslationTextComponent("gui.audio.configScreen.musicBoxClewToneButton",
-                        SoundChannel.MUSIC_BOX_CHANNEL.
-                                getChannelSoundList().get(TOAST_MSG_TONE_PARA.para).getDisplayName()),
+                        SoundChannel.MUSIC_BOX_CHANNEL.getList().get(TOAST_MSG_TONE_PARA.para).getSignedName()),
                 button -> {
                     if (TOAST_MSG_TONE_PARA.para ==
-                            SoundChannel.MUSIC_BOX_CHANNEL.getChannelSoundList().size() - 1) {
+                            SoundChannel.MUSIC_BOX_CHANNEL.getSize() - 1) {
                         TOAST_MSG_TONE_PARA.para = 0;
                     } else {
                         TOAST_MSG_TONE_PARA.para++;
                     }
 
                     SoundEvent soundEvent = SoundChannel.MUSIC_BOX_CHANNEL
-                            .getChannelSoundList().get(TOAST_MSG_TONE_PARA.ensureIn(0, SoundChannel.MUSIC_BOX_CHANNEL.getChannelSoundList().size() - 1)).getSoundEvent();
+                            .getList().get(TOAST_MSG_TONE_PARA.ensureIn(0, SoundChannel.MUSIC_BOX_CHANNEL.getSize() - 1)).getSoundEvent();
 
                     Config.MUSIC_BOX_CLEW_TONE.set(TOAST_MSG_TONE_PARA.para);
                     Config.MUSIC_BOX_CLEW_TONE.save();
 
                     this.musicBoxClewToneButton.setMessage(new TranslationTextComponent(
                             "gui.audio.configScreen.musicBoxClewToneButton",
-                            SoundChannel.MUSIC_BOX_CHANNEL.
-                                    getChannelSoundList().get(TOAST_MSG_TONE_PARA.para).getDisplayName()));
+                            SoundChannel.MUSIC_BOX_CHANNEL.getList().get(TOAST_MSG_TONE_PARA.para).getSignedName()));
                     if (soundEvent != null) {
                         Objects.requireNonNull(Minecraft.getInstance().player).playSound(soundEvent, 2, 1);
                     }
@@ -152,7 +150,6 @@ public final class ConfigScreen extends Screen {
                 new TranslationTextComponent("gui.audio.configScreen.done"),
                 button -> ConfigScreen.this.closeScreen());
         this.addButton(done);
-
     }
 
     @Override

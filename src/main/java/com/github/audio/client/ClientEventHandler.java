@@ -1,64 +1,49 @@
-package com.github.audio.client.clienthandler;
+package com.github.audio.client;
 
-import com.github.audio.Utils;
-import com.github.audio.client.clienthandler.mp3.HandleMethodFactory;
-import com.github.audio.client.clienthandler.mp3.Mp3HandleMethod;
-import com.github.audio.client.clienthandler.mp3.Mp3Context;
-import com.github.audio.client.config.Config;
 import com.github.audio.client.gui.ConfigScreen;
-import com.github.audio.item.mp3.Mp3;
-import com.github.audio.item.mp3.Mp3Utils;
 import com.github.audio.keybind.KeyBinds;
+import com.github.audio.util.Utils;
+import com.github.audio.client.commands.ReloadResourceCommand;
+import com.github.audio.client.config.Config;
 import com.github.audio.networking.NetworkingHandler;
 import com.github.audio.networking.BackPackSoundPack;
 import com.github.audio.sound.AudioSoundRegistryHandler;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.client.gui.screen.inventory.InventoryScreen;
-import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.client.world.ClientWorld;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.GuiOpenEvent;
 import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraftforge.client.event.InputEvent;
-import net.minecraftforge.client.event.sound.SoundEvent;
+import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.server.command.ConfigCommand;
 
 import java.util.Objects;
 
 @Mod.EventBusSubscriber(modid = Utils.MOD_ID, value = Dist.CLIENT)
 public class ClientEventHandler {
 
-    private static long clientTickChecked = 0L;
-    private static final long CLIENT_TICK_CHECK_INTERVAL = 40L;
+    public static boolean isPlayerExist = false;
 
     @SubscribeEvent
-    public static void onSoundSourceChange(SoundEvent.SoundSourceEvent event) {
-
-        if (!Mp3HandleMethod.hasInitSoundSourcePath) {
-            Mp3HandleMethod.initSoundList();
-            Mp3HandleMethod.hasInitSoundSourcePath = true;
-        }
-
-        if (Mp3Context.soundSourcePath.contains(event.getName())) {
-            Mp3Context.currentSource = event.getSource();
-            Mp3Context.currentSourceHasChanged = true;
-        }
+    public static void onCommandRegister(RegisterCommandsEvent event) {
+        new ReloadResourceCommand(event.getDispatcher());
+        ConfigCommand.register(event.getDispatcher());
     }
 
     @SubscribeEvent
-    public static void onPlayerLoggedOut(PlayerEvent.PlayerLoggedOutEvent event) {
-        if (!event.isCanceled() && event.getEntity() instanceof PlayerEntity) {
-            ClientPlayerEntity playerClient = Minecraft.getInstance().player;
-            if (playerClient != null) {
-                if (event.getEntity().getUniqueID() == playerClient.getUniqueID()) {
-                }
-            }
+    public static void tick(TickEvent.ClientTickEvent event) {
+        if (Minecraft.getInstance().player == null || Minecraft.getInstance().world == null) {
+            isPlayerExist = false;
+            return;
         }
+        isPlayerExist = true;
     }
 
     @SubscribeEvent
@@ -110,49 +95,23 @@ public class ClientEventHandler {
     }
 
     @SubscribeEvent
-    public static void onClientTick(TickEvent.ClientTickEvent event) {
-        if (!event.isCanceled() && Minecraft.getInstance().world != null && Minecraft.getInstance().player != null) {
-            if (Minecraft.getInstance().world.getGameTime() > clientTickChecked + CLIENT_TICK_CHECK_INTERVAL) {
-                clientTickChecked = Minecraft.getInstance().world.getGameTime();
-                Mp3Utils.printUUID();
-            }
-        }
-    }
-
-    /**
-     * Key input event for mp3
-     */
-    @SubscribeEvent
     public static void onKeyInput(InputEvent.KeyInputEvent event) {
+        if (Minecraft.getInstance().player == null || Minecraft.getInstance().world == null) return;
         Minecraft client = Minecraft.getInstance();
-        ClientPlayerEntity clientPlayer = Minecraft.getInstance().player;
-        if (clientPlayer != null) {
-
-            if (KeyBinds.settingMenu.isPressed()) client.displayGuiScreen(new ConfigScreen());
-
-            if (Mp3.isHoldingMp3) {
-                //switch to last disc
-                if (KeyBinds.relayLast.isPressed()) trySwitchToLast();
-                //switch to next disc
-                if (KeyBinds.relayNext.isPressed()) trySwitchToNext();
-                //try pause or resume the current disc
-                if (KeyBinds.pauseOrResume.isPressed()) tryPauseOrResume();
-            } else {
-                return;
-            }
-        }
+        if (KeyBinds.settingMenu.isPressed()) client.displayGuiScreen(new ConfigScreen());
     }
 
-    public static void trySwitchToLast() {
-        Mp3HandleMethod.toBeSolved = HandleMethodFactory.HandleMethodType.SWITCH_TO_LAST;
-    }
-
-    public static void trySwitchToNext() {
-        Mp3HandleMethod.toBeSolved = HandleMethodFactory.HandleMethodType.SWITCH_TO_NEXT;
-    }
-
-    public static void tryPauseOrResume() {
-        Mp3HandleMethod.toBeSolved = HandleMethodFactory.HandleMethodType.PAUSE_OR_RESUME;
-    }
+//    @SubscribeEvent
+//    public static void onWorldTick(TickEvent.WorldTickEvent event) {
+//        if (!event.world.isRemote) return;
+//        if (!AudioExecutor.PLAYER_UUID_LIST.isEmpty() && Mp3HandleMethod.lastPlaybackChecked < event.world.getGameTime()) {
+//            AudioExecutor.PLAYER_UUID_LIST.entrySet().removeIf(entry -> {
+//                if (!Minecraft.getInstance().getSoundHandler().isPlaying(entry.getValue())) {
+//                    return true;
+//                }
+//                return false;
+//            });
+//        }
+//    }
 }
 

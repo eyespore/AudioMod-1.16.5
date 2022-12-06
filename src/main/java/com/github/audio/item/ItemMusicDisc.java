@@ -1,6 +1,6 @@
 package com.github.audio.item;
 
-import com.github.audio.Utils;
+import com.github.audio.util.Tipper;
 import com.github.audio.creativetab.ModCreativeTab;
 import com.github.audio.sound.AudioSoundRegistryHandler;
 import net.minecraft.client.util.ITooltipFlag;
@@ -39,7 +39,7 @@ public class ItemMusicDisc {
 
         @Override
         public void addInformation(ItemStack stack, @Nullable World worldIn, List<ITextComponent> tooltip, ITooltipFlag flagIn) {
-            tooltip.add(Utils.TipHelper.getTip("tooltip.audio.nocturneMusicDisc.line1"));
+            tooltip.add(Tipper.getTip("tooltip.audio.nocturneMusicDisc.line1"));
             super.addInformation(stack, worldIn, tooltip, flagIn);
         }
     }
@@ -52,7 +52,7 @@ public class ItemMusicDisc {
 
         @Override
         public void addInformation(ItemStack stack, @Nullable World worldIn, List<ITextComponent> tooltip, ITooltipFlag flagIn) {
-            tooltip.add(Utils.TipHelper.getTip("tooltip.audio.silhouette.line1"));
+            tooltip.add(Tipper.getTip("tooltip.audio.silhouette.line1"));
             super.addInformation(stack, worldIn, tooltip, flagIn);
         }
     }
@@ -65,7 +65,7 @@ public class ItemMusicDisc {
 
         @Override
         public void addInformation(ItemStack stack, @Nullable World worldIn, List<ITextComponent> tooltip, ITooltipFlag flagIn) {
-            tooltip.add(Utils.TipHelper.getTip("tooltip.audio.snowMusicDisc.line1"));
+            tooltip.add(Tipper.getTip("tooltip.audio.snowMusicDisc.line1"));
             super.addInformation(stack, worldIn, tooltip, flagIn);
         }
     }
