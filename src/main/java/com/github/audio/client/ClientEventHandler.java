@@ -2,16 +2,15 @@ package com.github.audio.client;
 
 import com.github.audio.client.gui.ConfigScreen;
 import com.github.audio.keybind.KeyBinds;
-import com.github.audio.util.Utils;
 import com.github.audio.client.commands.ReloadResourceCommand;
 import com.github.audio.client.config.Config;
 import com.github.audio.networking.NetworkingHandler;
 import com.github.audio.networking.BackPackSoundPack;
 import com.github.audio.sound.AudioSoundRegistryHandler;
+import com.github.audio.util.Utils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.client.gui.screen.inventory.InventoryScreen;
-import net.minecraft.client.world.ClientWorld;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.api.distmarker.Dist;
