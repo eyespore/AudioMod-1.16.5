@@ -1,6 +1,10 @@
-package com.github.audio.client.audio;
+package com.github.audio.master.client.exec;
 
 import com.github.audio.client.gui.AudioToastMessage;
+import com.github.audio.master.client.AudioContext;
+import com.github.audio.master.client.AudioSelector;
+import com.github.audio.master.client.ClientExecutor;
+import com.github.audio.master.client.IAudioExecutor;
 import com.github.audio.sound.AudioSound;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.EntityTickableSound;
@@ -20,20 +24,18 @@ import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 import java.io.Serializable;
-import java.util.Map;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.*;
 
 @OnlyIn(Dist.CLIENT)
-public abstract class AudioExecutor<K extends AudioContext, T extends AudioSelector> extends Executor
+public abstract class AudioExecutor<K extends AudioContext, T extends AudioSelector> extends ClientExecutor
         implements Serializable, IAudioExecutor<K, T> {
 
     protected T sel;
     protected K ctx;
+    protected final List<ISound> executorSongList = Collections.synchronizedList(new ArrayList<>());
 
     private boolean hasChecked = false;
     private long firstCheck;
-    public static final Map<UUID, ISound> PLAYER_UUID_LIST = new ConcurrentHashMap<>();
 
     public AudioExecutor() {
     }
@@ -81,10 +83,10 @@ public abstract class AudioExecutor<K extends AudioContext, T extends AudioSelec
     public final Judge playDelaySound(AudioSound audioSound, long delay, TickEvent.ClientTickEvent event) {
         return () -> {
             if (!hasChecked) {
-                firstCheck = getTime().get();
+                firstCheck = getGameTime().get();
                 hasChecked = true;
             }
-            if (getTime().get() > firstCheck + delay) {
+            if (getGameTime().get() > firstCheck + delay) {
                 playAudio(audioSound);
                 hasChecked = false;
                 return true;
@@ -94,7 +96,7 @@ public abstract class AudioExecutor<K extends AudioContext, T extends AudioSelec
     }
 
     public void drawToast() {
-        String signedName = sel.getCurrent().getSignedName();
+        String signedName = sel.getCurrent().getDisplayName();
         new AudioToastMessage().show("Now Playing:", signedName.length() > 20 ?
                 signedName.substring(0, 20) + "..." : signedName);
     }
@@ -122,15 +124,20 @@ public abstract class AudioExecutor<K extends AudioContext, T extends AudioSelec
                 audioSound.getSoundEvent(), pos.getX(), pos.getY(), pos.getZ()));
     }
 
-    public final void stopAudio() {
+    public void stopExecutor() {
         if (isNullEnv()) return;
-        if (PLAYER_UUID_LIST.containsKey(ctx.getUUID())) {
-            Minecraft.getInstance().getSoundHandler().stop(PLAYER_UUID_LIST.remove(ctx.getUUID()));
+        if (!executorSongList.isEmpty()) {
+            executorSongList.forEach(Minecraft.getInstance().getSoundHandler()::stop);
+            executorSongList.clear();
         }
     }
 
+    public final boolean isOnExec() {
+        return !this.executorSongList.isEmpty();
+    }
+
     private void playSound(ISound sound) {
-        PLAYER_UUID_LIST.put(ctx.getUUID(), sound);
+        executorSongList.add(sound);
         Minecraft.getInstance().getSoundHandler().play(sound);
     }
 
@@ -142,11 +149,11 @@ public abstract class AudioExecutor<K extends AudioContext, T extends AudioSelec
      */
     @Override
     public boolean isNullEnv() {
-        return  Minecraft.getInstance().world == null
-                || Minecraft.getInstance().player == null
+        return super.isNullEnv()
                 || ctx == null
                 || sel == null
-                || ctx.isNull();
+                || ctx.isNull()
+                || sel.isNull();
     }
 
     @Override
@@ -162,7 +169,7 @@ public abstract class AudioExecutor<K extends AudioContext, T extends AudioSelec
     @SubscribeEvent
     //recognize which event this method should be subscribed to
     public void onWorldUnload(WorldEvent.Unload event) {
-        AudioExecutor.PLAYER_UUID_LIST.clear();
+        executorSongList.clear();
     }
 
 }

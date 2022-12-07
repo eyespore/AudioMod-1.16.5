@@ -1,8 +1,8 @@
 //package com.github.audio.item;
 //
-//import com.github.audio.util.Tipper;
+//import com.github.audio.util.gen.TextHelper.TipHelper;
 //import com.github.audio.creativetab.ModCreativeTab;
-//import com.github.audio.sound.AudioSoundRegistryHandler;
+//import com.github.audio.sound.AudioRegistryHandler;
 //import net.minecraft.client.util.ITooltipFlag;
 //import net.minecraft.item.Item;
 //import net.minecraft.item.ItemStack;
@@ -21,7 +21,7 @@
 //    public static class EndOfTheRoadMusicDisc extends MusicDiscItem {
 //
 //        public EndOfTheRoadMusicDisc() {
-//            super(1, AudioSoundRegistryHandler.END_OF_THE_ROAD::getSoundEvent, PROP);
+//            super(1, AudioRegistryHandler.END_OF_THE_ROAD::getSoundEvent, PROP);
 //        }
 //
 //        @Override
@@ -34,12 +34,12 @@
 //    public static class NocturneMusicDisc extends MusicDiscItem {
 //
 //        public NocturneMusicDisc() {
-//            super(1, AudioSoundRegistryHandler.NOCTURNE::getSoundEvent, PROP);
+//            super(1, AudioRegistryHandler.NOCTURNE::getSoundEvent, PROP);
 //        }
 //
 //        @Override
 //        public void addInformation(ItemStack stack, @Nullable World worldIn, List<ITextComponent> tooltip, ITooltipFlag flagIn) {
-//            tooltip.add(Tipper.getTip("tooltip.audio.nocturneMusicDisc.line1"));
+//            tooltip.add(TipHelper.getTip("tooltip.audio.nocturneMusicDisc.line1"));
 //            super.addInformation(stack, worldIn, tooltip, flagIn);
 //        }
 //    }
@@ -47,12 +47,12 @@
 //    public static class SilhouetteMusicDisc extends MusicDiscItem {
 //
 //        public SilhouetteMusicDisc() {
-//            super(1, AudioSoundRegistryHandler.SILHOUETTE::getSoundEvent , PROP);
+//            super(1, AudioRegistryHandler.SILHOUETTE::getSoundEvent , PROP);
 //        }
 //
 //        @Override
 //        public void addInformation(ItemStack stack, @Nullable World worldIn, List<ITextComponent> tooltip, ITooltipFlag flagIn) {
-//            tooltip.add(Tipper.getTip("tooltip.audio.silhouette.line1"));
+//            tooltip.add(TipHelper.getTip("tooltip.audio.silhouette.line1"));
 //            super.addInformation(stack, worldIn, tooltip, flagIn);
 //        }
 //    }
@@ -60,12 +60,12 @@
 //    public static class SnowMusicDisc extends MusicDiscItem {
 //
 //        public SnowMusicDisc() {
-//            super(1 , AudioSoundRegistryHandler.SNOW::getSoundEvent , PROP);
+//            super(1 , AudioRegistryHandler.SNOW::getSoundEvent , PROP);
 //        }
 //
 //        @Override
 //        public void addInformation(ItemStack stack, @Nullable World worldIn, List<ITextComponent> tooltip, ITooltipFlag flagIn) {
-//            tooltip.add(Tipper.getTip("tooltip.audio.snowMusicDisc.line1"));
+//            tooltip.add(TipHelper.getTip("tooltip.audio.snowMusicDisc.line1"));
 //            super.addInformation(stack, worldIn, tooltip, flagIn);
 //        }
 //    }

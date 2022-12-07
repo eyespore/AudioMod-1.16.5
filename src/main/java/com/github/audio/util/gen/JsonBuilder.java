@@ -1,6 +1,8 @@
 package com.github.audio.util.gen;
 
 import com.github.audio.api.exception.MultipleSingletonException;
+import com.github.audio.sound.AudioSound;
+import com.github.audio.util.IAudioTool;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
@@ -9,16 +11,11 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.function.Supplier;
 
-/**
- * @author Blu3 , clclfl
- * @Description: The tool class for operate Json file.
- */
-public class JsonBuilder  {
+public class JsonBuilder implements IAudioTool {
 
     private static final LinkedHashMap<String, CustomSound> jsonMap = new LinkedHashMap<>();
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
-    private static int num = 0;
-    private static final Supplier<String> SUP = () -> "custom_" + (++ num);
+    private static final AudioSound.NameGenerator gen = new AudioSound.NameGenerator();
 
     public JsonBuilder add(String... registryNames) {
         for (String s : registryNames) add(s);
@@ -27,7 +24,7 @@ public class JsonBuilder  {
 
     public JsonBuilder addCus(Supplier<Integer> sup) {
         for (int i = 0; i < sup.get(); i++) {
-            add(SUP.get());
+            add(gen.get());
         }
         return this;
     }
@@ -47,7 +44,7 @@ public class JsonBuilder  {
         toJson(new File(path));
     }
 
-    public static JsonBuilder getJsonBuilder()  {
+    public static JsonBuilder getInstance()  {
         jsonMap.clear();
         return JsonBuilderHolder.JSON_BUILDER;
     }
@@ -88,6 +85,6 @@ public class JsonBuilder  {
 
     @Override
     public String toString() {
-        return GSON.toJson(getJsonBuilder().jsonMap);
+        return GSON.toJson(getInstance().jsonMap);
     }
 }

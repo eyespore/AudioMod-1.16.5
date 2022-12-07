@@ -2,28 +2,33 @@ package com.github.audio.util.gen;
 
 import com.github.audio.Audio;
 import com.github.audio.sound.AudioSound;
-import com.github.audio.util.Utils;
+import com.github.audio.util.IAudioTool;
 
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
-import java.util.function.Supplier;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.jar.JarOutputStream;
 import java.util.stream.Collectors;
 
-public class JarHelper {
+public class JarHelper implements IAudioTool {
 
     private String jarPath;
+    private static final JarHelper JAR_HELPER = new JarHelper("./resourcepacks/audioresource.zip");
+    private static final AudioSound.NameGenerator gen = new AudioSound.NameGenerator();
 
-    public void setJarPath(String jarPath) {
+    public static JarHelper getInstance() {
+        return JAR_HELPER;
+    }
+
+    private JarHelper(String jarPath) {
         this.jarPath = jarPath;
     }
 
-    public JarHelper() {
-        this.jarPath = "./resourcepacks/audioresource.zip";
+    public void setJarPath(String jarPath) {
+        JAR_HELPER.jarPath = jarPath;
     }
 
     public static final File MUSIC_FOLDER_FILE = new File("./music");
@@ -132,20 +137,16 @@ public class JarHelper {
             TreeMap<String, byte[]> entryMap = readJar(new JarFile(jarPath)); //resource
             TreeMap<String, byte[]> folderMap = readFolder(folder); //music
             folderMap.forEach((fileName, fileContent) -> {
-                        if (keepParent) reWriteMap(entryMap, entryPath + folder.getName() + '/' + sup.get() + ".ogg", fileContent);
-                        else reWriteMap(entryMap, entryPath + sup.get() + ".ogg", fileContent);
+                        if (keepParent)
+                            reWriteMap(entryMap, entryPath + folder.getName() + '/' + gen.get() + ".ogg", fileContent);
+                        else
+                            reWriteMap(entryMap, entryPath + gen.get() + ".ogg", fileContent);
                     }
             );
             writeJar(entryMap, new JarOutputStream(new FileOutputStream(jarPath)));
         }
     }
 
-    private static int num = 0;
-    private static final Supplier<String> sup = () -> {
-        String toReturn = "custom_" + (++ num);
-        System.out.println(toReturn);
-        return toReturn;
-    };
 
     private byte[] readEntry(JarFile modJar, JarEntry jarEntry) throws IOException {
         InputStream inputStream = modJar.getInputStream(jarEntry);

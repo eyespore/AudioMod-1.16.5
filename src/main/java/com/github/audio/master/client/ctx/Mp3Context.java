@@ -1,6 +1,6 @@
-package com.github.audio.client.audio.ctx;
+package com.github.audio.master.client.ctx;
 
-import com.github.audio.client.audio.AudioContext;
+import com.github.audio.master.client.AudioContext;
 import com.github.audio.item.mp3.Mp3;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.client.world.ClientWorld;

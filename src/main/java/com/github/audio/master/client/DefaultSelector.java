@@ -1,12 +1,13 @@
-package com.github.audio.client.audio;
+package com.github.audio.master.client;
 
+import com.github.audio.master.client.AudioSelector;
 import com.github.audio.sound.AudioSound;
 import com.github.audio.sound.SoundChannel;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
-public class DefaultSelector extends AudioSelector{
+public class DefaultSelector extends AudioSelector {
 
     public DefaultSelector(SoundChannel channel) {
         super(channel);

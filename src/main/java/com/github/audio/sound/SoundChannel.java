@@ -12,11 +12,9 @@ public class SoundChannel {
 
     /* ChannelSoundList Define*/
     private static final LinkedList<AudioSound> KATANA_ZERO = new LinkedList<>();
-    private static final ArrayList<AudioSound> BACKPACK_SOUND = new ArrayList<>();
     private static final ArrayList<AudioSound> MUSIC_BOX_CLEW_TONE = new ArrayList<>();
 
     /* Channel */
-    public static final SoundChannel BACKPACK_CHANNEL = new SoundChannel(BACKPACK_SOUND);
     public static final SoundChannel MUSIC_BOX_CHANNEL = new SoundChannel(MUSIC_BOX_CLEW_TONE);
     public static final SoundChannel KATANA_ZERO_CHANNEL = new SoundChannel(KATANA_ZERO);
 

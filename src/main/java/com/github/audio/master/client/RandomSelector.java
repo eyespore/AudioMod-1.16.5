@@ -1,4 +1,4 @@
-package com.github.audio.client.audio;
+package com.github.audio.master.client;
 
 import com.github.audio.sound.AudioSound;
 import net.minecraftforge.api.distmarker.Dist;

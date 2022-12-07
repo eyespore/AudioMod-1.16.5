@@ -1,6 +1,6 @@
 package com.github.audio.client.gui;
 
-import com.github.audio.client.audio.exec.Mp3Executor;
+import com.github.audio.master.client.exec.Mp3Executor;
 import com.github.audio.client.config.Config;
 import com.github.audio.item.ItemRegisterHandler;
 import com.github.audio.sound.SoundChannel;

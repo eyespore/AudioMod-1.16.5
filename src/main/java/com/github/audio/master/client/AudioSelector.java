@@ -1,8 +1,7 @@
-package com.github.audio.client.audio;
+package com.github.audio.master.client;
 
-import com.github.audio.item.mp3.Mp3;
+import com.github.audio.master.client.IAudioSelector;
 import com.github.audio.sound.SoundChannel;
-import com.github.audio.util.Utils;
 import net.minecraft.client.audio.*;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -30,5 +29,9 @@ public abstract class AudioSelector implements IAudioSelector {
 
     public final int getPointer() {
         return pointer;
+    }
+
+    public boolean isNull() {
+        return channel == null || channel.isEmpty();
     }
 }

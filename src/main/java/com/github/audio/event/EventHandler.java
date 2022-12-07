@@ -1,9 +1,11 @@
 package com.github.audio.event;
 
+import com.github.audio.Audio;
+import com.github.audio.api.Interface.Looper;
 import com.github.audio.item.ItemRegisterHandler;
 import com.github.audio.item.mp3.Mp3;
 import com.github.audio.networking.*;
-import com.github.audio.sound.AudioSoundRegistryHandler;
+import com.github.audio.sound.AudioRegistryHandler;
 import com.github.audio.util.Utils;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -26,6 +28,8 @@ import net.minecraftforge.fml.network.PacketDistributor;
 import net.minecraftforge.fml.server.ServerLifecycleHooks;
 
 import java.util.List;
+import java.util.Objects;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 
@@ -47,11 +51,25 @@ public class EventHandler {
 
     @SubscribeEvent
     public static void onPlayerJoinIn(EntityJoinWorldEvent event) {
-        if (event.isCanceled() || event.getEntity() == null || !(event.getEntity() instanceof PlayerEntity) ) return;
+        if (event.isCanceled() || event.getEntity() == null || !(event.getEntity() instanceof PlayerEntity)) return;
         if (event.getEntity().getEntityWorld().isRemote) {
             Mp3.hasInitStatue = false;
         }
     }
+
+//    private static final Looper<List<ServerPlayerEntity>, Void> Mp3Checker = new Looper<List<ServerPlayerEntity>, Void>
+//            (() -> ServerLifecycleHooks.getCurrentServer().getPlayerList().getPlayers(), 30) {
+//        @Override
+//        public Function<List<ServerPlayerEntity>, Void> process() {
+//            return serverPlayerEntities -> {
+//                serverPlayerEntities.stream().filter(Objects::nonNull)
+//                        .filter(p -> p.inventory.mainInventory.contains(new ItemStack(ItemRegisterHandler.Mp3.get())))
+//                        .forEach(p -> NetworkingHandler.AUDIO_SOUND_CHANNEL.send(PacketDistributor.PLAYER.with(() -> p),
+//                                new AudioSoundPack(ASPMethodFactory.ASPJudgementType.MISS_MP3)));
+//                return (Void) null;
+//            };
+//        }
+//    };
 
     @SubscribeEvent
     public static void tick(final TickEvent.WorldTickEvent event) {
@@ -153,7 +171,7 @@ public class EventHandler {
 
     @Deprecated
     public static void onPlayerUnfoldBackPack(PlayerEntity playerIn, World worldIn) {
-        worldIn.playSound(playerIn, playerIn.getPosition(), AudioSoundRegistryHandler.BACKPACK_UNFOLD_SOUND.getSoundEvent(),
+        worldIn.playSound(playerIn, playerIn.getPosition(), AudioRegistryHandler.BACKPACK_UNFOLD_SOUND.getSoundEvent(),
                 SoundCategory.PLAYERS, 1f, 1f);
     }
 

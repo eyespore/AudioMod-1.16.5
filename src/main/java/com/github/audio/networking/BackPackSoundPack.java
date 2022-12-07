@@ -54,17 +54,17 @@ public class BackPackSoundPack {
                     //Multiple
                     if (parameter == 0 && !this.uuid.equals(
                             Objects.requireNonNull(Minecraft.getInstance().player).getUniqueID())) {
-                        ClientEventHandler.onPlayerUnFoldBackpack(this.getPos());
+                        ClientEventHandler.onUnFoldBackpack();
                     }
                 } else {
                     //handle folding sound
                     if (parameter == 0){
                         //Multiple
-                        ClientEventHandler.onPlayerFoldBackpack(this.getPos());
+                        ClientEventHandler.onFoldBackpack();
                     } else if (parameter == 1 && this.uuid.equals(
                             Objects.requireNonNull(Minecraft.getInstance().player).getUniqueID())) {
                         //Single
-                        ClientEventHandler.onPlayerFoldBackpack(this.getPos());
+                        ClientEventHandler.onFoldBackpack();
                     }
                 }
             }

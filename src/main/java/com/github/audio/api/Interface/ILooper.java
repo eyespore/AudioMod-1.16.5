@@ -1,11 +1,9 @@
 package com.github.audio.api.Interface;
 
-import com.github.audio.client.audio.Executor;
+import com.github.audio.master.Executor;
 import net.minecraftforge.event.TickEvent;
 
 import java.util.function.Function;
-import java.util.function.Predicate;
-import java.util.function.Supplier;
 
 /**
  * @author clclFL
@@ -48,5 +46,5 @@ public interface ILooper<T , R> {
      * default return value for this which will simply return a *TRUE*, if a sub class want some other condition of it
      * it will have to rewrite this method.
      */
-    R loop(TickEvent.ClientTickEvent event);
+    R loop(TickEvent event);
 }

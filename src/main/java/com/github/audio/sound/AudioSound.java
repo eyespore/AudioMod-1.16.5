@@ -18,22 +18,27 @@ public class AudioSound {
     /* Default means the song's name has not been reinitialized yet. */
     static final String NON_NAMED = "non_named";
     /* Return the unique registryID for each auto-registry AudioSound. */
-    private static int customRegistryID = 0;
     private static int registryID = 0;
 
     private final int id;
     private long duration;
-    private String signedName;
-    private String registryName;
+    private String displayName;
+    private final String registryName;
     private final Supplier<SoundEvent> soundEvent;
 
-    private AudioSound(int id, String registryName, String signedName,
+    private static final NameGenerator gen = new NameGenerator();
+
+    private AudioSound(int id, String registryName, String displayName,
                        Supplier<SoundEvent> soundEvent, long duration) {
         this.id = id;
         this.registryName = registryName;
-        this.signedName = signedName;
+        this.displayName = displayName;
         this.soundEvent = soundEvent;
         this.duration = duration;
+    }
+
+    private static int getRegistryID() {
+        return ++registryID;
     }
 
     /**
@@ -45,8 +50,8 @@ public class AudioSound {
         return registryName;
     }
 
-    public String getSignedName() {
-        return signedName;
+    public String getDisplayName() {
+        return displayName;
     }
 
     public long getDuration() {
@@ -57,10 +62,6 @@ public class AudioSound {
         return soundEvent.get();
     }
 
-    public String getDisplayName() {
-        //TODO : implement the logic how signedName translated into DisplayName here.
-        return null;
-    }
 
     public int getID() {
         return this.id;
@@ -109,10 +110,9 @@ public class AudioSound {
         public AudioSound build() {
 
             if (registryName.equals(NON_NAMED)) {
-                registryName = getCustomSoundRegistryID();
+                registryName = gen.get();
             }
 
-            //TODO : gain the exact duration and implement here.
             if (duration == -1) {
                 duration = DEF_DURATION;
             }
@@ -129,18 +129,23 @@ public class AudioSound {
             displayName = NON_NAMED;
             soundEvent = null;
         }
+    }
 
-        /**
-         * get the registryID from steady static field.
-         *
-         * @return registry: this should be the unique mark to differ different auto-registry sound event.
-         */
-        private static String getCustomSoundRegistryID() {
-            return "custom_" + (++customRegistryID);
+    public static class NameGenerator {
+
+        private int customRegistryID = 0;
+        private final String pre;
+
+        public NameGenerator(String pre) {
+            this.pre = pre;
         }
 
-        private static int getRegistryID() {
-            return ++registryID;
+        public NameGenerator() {
+            this("custom_");
+        }
+
+        public String get() {
+            return pre + (++customRegistryID);
         }
     }
 

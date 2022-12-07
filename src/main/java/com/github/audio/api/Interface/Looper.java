@@ -1,8 +1,11 @@
 package com.github.audio.api.Interface;
 
-import com.github.audio.client.audio.Executor;
+import com.github.audio.master.Executor;
+import com.github.audio.master.client.ClientExecutor;
 import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.fml.server.ServerLifecycleHooks;
 
+import javax.annotation.Nullable;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -26,15 +29,20 @@ public abstract class Looper<T , R> extends Executor implements ILooper<T , R>{
     private long interval;
     private R toReturn;
 
-    public Looper(Supplier<T> src , long interval) {
+    public Looper(@Nullable Supplier<T> src , long interval) {
         this.interval = interval;
         this.src = src;
+        assert src != null;
         toReturn = process().apply(src.get());
     }
 
+    public Looper() {
+
+    }
+
     @Override
-    public final R loop(TickEvent.ClientTickEvent event) {
-        if (isNullEnv()) return null;
+    public final R loop(TickEvent event) {
+        if (ServerLifecycleHooks.getCurrentServer() == null) return null;
         if (!getCondition().judge()) return null;
         ticker ++;
         if (ticker > interval) {

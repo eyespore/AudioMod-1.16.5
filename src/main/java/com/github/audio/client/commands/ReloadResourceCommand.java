@@ -1,5 +1,6 @@
 package com.github.audio.client.commands;
 
+import com.github.audio.util.Utils;
 import com.github.audio.util.gen.JarHelper;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
@@ -33,7 +34,7 @@ public class ReloadResourceCommand {
     @SuppressWarnings("deprecation")
     private int ReloadResource(CommandSource source) throws CommandSyntaxException, IOException {
 
-        new JarHelper().folderInsert(new File("./music"), "assets/audio/sounds/",false);
+        Utils.getJarHelper().folderInsert(new File("./music"), "assets/audio/sounds/",false);
         Minecraft.getInstance().reloadResources();
         if (Minecraft.getInstance().player != null) {
             Minecraft.getInstance().player.sendMessage(

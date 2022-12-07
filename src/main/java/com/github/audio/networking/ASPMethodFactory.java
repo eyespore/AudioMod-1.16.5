@@ -15,7 +15,7 @@ public class ASPMethodFactory {
         BRANCH_MAP.put(ASPJudgementType.TOSS, new ASPHandleMethod.PlayerTossMp3());
         BRANCH_MAP.put(ASPJudgementType.CLOSE_GUI, new ASPHandleMethod.PlayerCloseGUI());
         BRANCH_MAP.put(ASPJudgementType.CHANGE_DIMENSION, new ASPHandleMethod.PlayerChangeDimension());
-        BRANCH_MAP.put(ASPJudgementType.MISS_MP3 , new ASPHandleMethod.PlayerMissMp3());
+        BRANCH_MAP.put(ASPJudgementType.MISS_MP3 , new ASPHandleMethod.MissMp3());
         BRANCH_MAP.put(ASPJudgementType.HAS_MP3 , new ASPHandleMethod.PlayerHasMp3());
     }
 }

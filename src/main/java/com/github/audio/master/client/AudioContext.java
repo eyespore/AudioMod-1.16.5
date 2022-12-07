@@ -1,4 +1,4 @@
-package com.github.audio.client.audio;
+package com.github.audio.master.client;
 
 import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.client.world.ClientWorld;

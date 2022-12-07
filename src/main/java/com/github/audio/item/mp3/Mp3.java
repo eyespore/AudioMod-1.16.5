@@ -1,6 +1,6 @@
 package com.github.audio.item.mp3;
 
-import com.github.audio.client.audio.exec.Mp3Executor;
+import com.github.audio.master.client.exec.Mp3Executor;
 import com.github.audio.creativetab.ModCreativeTab;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
@@ -48,7 +48,7 @@ public class Mp3 extends Item {
             ClientPlayerEntity clientPlayer = client.player;
             if (clientPlayer != null) {
                 if (Screen.hasShiftDown()) {
-                    Mp3Executor.getExecutor().toStop();
+                    Mp3Executor.getExecutor().stopExecutor();
                 } else {
                     currentMode = Mp3.MODE_LIST.get(Mp3.MODE_LIST.indexOf(currentMode) + 1 > Mp3.MODE_LIST.size() - 1 ?
                             0 : Mp3.MODE_LIST.indexOf(currentMode) + 1);
@@ -121,6 +121,10 @@ public class Mp3 extends Item {
 
     public static enum RelayMode {
         DEFAULT, SINGLE, RANDOM;
+    }
+
+    public static void stopMp3() {
+        Mp3Executor.getExecutor().stopExecutor();
     }
 }
 

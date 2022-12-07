@@ -1,11 +1,13 @@
 package com.github.audio;
 
-import com.github.audio.client.audio.exec.ExecRegistryHandler;
+import com.github.audio.master.ExecRegistryHandler;
 import com.github.audio.client.config.Config;
 import com.github.audio.item.ItemRegisterHandler;
 import com.github.audio.keybind.KeyBinds;
-import com.github.audio.sound.AudioSoundRegistryHandler;
+import com.github.audio.sound.AudioGenerateCycle;
+import com.github.audio.sound.AudioRegistryHandler;
 import com.github.audio.util.Utils;
+import net.minecraft.item.Item;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.ExtensionPoint;
@@ -26,16 +28,18 @@ public class Audio
     private static final Logger LOGGER = LogManager.getLogger();
 
     public Audio() {
-        IEventBus eventBus = FMLJavaModLoadingContext.get().getModEventBus();
+        IEventBus ModEventBus = FMLJavaModLoadingContext.get().getModEventBus();
+        IEventBus ForgeEventBus = MinecraftForge.EVENT_BUS;
         ModLoadingContext context = ModLoadingContext.get();
 
-        ItemRegisterHandler.register(eventBus);
-        AudioSoundRegistryHandler.register(eventBus);
+        ItemRegisterHandler.register(ModEventBus);
+        AudioGenerateCycle.cycle(ModEventBus);
 
-        eventBus.addListener(this::setup);
-        eventBus.addListener(this::enqueueIMC);
-        eventBus.addListener(this::processIMC);
-        eventBus.addListener(this::doClientStuff);
+
+        ModEventBus.addListener(this::setup);
+        ModEventBus.addListener(this::enqueueIMC);
+        ModEventBus.addListener(this::processIMC);
+        ModEventBus.addListener(this::doClientStuff);
 
         context.registerConfig(ModConfig.Type.COMMON, Config.AUDIO_CONFIG);
         context.registerExtensionPoint(
@@ -43,11 +47,8 @@ public class Audio
                         (a, b) -> true));
 
         // Register ourselves for server and other game events we are interested in
-        MinecraftForge.EVENT_BUS.register(this);
-
-        if (Env.getEnv().equals(Env.RUN_CLIENT)) {
-            ExecRegistryHandler.registry(MinecraftForge.EVENT_BUS);
-        }
+        ForgeEventBus.register(this);
+        ExecRegistryHandler.registryExecutor(ForgeEventBus);
     }
 
     public void setup(final FMLCommonSetupEvent event) {
@@ -77,8 +78,5 @@ public class Audio
     public static void warn(String msg) {
         LOGGER.warn(msg);
     }
-
-
-
 
 }

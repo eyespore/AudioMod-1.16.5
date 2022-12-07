@@ -1,4 +1,4 @@
-package com.github.audio.client.audio;
+package com.github.audio.master.client;
 
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -9,8 +9,6 @@ public interface ISwitchable {
     void toNext();
 
     void toLast();
-
-    void toStop();
 
     void otherChannel();
 
