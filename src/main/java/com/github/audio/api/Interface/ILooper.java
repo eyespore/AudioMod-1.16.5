@@ -4,8 +4,6 @@ import com.github.audio.client.audio.Executor;
 import net.minecraftforge.event.TickEvent;
 
 import java.util.function.Function;
-import java.util.function.Predicate;
-import java.util.function.Supplier;
 
 /**
  * @author clclFL
