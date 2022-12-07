@@ -74,16 +74,16 @@ public class AudioSound {
     public static class AudioSoundBuilder{
         private long duration;
         private String registryName;
-        private String signedName;
+        private String displayName;
         private Supplier<SoundEvent> soundEvent;
 
         public AudioSoundBuilder() {
             this.init();
         }
 
-        public AudioSoundBuilder tag(String registryName, String signedName) {
+        public AudioSoundBuilder tag(String registryName, String displayName) {
             this.registryName = registryName;
-            this.signedName = signedName;
+            this.displayName = displayName;
             return this;
         }
 
@@ -101,8 +101,8 @@ public class AudioSound {
             return this;
         }
 
-        public AudioSoundBuilder signedName(String signedName) {
-            this.signedName = signedName;
+        public AudioSoundBuilder display(String displayName) {
+            this.displayName = displayName;
             return this;
         }
 
@@ -120,13 +120,13 @@ public class AudioSound {
             if (soundEvent == null) {
                 soundEvent = SOUND_REGISTER.register(registryName, () -> new SoundEvent(new ResourceLocation(Utils.MOD_ID, registryName)));
             }
-            return new AudioSound(getRegistryID(), registryName, signedName, soundEvent, duration);
+            return new AudioSound(getRegistryID(), registryName, displayName, soundEvent, duration);
         }
 
         public void init() {
             duration = -1;
             registryName = NON_NAMED;
-            signedName = NON_NAMED;
+            displayName = NON_NAMED;
             soundEvent = null;
         }
 

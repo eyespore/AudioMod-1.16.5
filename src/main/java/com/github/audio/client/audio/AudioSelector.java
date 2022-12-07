@@ -2,6 +2,7 @@ package com.github.audio.client.audio;
 
 import com.github.audio.item.mp3.Mp3;
 import com.github.audio.sound.SoundChannel;
+import com.github.audio.util.Utils;
 import net.minecraft.client.audio.*;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -21,11 +22,6 @@ public abstract class AudioSelector implements IAudioSelector {
 
     public AudioSelector(SoundChannel channel) {
         this.channel = channel;
-    }
-
-    /* To judge when exactly the custom sound source has changed */
-    public void initList() {
-        Utils.CollectionHelper.add(Mp3.MODE_LIST, Mp3.RelayMode.DEFAULT, Mp3.RelayMode.SINGLE, Mp3.RelayMode.RANDOM);
     }
 
     public final void setPointer(int pointer) {

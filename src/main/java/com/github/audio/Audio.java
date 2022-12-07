@@ -44,6 +44,7 @@ public class Audio
 
         // Register ourselves for server and other game events we are interested in
         MinecraftForge.EVENT_BUS.register(this);
+
         if (Env.getEnv().equals(Env.RUN_CLIENT)) {
             ExecRegistryHandler.registry(MinecraftForge.EVENT_BUS);
         }
@@ -67,6 +68,14 @@ public class Audio
 
     public static Logger getLOGGER() {
         return LOGGER;
+    }
+
+    public static void info(String msg) {
+        LOGGER.info(msg);
+    }
+
+    public static void warn(String msg) {
+        LOGGER.warn(msg);
     }
 
 
