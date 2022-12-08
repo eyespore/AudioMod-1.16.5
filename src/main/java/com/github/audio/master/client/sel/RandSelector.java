@@ -1,5 +1,6 @@
-package com.github.audio.master.client;
+package com.github.audio.master.client.sel;
 
+import com.github.audio.master.client.Selector;
 import com.github.audio.sound.AudioSound;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -8,12 +9,12 @@ import java.util.Collections;
 import java.util.LinkedList;
 
 @OnlyIn(Dist.CLIENT)
-public class RandomSelector extends AudioSelector {
+public class RandSelector extends Selector {
 
-    private final AudioSelector sel;
+    private final Selector sel;
     private boolean isRandomList = false;
 
-    public RandomSelector(AudioSelector sel) {
+    public RandSelector(Selector sel) {
         super(sel.channel);
         this.sel = sel;
     }

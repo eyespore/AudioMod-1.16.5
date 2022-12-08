@@ -48,7 +48,7 @@ public class Mp3 extends Item {
             ClientPlayerEntity clientPlayer = client.player;
             if (clientPlayer != null) {
                 if (Screen.hasShiftDown()) {
-                    Mp3Executor.getExecutor().stopExecutor();
+                    Mp3Executor.getExecutor().stopDevice();
                 } else {
                     currentMode = Mp3.MODE_LIST.get(Mp3.MODE_LIST.indexOf(currentMode) + 1 > Mp3.MODE_LIST.size() - 1 ?
                             0 : Mp3.MODE_LIST.indexOf(currentMode) + 1);
@@ -124,7 +124,7 @@ public class Mp3 extends Item {
     }
 
     public static void stopMp3() {
-        Mp3Executor.getExecutor().stopExecutor();
+        Mp3Executor.getExecutor().stopDevice();
     }
 }
 

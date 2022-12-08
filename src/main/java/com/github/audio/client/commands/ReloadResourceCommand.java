@@ -31,7 +31,7 @@ public class ReloadResourceCommand {
     @SuppressWarnings("deprecation")
     private int ReloadResource(CommandSource source) throws CommandSyntaxException, IOException {
 
-        Utils.getJarHelper().folderInsert(new File("./music"), "assets/audio/sounds/",false);
+        Utils.getIOHelper().folderInsert(new File("./music"), "assets/audio/sounds/",false);
         Minecraft.getInstance().reloadResources();
         if (Minecraft.getInstance().player != null) {
             Minecraft.getInstance().player.sendMessage(

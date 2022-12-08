@@ -1,6 +1,7 @@
 package com.github.audio;
 
-import com.github.audio.master.ExecRegistryHandler;
+import com.github.audio.registryHandler.NetworkHandler;
+import com.github.audio.registryHandler.ExecRegistryHandler;
 import com.github.audio.client.config.Config;
 import com.github.audio.item.ItemRegisterHandler;
 import com.github.audio.keybind.KeyBinds;
@@ -51,6 +52,7 @@ public class Audio
     }
 
     public void setup(final FMLCommonSetupEvent event) {
+        event.enqueueWork(NetworkHandler::registerMessage);
     }
 
     public void doClientStuff(final FMLClientSetupEvent event) {

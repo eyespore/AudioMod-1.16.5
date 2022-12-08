@@ -67,7 +67,7 @@ public class AudioSound {
         return this.id;
     }
 
-    protected AudioSound into(final SoundChannel channel) {
+    public AudioSound into(final SoundChannel channel) {
         channel.getList().add(this);
         return this;
     }

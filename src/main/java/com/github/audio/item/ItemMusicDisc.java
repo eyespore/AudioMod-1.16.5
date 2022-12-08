@@ -2,7 +2,7 @@
 //
 //import com.github.audio.util.gen.TextHelper.TipHelper;
 //import com.github.audio.creativetab.ModCreativeTab;
-//import com.github.audio.sound.AudioRegistryHandler;
+//import com.github.audio.registryHandler.AudioRegistryHandler;
 //import net.minecraft.client.util.ITooltipFlag;
 //import net.minecraft.item.Item;
 //import net.minecraft.item.ItemStack;

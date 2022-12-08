@@ -1,4 +1,4 @@
-package com.github.audio.master.client;
+package com.github.audio.master.client.api;
 
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;

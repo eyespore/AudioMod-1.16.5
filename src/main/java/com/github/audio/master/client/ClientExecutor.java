@@ -8,6 +8,7 @@ import net.minecraft.client.world.ClientWorld;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
+import java.util.UUID;
 import java.util.function.Supplier;
 
 @Exec(Dist.CLIENT)
@@ -16,6 +17,10 @@ public class ClientExecutor extends Executor {
 
     public final Supplier<ClientPlayerEntity> getPlayer() {
         return () -> Minecraft.getInstance().player;
+    }
+
+    public final Supplier<UUID> getUUID () {
+        return () -> getPlayer().get().getUniqueID();
     }
 
     public final Supplier<ClientWorld> getWorld() {
@@ -28,7 +33,6 @@ public class ClientExecutor extends Executor {
     }
 
     public boolean isNullEnv() {
-        return Minecraft.getInstance().world == null
-                || Minecraft.getInstance().player == null;
+        return Minecraft.getInstance().world == null || Minecraft.getInstance().player == null;
     }
 }

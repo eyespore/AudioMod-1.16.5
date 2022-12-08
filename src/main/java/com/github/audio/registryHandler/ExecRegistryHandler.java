@@ -1,9 +1,9 @@
-package com.github.audio.master;
+package com.github.audio.registryHandler;
 
 import com.github.audio.Audio;
 import com.github.audio.Env;
 import com.github.audio.api.annotation.Exec;
-import com.github.audio.master.client.ClientExecutor;
+import com.github.audio.master.Executor;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.eventbus.api.IEventBus;
 
@@ -43,20 +43,21 @@ public class ExecRegistryHandler {
     private static final boolean isOnTest = Env.isOnTest();
 
     public static void registryExecutor(IEventBus eventBus) {
+
         try {
             Audio.info("Start registry Server Executor");
-            getClientTarget(Type.SERVER).forEach(eventBus::register);
-
+            getTarget(Type.SERVER).forEach(eventBus::register);
             if (isServer) return;
             Audio.info("Start registry Client Executor");
-            getClientTarget(Type.CLIENT).forEach(eventBus::register);
-        } catch (ClassNotFoundException | IOException | InvocationTargetException
-                 | NoSuchMethodException | IllegalAccessException e) {
-            e.printStackTrace();
+            getTarget(Type.CLIENT).forEach(eventBus::register);
+        } catch (NoSuchMethodException | ClassNotFoundException | IOException | InvocationTargetException |
+                 IllegalAccessException e) {
+            Audio.warn("Exception with Executor loading, this is probably occur because in the class there's no" +
+                    "method \" getExecutor \" was defined.");
         }
     }
 
-    private static ArrayList<Executor> getClientTarget(Enum<Type> side) throws ClassNotFoundException, IOException, NoSuchMethodException,
+    private static ArrayList<Executor> getTarget(Enum<Type> side) throws ClassNotFoundException, IOException, NoSuchMethodException,
             InvocationTargetException, IllegalAccessException {
         boolean flag = side.equals(Type.SERVER);
         Set<Class<?>> clientClass = isOnTest ? getFileClasses(flag ? Type.SERVER : Type.CLIENT) : getJarClasses(flag ? Type.SERVER : Type.CLIENT);

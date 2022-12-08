@@ -1,6 +1,8 @@
-package com.github.audio.master.client;
+package com.github.audio.master.client.api;
 
 import com.github.audio.api.exception.InitBeforeWorldGenerationException;
+import com.github.audio.master.client.AudioContext;
+import com.github.audio.master.client.Selector;
 import com.github.audio.sound.AudioSound;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.EntityTickableSound;
@@ -12,7 +14,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
-public interface IAudioExecutor<K extends AudioContext, T extends AudioSelector> {
+public interface IAudioExecutor<K extends AudioContext, T extends Selector> {
 
     K getCtx();
 

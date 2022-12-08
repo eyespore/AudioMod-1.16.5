@@ -13,7 +13,7 @@ import java.util.function.Supplier;
 
 public class JsonBuilder implements IAudioTool {
 
-    private static final LinkedHashMap<String, CustomSound> jsonMap = new LinkedHashMap<>();
+    private static final LinkedHashMap<String, CustomSound> JSON_MAP = new LinkedHashMap<>();
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
     private static final AudioSound.NameGenerator gen = new AudioSound.NameGenerator();
 
@@ -30,13 +30,13 @@ public class JsonBuilder implements IAudioTool {
     }
 
     public JsonBuilder clear() {
-        jsonMap.clear();
+        JSON_MAP.clear();
         return this;
     }
 
-    public void toJson(File file) throws IOException{
+    public void toJson(File file) throws IOException {
         BufferedWriter br = new BufferedWriter(new FileWriter(file));
-        br.write(GSON.toJson(jsonMap));
+        br.write(GSON.toJson(JSON_MAP));
         br.close();
     }
 
@@ -45,14 +45,14 @@ public class JsonBuilder implements IAudioTool {
     }
 
     public static JsonBuilder getInstance()  {
-        jsonMap.clear();
+        JSON_MAP.clear();
         return JsonBuilderHolder.JSON_BUILDER;
     }
 
     public JsonBuilder add(String registryName) {
         ArrayList<SoundObject> tempList = new ArrayList<>();
         tempList.add(new SoundObject("audio:" + registryName, true));
-        jsonMap.put(registryName, new CustomSound(tempList));
+        JSON_MAP.put(registryName, new CustomSound(tempList));
         return this;
     }
 
@@ -85,6 +85,6 @@ public class JsonBuilder implements IAudioTool {
 
     @Override
     public String toString() {
-        return GSON.toJson(getInstance().jsonMap);
+        return GSON.toJson(JSON_MAP);
     }
 }

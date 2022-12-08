@@ -1,16 +1,19 @@
 package com.github.audio.master.client.exec;
 
-import com.github.audio.Audio;
-import com.github.audio.api.Interface.Looper;
+import com.github.audio.api.EchoConsumer;
 import com.github.audio.api.annotation.Exec;
 import com.github.audio.api.exception.InitBeforeWorldGenerationException;
 import com.github.audio.api.exception.MultipleSingletonException;
 import com.github.audio.item.mp3.Mp3;
 import com.github.audio.keybind.KeyBinds;
 import com.github.audio.master.client.*;
+import com.github.audio.master.client.api.IAutoSwitchable;
+import com.github.audio.master.client.api.IPauseable;
 import com.github.audio.master.client.ctx.Mp3Context;
-import com.github.audio.sound.AudioGenerateCycle;
-import com.github.audio.sound.AudioRegistryHandler;
+import com.github.audio.master.client.sel.DefSelector;
+import com.github.audio.master.client.sel.RandSelector;
+import com.github.audio.master.net.Mp3Packet;
+import com.github.audio.registryHandler.AudioRegistryHandler;
 import com.github.audio.sound.SoundChannel;
 import com.github.audio.util.Utils;
 import com.github.audio.util.gen.TextHelper;
@@ -25,14 +28,15 @@ import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.event.entity.EntityLeaveWorldEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 import java.util.Arrays;
-import java.util.function.Function;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 @Exec(Dist.CLIENT)
 @OnlyIn(Dist.CLIENT)
-public class Mp3Executor extends AudioExecutor<Mp3Context, RandomSelector>
+public class Mp3Executor extends DeviceExecutor<Mp3Context, RandSelector>
         implements IAutoSwitchable, IPauseable {
 
     private static final Mp3Executor EX = getExecutor();
@@ -66,7 +70,7 @@ public class Mp3Executor extends AudioExecutor<Mp3Context, RandomSelector>
     }
 
     @Override
-    public RandomSelector getSel() {
+    public RandSelector getSel() {
         return sel;
     }
 
@@ -82,8 +86,8 @@ public class Mp3Executor extends AudioExecutor<Mp3Context, RandomSelector>
         if (player == null || world == null)
             throw new InitBeforeWorldGenerationException("Minecraft.getInstance().player");
         ctx = new Mp3Context(player, world);
-        sel = new RandomSelector(new DefaultSelector(SoundChannel.KATANA_ZERO_CHANNEL));
-        saver = new Saver(() -> sel.getPointer() , 80);
+        sel = new RandSelector(new DefSelector(SoundChannel.KATANA_ZERO_CHANNEL));
+        saver = new Saver(() -> sel.getPointer(), 80);
         Mp3.MODE_LIST.addAll(Arrays.asList(Mp3.RelayMode.DEFAULT, Mp3.RelayMode.SINGLE, Mp3.RelayMode.RANDOM));
         sel.reload();
         ctx.reload();
@@ -125,13 +129,13 @@ public class Mp3Executor extends AudioExecutor<Mp3Context, RandomSelector>
     }
 
     public void stopAudio() {
-        super.stopExecutor();
+        super.stopDevice();
     }
 
     @Override
-    public void stopExecutor() {
-        if (isOnExec()) playEnd();
-        super.stopExecutor();
+    public void stopDevice() {
+        if (isPlaying()) playEnd();
+        super.stopDevice();
         ctx.gonnaPlay = false;
         ctx.isPaused = false;
         ctx.isPlaySong = false;
@@ -162,7 +166,7 @@ public class Mp3Executor extends AudioExecutor<Mp3Context, RandomSelector>
         ctx.isPlaySong = !ctx.isPlaySong;
     }
 
-    @Override
+    @SubscribeEvent
     public void onLogin(EntityJoinWorldEvent event) {
         if (event.isCanceled() || event.getEntity() == null
                 || !(event.getEntity() instanceof PlayerEntity)) return;
@@ -175,24 +179,24 @@ public class Mp3Executor extends AudioExecutor<Mp3Context, RandomSelector>
         }
     }
 
-    @Override
+    @SubscribeEvent
     public void onLogout(EntityLeaveWorldEvent event) {
         if (event.isCanceled() || event.getEntity() == null
                 || !(event.getEntity() instanceof PlayerEntity)) return;
         if (event.getEntity().getEntityWorld().isRemote) {
-            stopExecutor();
+            stopDevice();
         }
     }
 
-    @Override
+    @SubscribeEvent
     public void onReborn(PlayerEvent.Clone event) {
         if (event.getPlayer() != null && event.getPlayer().getEntityWorld().isRemote) {
 //            Audio.getLOGGER().info("detect player death.");
-            stopExecutor();
+            stopDevice();
         }
     }
 
-    @Override
+    @SubscribeEvent
     public void onKeyInput(InputEvent.KeyInputEvent event) {
         if (KeyBinds.relayLast.isPressed()) {
             if (!Mp3.isHoldingMp3) return;
@@ -206,7 +210,7 @@ public class Mp3Executor extends AudioExecutor<Mp3Context, RandomSelector>
         }
     }
 
-    @Override
+    @SubscribeEvent
     public void tick(TickEvent.ClientTickEvent event) {
         if (event.phase != TickEvent.Phase.END) return;
         if (isNullEnv()) return;
@@ -219,7 +223,7 @@ public class Mp3Executor extends AudioExecutor<Mp3Context, RandomSelector>
     }
 
 
-    @Override
+    @SubscribeEvent
     public void tick2(TickEvent.ClientTickEvent event) {
         if (event.phase != TickEvent.Phase.END) return;
         if (isNullEnv()) return;
@@ -266,19 +270,12 @@ public class Mp3Executor extends AudioExecutor<Mp3Context, RandomSelector>
         }
     }
 
-    @Override
+    @SubscribeEvent
     public void onSourceChange(SoundEvent.SoundSourceEvent event) {
         if (isNullEnv()) return;
-        if (AudioGenerateCycle.SOUND_SOURCE_PATH.contains(event.getName())) {
+        if (Utils.SOUND_SOURCE_PATH.contains(event.getName())) {
             sel.source = event.getSource();
             sel.sourceChange = true;
-        }
-    }
-
-    @Override
-    public void onDimensionChange(PlayerEvent.PlayerChangedDimensionEvent event) {
-        if (event.getEntity().getEntityWorld().isRemote) {
-            Audio.getLOGGER().info("hello from client side!");
         }
     }
 
@@ -290,24 +287,34 @@ public class Mp3Executor extends AudioExecutor<Mp3Context, RandomSelector>
                 || !Mp3.isHoldingMp3;
     }
 
-    private class Saver extends Looper<Integer, Void> {
+    private class Saver extends EchoConsumer<Integer> {
 
         public Saver(Supplier<Integer> src, long interval) {
             super(src, interval);
         }
 
         @Override
-        public Function<Integer, Void> process() {
+        public Consumer<Integer> process() {
             return (integer) -> {
                 if (!isNullEnv()) {
                     getPlayer().get().getPersistentData()
                             .putInt(Utils.MOD_ID + "channel_pointer", src.get());
                 }
-                return (Void) null;
             };
         }
     }
 
+    public void onTossMp3() {
+        stopDevice();
+    }
+
+    public void onChangeDimen() {
+        stopDevice();
+    }
+
+    public void refresh(Mp3Packet.Type type) {
+        if (!Mp3.isMp3InInventory) Mp3.isMp3InInventory = true;
+    }
 
     private enum Handler {
         NULL, TO_NEXT, TO_LAST, PAUSE, STOP;

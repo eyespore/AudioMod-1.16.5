@@ -1,9 +1,13 @@
 package com.github.audio.util.gen;
 
 import com.github.audio.Audio;
+import com.github.audio.registryHandler.AudioRegistryHandler;
 import com.github.audio.sound.AudioSound;
 import com.github.audio.util.IAudioTool;
 import com.github.audio.util.Utils;
+import org.jaudiotagger.audio.exceptions.CannotReadException;
+import org.jaudiotagger.audio.generic.GenericAudioHeader;
+import org.jaudiotagger.audio.ogg.util.OggInfoReader;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -15,33 +19,87 @@ import java.util.jar.JarOutputStream;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 
-public class JarHelper implements IAudioTool {
+public class IOHelper implements IAudioTool {
 
-    private String jarPath;
+    /**
+     * @Description: The path to the .zip or .jar for resource folder which is mainly for store
+     * the sound resource, at the very first of time this might be designed for .jar but later
+     * this is probably for .zip's visit.
+     */
+    private final String jarPath;
+    /**
+     * @Description: The zip or jar for visit while doing operation to the file, usually for
+     * input resource from custom resource which is from client side.
+     */
+    private final JarFile zip;
+    /**
+     * @Description: This is the folder for player to store the origin music file which is probably
+     * be translated into the type of .ogg, in the audio sound generate cycle the .ogg music in this
+     * file will be all put into the resource path, into the given zip.
+     */
+    private final File music;
 
-    public static final JarHelper JAR_HELPER = new JarHelper(Utils.RESOURCE_ZIP_PATH);
-
+    private static final IOHelper IO_HELPER = new IOHelper(Utils.RESOURCE_ZIP_PATH);
     private static final AudioSound.NameGenerator gen = new AudioSound.NameGenerator();
 
-    public static JarHelper getInstance() {
-        return JAR_HELPER;
+    public static IOHelper getInstance() {
+        return IO_HELPER;
     }
 
-    private JarHelper(String jarPath) {
+    private IOHelper(String jarPath) {
+        JarFile temZip;
         this.jarPath = jarPath;
+        this.music = new File(Utils.MUSIC_FOLDER_PATH);
+        try {
+            temZip = new JarFile(jarPath);
+        } catch (IOException e) {
+            Audio.warn("The given jar path could not be found, this is probably caused by the resource folder named \" audioresource.zip \"" +
+                    " is not placed in the right place, plz check if you have download this resource pack and have it loaded on your minecraft.");
+            temZip = null;
+        }
+        this.zip = temZip;
     }
 
-    public void setJarPath(String jarPath) {
-        JAR_HELPER.jarPath = jarPath;
+    public static Optional<Long> getOggDuration(File file) throws IOException, CannotReadException {
+        RandomAccessFile randomAccessFile = new RandomAccessFile(file, "rwd");
+        OggInfoReader oggInfoReader = new OggInfoReader();
+        GenericAudioHeader read = oggInfoReader.read(randomAccessFile);
+        return Optional.of(toTicks(read.getPreciseTrackLength()));
     }
 
-    public static final File MUSIC_FOLDER_FILE = new File("./music");
+    /**
+     * @param registryName registry name of some, divided into part with underscore and lowercase
+     *                     such as "breath_of_a_serpent".
+     * @return the length of song, the file for the song must be .ogg format.
+     */
+    @Deprecated
+    private static Optional<Long> getOggDuration(String registryName) throws IOException, CannotReadException {
+        File file = new File("src\\main\\resources\\assets\\audio\\sounds\\" + registryName + ".ogg");
+        return getOggDuration(file);
+    }
+
+    private static <T extends Number> long toTicks(T second) {
+        return Math.round(second.doubleValue() * 20);
+    }
+
+    public void generateMusicFolder() throws CannotReadException, IOException {
+        File musicFolder = new File("./music");
+        if (!musicFolder.exists()) {
+            Audio.info(musicFolder.mkdir() ? "Music Folder is created at " + Utils.MUSIC_FOLDER_PATH
+                    : "Try create music folder but fail.");
+        } else for (File file : Objects.requireNonNull(musicFolder.listFiles()))
+                AudioRegistryHandler.CUSTOM_FILE_MAP.put(file.getName().split(".ogg")[0], getOggDuration(file).orElse(-1L));
+
+        //Debug
+//        AudioRegistryHandler.CUSTOM_FILE_MAP.forEach((key, val) -> Audio.info("from DURATION :" + key + " : " + val));
+    }
 
     public int countFile() {
-        if (!MUSIC_FOLDER_FILE.exists()) return -1;
-        return Objects.requireNonNull(MUSIC_FOLDER_FILE.listFiles()).length;
+        if (!music.exists()) return -1;
+        return Objects.requireNonNull(music.listFiles()).length;
     }
 
+    @Deprecated
     public int countJar() throws IOException {
         return getZipFileNames().size();
     }
@@ -53,9 +111,8 @@ public class JarHelper implements IAudioTool {
     @SuppressWarnings("resource")
     @Deprecated
     public String[] getEntries() throws IOException {
-        JarFile modJar = new JarFile(jarPath);
         ArrayList<String> fileList = new ArrayList<>();
-        Enumeration<JarEntry> entries = modJar.entries();
+        Enumeration<JarEntry> entries = zip.entries();
         while (entries.hasMoreElements()) {
             fileList.add((entries.nextElement()).getName());
         }
@@ -63,8 +120,8 @@ public class JarHelper implements IAudioTool {
     }
 
     @SuppressWarnings("resource")
-    public List<String> getZipFileNames() throws IOException {
-        return new JarFile(Utils.RESOURCE_ZIP_PATH).stream().map(ZipEntry::getName).collect(Collectors.toList());
+    public List<String> getZipFileNames() {
+        return zip.stream().map(ZipEntry::getName).collect(Collectors.toList());
     }
 
     /**
@@ -76,7 +133,7 @@ public class JarHelper implements IAudioTool {
      */
     public void extractEntry(String entryName, String filePath) throws IOException {
         TreeMap<String, byte[]> entryMap = new TreeMap<>();
-        Enumeration<JarEntry> iterator = new JarFile(jarPath).entries();
+        Enumeration<JarEntry> iterator = zip.entries();
         String signedName = processEntryName(entryName);
         while (iterator.hasMoreElements()) {
             JarEntry jarEntry = iterator.nextElement();
@@ -84,7 +141,7 @@ public class JarHelper implements IAudioTool {
                 if (jarEntry.isDirectory())
                     new File(signedName + jarEntry.getName().substring(entryName.length())).mkdir();
                 else
-                    entryMap.put(signedName + jarEntry.getName().substring(entryName.length()), readJar(new JarFile(jarPath), jarEntry));
+                    entryMap.put(signedName + jarEntry.getName().substring(entryName.length()), readZip(zip, jarEntry));
             }
         }
         for (String externFileName : entryMap.keySet())
@@ -92,12 +149,12 @@ public class JarHelper implements IAudioTool {
     }
 
     public void deleteEntry(String entryName) throws IOException {
-        TreeMap<String, byte[]> entryMap = readJar(new JarFile(jarPath));
+        TreeMap<String, byte[]> entryMap = readZip();
         Set<String> collect = entryMap.keySet().stream().filter(k -> k.startsWith(entryName)).collect(Collectors.toSet());
         for (String key : collect) {
             entryMap.remove(key);
         }
-        writeJar(entryMap, new JarOutputStream(Files.newOutputStream(Paths.get(jarPath))));
+        writeZip(entryMap, new JarOutputStream(Files.newOutputStream(Paths.get(jarPath))));
         Audio.info("Entry deleted.");
     }
 
@@ -107,14 +164,14 @@ public class JarHelper implements IAudioTool {
      *                  that it's path but not file name.
      */
     public void fileInsert(File file, String entryPath) throws IOException {
-        if (file.exists() && !file.isDirectory()) {
-            Audio.info("Start inserting file");
-            TreeMap<String, byte[]> entryMap = readJar(new JarFile(jarPath));
-            rewriteMap(entryMap, entryPath + file.getName(), readFile(file));
-            writeJar(entryMap, new JarOutputStream(new FileOutputStream(jarPath)));
-            Audio.info("Done insertion");
-        } else
+        if (!file.exists() && file.isDirectory()) {
             Audio.warn("File not found or you just input a folder!");
+            return;
+        }
+
+        TreeMap<String, byte[]> entryMap = readZip();
+        rewriteMap(entryMap, entryPath + file.getName(), readFile(file));
+        writeZip(entryMap, new JarOutputStream(new FileOutputStream(jarPath)));
     }
 
     /**
@@ -128,7 +185,7 @@ public class JarHelper implements IAudioTool {
     public void folderInsert(File folder, String entryPath, boolean keepParent) throws IOException {
         if (folder.exists() && folder.isDirectory()) {
             Audio.info("Start inserting folder");
-            TreeMap<String, byte[]> entryMap = readJar(new JarFile(jarPath));
+            TreeMap<String, byte[]> entryMap = readZip();
             TreeMap<String, byte[]> folderMap = readFolder(folder);
             folderMap.forEach((fileName, fileContent) -> {
                 boolean reWrite = keepParent ?
@@ -136,7 +193,7 @@ public class JarHelper implements IAudioTool {
                         rewriteMap(entryMap, entryPath + fileName, fileContent);
 
             });
-            writeJar(entryMap, new JarOutputStream(new FileOutputStream(jarPath)));
+            writeZip(entryMap, new JarOutputStream(new FileOutputStream(jarPath)));
             Audio.info("Done insertion");
         } else
             Audio.warn("Folder not found or you just input a file!");
@@ -144,8 +201,7 @@ public class JarHelper implements IAudioTool {
 
     public void simpleInsert(File file, String entryPath, boolean keepParent) throws IOException {
         if (!file.exists() && !file.isDirectory()) return;
-        Audio.info("Start inserting folder");
-        TreeMap<String, byte[]> destination = readJar(new JarFile(jarPath)); //resource
+        TreeMap<String, byte[]> destination = readZip(); //resource
         TreeMap<String, byte[]> resources = readFolder(file); //music
         resources.forEach((fileName, fileContent) -> {
                     if (keepParent)
@@ -154,7 +210,7 @@ public class JarHelper implements IAudioTool {
                         rewriteMap(destination, entryPath + gen.get() + ".ogg", fileContent);
                 }
         );
-        writeJar(destination, new JarOutputStream(new FileOutputStream(jarPath)));
+        writeZip(destination, new JarOutputStream(new FileOutputStream(jarPath)));
     }
 
     private byte[] readIntoByte(InputStream stream) throws IOException {
@@ -168,7 +224,7 @@ public class JarHelper implements IAudioTool {
     }
 
 
-    private byte[] readJar(JarFile modJar, JarEntry jarEntry) throws IOException {
+    private byte[] readZip(JarFile modJar, JarEntry jarEntry) throws IOException {
         InputStream inputStream = modJar.getInputStream(jarEntry);
         return readIntoByte(inputStream);
     }
@@ -190,7 +246,7 @@ public class JarHelper implements IAudioTool {
         return fileInfo;
     }
 
-    private void writeJar(TreeMap<String, byte[]> entryMap, JarOutputStream outputStream) throws IOException {
+    private void writeZip(TreeMap<String, byte[]> entryMap, JarOutputStream outputStream) throws IOException {
         for (Map.Entry<String, byte[]> entry : entryMap.entrySet()) {
             outputStream.putNextEntry(new JarEntry(entry.getKey()));
             outputStream.write(entry.getValue(), 0, entry.getValue().length);
@@ -198,11 +254,11 @@ public class JarHelper implements IAudioTool {
         outputStream.close();
     }
 
-    private TreeMap<String, byte[]> readJar(JarFile jar) {
+    private TreeMap<String, byte[]> readZip() {
         TreeMap<String, byte[]> jarInfo = new TreeMap<>();
-        jar.stream().forEach(e -> {
+        zip.stream().forEach(e -> {
             try {
-                jarInfo.put(e.getName() , readJar(jar, e));
+                jarInfo.put(e.getName(), readZip(zip, e));
             } catch (IOException ex) {
                 ex.printStackTrace();
             }

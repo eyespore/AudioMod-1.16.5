@@ -1,9 +1,5 @@
 package com.github.audio.master;
 
-import net.minecraftforge.fml.server.ServerLifecycleHooks;
-
-import java.util.function.Supplier;
-
 public class Executor {
     public Executor() {}
 

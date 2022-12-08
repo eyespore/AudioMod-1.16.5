@@ -1,6 +1,8 @@
-package com.github.audio.sound;
+package com.github.audio.registryHandler;
 
-import com.github.audio.Audio;
+import com.github.audio.sound.AudioSound;
+import com.github.audio.sound.SoundChannel;
+import com.github.audio.util.Utils;
 import net.minecraft.util.SoundEvents;
 
 import java.util.HashMap;
@@ -13,8 +15,11 @@ import java.util.function.Supplier;
  * @since 1.0.0
  */
 public class AudioRegistryHandler {
+    /**
+     * @Description: The default Map for storing the information from custom music in the music folder.
+     */
     public static final LinkedHashMap<String, Long> CUSTOM_FILE_MAP = new LinkedHashMap<>();
-    protected static final AudioSoundRegister REGISTER = new AudioSoundRegister();
+    public static final AudioSoundRegister REGISTER = new AudioSoundRegister();
 
     /*------------------ Used Sound ----------------------------*/
     public static final AudioSound NULL_SOUND_EVENT = REGISTER.registryDef("null_sound_event").get();
@@ -23,7 +28,7 @@ public class AudioRegistryHandler {
     public static final AudioSound BACKPACK_UNFOLD_SOUND = REGISTER.registryDef("backpack_unfold").get();
     public static final AudioSound BACKPACK_FOLD_SOUND = REGISTER.registryDef("backpack_fold").get();
 
-    protected static void initVanillaSound() {
+    public static void initVanillaSound() {
         SoundChannel.MUSIC_BOX_CHANNEL.add(
                 new AudioSound.AudioSoundBuilder().tag("bit", "Bit").soundEvent(() -> SoundEvents.BLOCK_NOTE_BLOCK_BIT).build() ,
                 new AudioSound.AudioSoundBuilder().tag("bell", "Bell").soundEvent(() -> SoundEvents.BLOCK_NOTE_BLOCK_BELL).build() ,
@@ -45,16 +50,7 @@ public class AudioRegistryHandler {
         private static final HashMap<String, AudioSound> DEFINED_SOUND_MAP = new HashMap<String, AudioSound>();
 
         private Supplier<AudioSound> registryDef(String registryName) {
-            AudioSound registryAudioSound = new AudioSound.AudioSoundBuilder().tag(registryName , "non_name").build();
-            return construct(registryAudioSound);
-        }
-
-        private Supplier<AudioSound> registryDef(String registryName , SoundChannel registryChannel) {
-            AudioSound registryAudioSound = new AudioSound.AudioSoundBuilder().tag(registryName , "non_name").build().into(registryChannel);
-            return construct(registryAudioSound);
-        }
-
-        private Supplier<AudioSound> construct(AudioSound registryAudioSound) {
+            AudioSound registryAudioSound = new AudioSound.AudioSoundBuilder().tag(registryName , "as_acoustics").build();
             DEFINED_SOUND_MAP.put(registryAudioSound.getRegistryName() , registryAudioSound);
             return () -> registryAudioSound;
         }
@@ -64,10 +60,10 @@ public class AudioRegistryHandler {
                     .display(displayName).duration(duration).build();
             registryAudioSound.into(SoundChannel.KATANA_ZERO_CHANNEL);
 //            Audio.info("registry into KATANA_ZERO_CHANNEL with : " + displayName + ":" + duration);
-            AudioGenerateCycle.SOUND_SOURCE_PATH.add(registryAudioSound.getRegistryName());
+            Utils.SOUND_SOURCE_PATH.add(registryAudioSound.getRegistryName());
         }
 
-        protected void autoConstructor() {
+        public void autoConstructor() {
             for (Map.Entry<String , Long> entry : CUSTOM_FILE_MAP.entrySet()) {
                 registryCus(entry.getKey() , entry.getValue());
             }

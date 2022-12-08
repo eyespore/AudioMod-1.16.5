@@ -1,5 +1,6 @@
 package com.github.audio.master.client;
 
+import com.github.audio.master.client.api.IAudioSelector;
 import com.github.audio.sound.SoundChannel;
 import net.minecraft.client.audio.*;
 import net.minecraftforge.api.distmarker.Dist;
@@ -8,16 +9,16 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import java.util.*;
 
 @OnlyIn(Dist.CLIENT)
-public abstract class AudioSelector implements IAudioSelector {
+public abstract class Selector implements IAudioSelector {
 
-    protected int pointer;
-    protected LinkedList<Integer> currentList = new LinkedList<>();
+    public int pointer;
+    public LinkedList<Integer> currentList = new LinkedList<>();
 
     public SoundSource source;
     public SoundChannel channel;
     public boolean sourceChange = false;
 
-    public AudioSelector(SoundChannel channel) {
+    public Selector(SoundChannel channel) {
         this.channel = channel;
     }
 

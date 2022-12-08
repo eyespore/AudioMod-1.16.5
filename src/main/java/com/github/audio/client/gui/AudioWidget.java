@@ -1,6 +1,6 @@
 package com.github.audio.client.gui;
 
-import com.github.audio.sound.AudioRegistryHandler;
+import com.github.audio.registryHandler.AudioRegistryHandler;
 import net.minecraft.client.audio.SimpleSound;
 import net.minecraft.client.audio.SoundHandler;
 import net.minecraft.util.text.ITextComponent;
