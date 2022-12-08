@@ -9,6 +9,7 @@ import com.github.audio.item.mp3.Mp3;
 import com.github.audio.keybind.KeyBinds;
 import com.github.audio.master.client.*;
 import com.github.audio.master.client.ctx.Mp3Context;
+import com.github.audio.sound.AudioGenerateCycle;
 import com.github.audio.sound.AudioRegistryHandler;
 import com.github.audio.sound.SoundChannel;
 import com.github.audio.util.Utils;
@@ -268,7 +269,7 @@ public class Mp3Executor extends AudioExecutor<Mp3Context, RandomSelector>
     @Override
     public void onSourceChange(SoundEvent.SoundSourceEvent event) {
         if (isNullEnv()) return;
-        if (AudioSelector.SOUND_SOURCE_PATH.contains(event.getName())) {
+        if (AudioGenerateCycle.SOUND_SOURCE_PATH.contains(event.getName())) {
             sel.source = event.getSource();
             sel.sourceChange = true;
         }

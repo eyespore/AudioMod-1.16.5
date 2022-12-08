@@ -26,5 +26,4 @@ public class SimpleExecutor extends ServerExecutor {
         if (event.phase != TickEvent.Phase.END) return;
         Audio.info("Hello! this is server side");
     }
-
 }

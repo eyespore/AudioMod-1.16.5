@@ -7,9 +7,21 @@ import com.github.audio.util.gen.TextHelper;
 
 public class Utils {
 
+    /**
+     * @Description: The unique identifier for the mod.
+     */
     public static final String MOD_ID = "audio";
 
-    private Utils() {}
+    /**
+     * @Main: The path to the zip supporting the resources for players' additional custom music,
+     * and the main path to executor operation to the resource jar.
+     * @Description: this zip usually used for being the container that store the .ogg music file
+     * comes from the music folder, which is the resource folder for player to place custom music.
+     */
+    public static final String RESOURCE_ZIP_PATH = "./resourcepacks/audioresource.zip";
+
+    private Utils() {
+    }
 
     public static JarHelper getJarHelper() {
         return JarHelper.getInstance();

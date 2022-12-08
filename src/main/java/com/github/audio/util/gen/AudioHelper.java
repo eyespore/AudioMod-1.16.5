@@ -27,7 +27,7 @@ public class AudioHelper implements IAudioTool {
     private AudioHelper() {
     }
 
-    public static final JarHelper JAR_HELPER = Utils.getJarHelper();
+    public static final JarHelper JAR_HELPER = JarHelper.getInstance();
 
     public static void initBeforeRegistry() throws IOException, CannotReadException {
         AudioHelper.AUDIO_HELPER.initMusicFolderMap(CUSTOM_FILE_MAP);

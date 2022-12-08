@@ -1,20 +1,17 @@
 package com.github.audio.client.commands;
 
 import com.github.audio.util.Utils;
-import com.github.audio.util.gen.JarHelper;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.minecraft.client.Minecraft;
 import net.minecraft.command.CommandSource;
 import net.minecraft.command.Commands;
-import net.minecraft.resources.ResourcePackInfo;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Collection;
 import java.util.UUID;
 
 @OnlyIn(Dist.CLIENT)

@@ -4,7 +4,6 @@ import com.github.audio.Audio;
 import com.github.audio.Env;
 import com.github.audio.api.annotation.Exec;
 import com.github.audio.master.client.ClientExecutor;
-import com.github.audio.master.exec.SimpleExecutor;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.eventbus.api.IEventBus;
 
@@ -12,13 +11,11 @@ import java.io.File;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
 
 import java.util.*;
 
 import java.util.function.Function;
-import java.util.function.Supplier;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.stream.Collectors;
@@ -40,68 +37,41 @@ public class ExecRegistryHandler {
     private static final String SERVER_PRE = "com.github.audio.master.exec";
     /* this path work in game environment. */
     private static final String CLIENT_JAR_PRE = "com/github/audio/master/client/exec/";
-    private static final String SERVER_JAR_PRE = "com.github/audio/master/exec/";
+    private static final String SERVER_JAR_PRE = "com/github/audio/master/exec/";
 
-    private static final ArrayList<ClientExecutor> CLIENT_TARGET = new ArrayList<>();
-    private static final ArrayList<ServerExecutor> SERVER_TARGET = new ArrayList<>();
     private static final boolean isServer = Env.isServer();
     private static final boolean isOnTest = Env.isOnTest();
 
     public static void registryExecutor(IEventBus eventBus) {
-        Audio.info("Start registry Executor");
         try {
-            getTarget();
+            Audio.info("Start registry Server Executor");
+            getClientTarget(Type.SERVER).forEach(eventBus::register);
+
+            if (isServer) return;
+            Audio.info("Start registry Client Executor");
+            getClientTarget(Type.CLIENT).forEach(eventBus::register);
         } catch (ClassNotFoundException | IOException | InvocationTargetException
                  | NoSuchMethodException | IllegalAccessException e) {
             e.printStackTrace();
         }
-        SERVER_TARGET.forEach(eventBus::register);
-        CLIENT_TARGET.forEach(eventBus::register);
     }
 
-    private static void getTarget() throws ClassNotFoundException, IOException, NoSuchMethodException,
+    private static ArrayList<Executor> getClientTarget(Enum<Type> side) throws ClassNotFoundException, IOException, NoSuchMethodException,
             InvocationTargetException, IllegalAccessException {
-
-        /* For server event registry */
-        Set<Class<?>> serverClass = isOnTest ? getFileClasses(Type.SERVER) : getJarClasses(Type.SERVER);
-        Set<Class<?>> clazz1 = serverClass.stream().filter(clz -> clz.isAnnotationPresent(Exec.class)
-                && clz.getAnnotation(Exec.class).value().equals(Dist.DEDICATED_SERVER)).collect(Collectors.toSet());
-        for (Class<?> c : clazz1) {
-            SERVER_TARGET.add((ServerExecutor) c.getDeclaredMethod("getExecutor").invoke(null));
-            Audio.info("successfully add " + c.getName() + " into eventbus");
-        }
-
-        /* For client event registry */
-        Set<Class<?>> clientClass = isOnTest ? getFileClasses(Type.CLIENT) : getJarClasses(Type.CLIENT);
+        boolean flag = side.equals(Type.SERVER);
+        Set<Class<?>> clientClass = isOnTest ? getFileClasses(flag ? Type.SERVER : Type.CLIENT) : getJarClasses(flag ? Type.SERVER : Type.CLIENT);
         Set<Class<?>> clazz2 = clientClass.stream().filter(clz -> clz.isAnnotationPresent(Exec.class)
-                && clz.getAnnotation(Exec.class).value().equals(Dist.CLIENT)).collect(Collectors.toSet());
+                && clz.getAnnotation(Exec.class).value().equals(flag ? Dist.DEDICATED_SERVER : Dist.CLIENT)).collect(Collectors.toSet());
 
+        ArrayList<Executor> addList = new ArrayList<>();
         for (Class<?> c : clazz2) {
-            CLIENT_TARGET.add((ClientExecutor) c.getDeclaredMethod("getExecutor").invoke(null));
+            addList.add((Executor) c.getDeclaredMethod("getExecutor").invoke(null));
             Audio.info("successfully add " + c.getName() + " into eventbus");
         }
-//        addTarget(isOnTest ? getFileClasses(Type.SERVER) : getJarClasses(Type.SERVER) , Type.SERVER);
-//        addTarget(isOnTest ? getFileClasses(Type.CLIENT) : getJarClasses(Type.CLIENT), Type.CLIENT);
+        return addList;
     }
 
-//    private static void addTarget(Set<Class<?>> classes, Enum<Type> side) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
-//        Set<Class<?>> collect = classes.stream().filter(clz -> clz.isAnnotationPresent(Exec.class)
-//                && clz.getAnnotation(Exec.class).value().equals(Dist.DEDICATED_SERVER)).collect(Collectors.toSet());
-//
-//        if (side.equals(Type.CLIENT)) for (Class<?> c : collect) {
-//            CLIENT_TARGET.add((ClientExecutor) c.getDeclaredMethod("getExecutor").invoke(null));
-//            Audio.info("successfully add " + c.getName() + " into eventbus");
-//        }
-//
-//        else for (Class<?> c : collect) {
-//            SERVER_TARGET.add((ServerExecutor) c.getDeclaredMethod("getExecutor").invoke(null));
-//            Audio.info("successfully add " + c.getName() + " into eventbus");
-//        }
-//
-//    }
-
-
-    private static final Function<String, Class<?>> process = s -> {
+    private static final Function<String, Class<?>> getClassProcess = s -> {
         try {
             return Class.forName(s);
         } catch (ClassNotFoundException e) {
@@ -112,24 +82,25 @@ public class ExecRegistryHandler {
 
     private static Set<Class<?>> getFileClasses(Enum<Type> side) {
         boolean flag = side.equals(Type.SERVER);
+        String pre = (flag ? SERVER_PRE : CLIENT_PRE);
         File[] targets = Objects.requireNonNull(flag ? SERVER_FILE.listFiles() : CLIENT_FILE.listFiles());
         return Arrays.stream(targets).filter(file -> !file.isDirectory())
-                .map(file -> (flag ? SERVER_PRE : CLIENT_PRE) + "." + file.getName().substring(0, file.getName().length() - 5))
-                .map(process).collect(Collectors.toSet());
+                .map(file -> pre + "." + file.getName().substring(0, file.getName().length() - 5))
+                .map(getClassProcess).collect(Collectors.toSet());
     }
 
     @SuppressWarnings("resource")
     private static Set<Class<?>> getJarClasses(Enum<Type> side) throws IOException {
         try {
             boolean flag = side.equals(Type.SERVER);
-            Enumeration<JarEntry> entries = new JarFile(flag ? SERVER_JAR_PRE : CLIENT_JAR_PATH).entries();
+            Enumeration<JarEntry> entries = new JarFile(flag ? SERVER_JAR_PATH : CLIENT_JAR_PATH).entries();
             ArrayList<JarEntry> entryList = new ArrayList<>();
             while (entries.hasMoreElements()) entryList.add(entries.nextElement());
             return entryList.stream().map(ZipEntry::getName)
-                    .filter(name -> name.startsWith(flag ? SERVER_PRE : CLIENT_JAR_PRE)
+                    .filter(name -> name.startsWith(flag ? SERVER_JAR_PRE : CLIENT_JAR_PRE)
                             && name.endsWith(".class") && !name.contains("$"))
                     .map(s -> s.replace('/', '.').substring(0, s.length() - 6))
-                    .map(process).collect(Collectors.toSet());
+                    .map(getClassProcess).collect(Collectors.toSet());
         } catch (FileNotFoundException e) {
             if (isOnTest) return new HashSet<>();
             else Audio.warn("Cannot find the file through Jar path");

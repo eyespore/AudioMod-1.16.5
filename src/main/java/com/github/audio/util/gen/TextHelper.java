@@ -9,7 +9,7 @@ import java.util.function.Supplier;
 
 public class TextHelper implements IAudioTool {
 
-    public static class Roller implements IAudioTool{
+    public static class Roller implements IAudioTool {
         private int len;
         private Supplier<String> srs;
         private long interval;

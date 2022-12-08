@@ -5,9 +5,7 @@ import com.github.audio.client.config.Config;
 import com.github.audio.item.ItemRegisterHandler;
 import com.github.audio.keybind.KeyBinds;
 import com.github.audio.sound.AudioGenerateCycle;
-import com.github.audio.sound.AudioRegistryHandler;
 import com.github.audio.util.Utils;
-import net.minecraft.item.Item;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.ExtensionPoint;
@@ -48,6 +46,7 @@ public class Audio
 
         // Register ourselves for server and other game events we are interested in
         ForgeEventBus.register(this);
+        /* For executor registry */
         ExecRegistryHandler.registryExecutor(ForgeEventBus);
     }
 

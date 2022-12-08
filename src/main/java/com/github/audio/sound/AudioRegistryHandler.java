@@ -1,7 +1,6 @@
 package com.github.audio.sound;
 
 import com.github.audio.Audio;
-import com.github.audio.master.client.AudioSelector;
 import net.minecraft.util.SoundEvents;
 
 import java.util.HashMap;
@@ -64,8 +63,8 @@ public class AudioRegistryHandler {
             AudioSound registryAudioSound = new AudioSound.AudioSoundBuilder()
                     .display(displayName).duration(duration).build();
             registryAudioSound.into(SoundChannel.KATANA_ZERO_CHANNEL);
-            Audio.info("registry into KATANA_ZERO_CHANNEL with : " + displayName + ":" + duration);
-            AudioSelector.SOUND_SOURCE_PATH.add(registryAudioSound.getRegistryName());
+//            Audio.info("registry into KATANA_ZERO_CHANNEL with : " + displayName + ":" + duration);
+            AudioGenerateCycle.SOUND_SOURCE_PATH.add(registryAudioSound.getRegistryName());
         }
 
         protected void autoConstructor() {

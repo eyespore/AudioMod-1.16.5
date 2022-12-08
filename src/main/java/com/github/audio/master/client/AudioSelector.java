@@ -1,6 +1,5 @@
 package com.github.audio.master.client;
 
-import com.github.audio.master.client.IAudioSelector;
 import com.github.audio.sound.SoundChannel;
 import net.minecraft.client.audio.*;
 import net.minecraftforge.api.distmarker.Dist;
@@ -11,7 +10,6 @@ import java.util.*;
 @OnlyIn(Dist.CLIENT)
 public abstract class AudioSelector implements IAudioSelector {
 
-    public static final ArrayList<String> SOUND_SOURCE_PATH = new ArrayList<String>();
     protected int pointer;
     protected LinkedList<Integer> currentList = new LinkedList<>();
 

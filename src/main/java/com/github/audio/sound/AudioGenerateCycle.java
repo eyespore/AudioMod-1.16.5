@@ -5,11 +5,14 @@ import net.minecraftforge.eventbus.api.IEventBus;
 import org.jaudiotagger.audio.exceptions.CannotReadException;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
 /**
  * @Description: The generation process of AudioSound.
  */
 public class AudioGenerateCycle {
+
+    public static final ArrayList<String> SOUND_SOURCE_PATH = new ArrayList<String>();
 
     public static void cycle(IEventBus eventBus) {
         try {
