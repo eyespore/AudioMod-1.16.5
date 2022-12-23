@@ -32,28 +32,24 @@ public class Mp3Packet extends NetHandler {
         ctx.get().enqueueWork(() -> {
             Mp3Executor executor = Mp3Executor.getExecutor();
             switch (this.Type) {
-                case TOSS: {
-                    executor.onTossMp3(); break;
-                }
-
-                case CHANGE_DIMENSION: {
-                    executor.onChangeDimen(); break;
-                }
-
-                case HAS_MP3: {
-                    executor.refresh(HAS_MP3); break;
-                }
-
-                case NOT_HAS_MP3: {
-                    executor.refresh(NOT_HAS_MP3); break;
-                }
+                case TOSS:
+                    executor.onTossMp3();
+                    break;
+                case CHANGE_DIMENSION:
+                    executor.onChangeDimen();
+                    break;
+                case HAS_MP3:
+                    executor.refresh(HAS_MP3);
+                    break;
+                case NOT_HAS_MP3:
+                    executor.refresh(NOT_HAS_MP3);
+                    break;
             }
-
         });
         ctx.get().setPacketHandled(true);
     }
 
     public enum Type {
-        TOSS, CHANGE_DIMENSION, HAS_MP3 , NOT_HAS_MP3;
+        TOSS, CHANGE_DIMENSION, HAS_MP3, NOT_HAS_MP3;
     }
 }

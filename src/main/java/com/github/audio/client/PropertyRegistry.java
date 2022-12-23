@@ -17,8 +17,6 @@ public class PropertyRegistry {
     public static void propertyOverrideRegistry(FMLClientSetupEvent event) {
         event.enqueueWork(() -> ItemModelsProperties.registerProperty(ItemRegisterHandler.Mp3.get() ,
                 new ResourceLocation(Utils.MOD_ID , "time") ,
-                (itemStack , clientWorld , livingEntity) -> {
-                    return Objects.requireNonNull(clientWorld).getGameTime();
-                }));
+                (itemStack , clientWorld , livingEntity) -> Objects.requireNonNull(clientWorld).getGameTime()));
     }
 }

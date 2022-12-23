@@ -5,6 +5,7 @@ import com.github.audio.util.gen.JsonBuilder;
 import com.github.audio.util.gen.TextHelper;
 
 import java.util.ArrayList;
+import java.util.function.Supplier;
 
 public class Utils {
 
@@ -34,6 +35,11 @@ public class Utils {
      * as the place to store this file.
      */
     public static final String JSON_GEN_PATH = "./sounds.json";
+    /**
+     * @Description: The list that hold all the custom sounds name in it, which is used for judge if
+     * a sound source belongs to the player's custom song, the condition for the judgement is if the
+     * playing song name has a pattern such as "custom_num".
+     */
     public static final ArrayList<String> SOUND_SOURCE_PATH = new ArrayList<>();
 
     private Utils() {
@@ -47,8 +53,8 @@ public class Utils {
         return JsonBuilder.getInstance();
     }
 
-    public static TextHelper.RollerBuilder getRollerBuilder() {
-        return TextHelper.RollerBuilder.getInstance();
+    public static TextHelper.Scroller getScroller(Supplier<String> sup , long delay , int length) {
+        return TextHelper.Scroller.newInstance(sup , delay , length);
     }
 
     public static TextHelper.TipHelper getTipHelper() {

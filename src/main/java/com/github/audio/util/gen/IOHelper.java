@@ -13,6 +13,7 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.function.Supplier;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.jar.JarOutputStream;
@@ -67,11 +68,6 @@ public class IOHelper implements IAudioTool {
         return Optional.of(toTicks(read.getPreciseTrackLength()));
     }
 
-    /**
-     * @param registryName registry name of some, divided into part with underscore and lowercase
-     *                     such as "breath_of_a_serpent".
-     * @return the length of song, the file for the song must be .ogg format.
-     */
     @Deprecated
     private static Optional<Long> getOggDuration(String registryName) throws IOException, CannotReadException {
         File file = new File("src\\main\\resources\\assets\\audio\\sounds\\" + registryName + ".ogg");
@@ -83,13 +79,12 @@ public class IOHelper implements IAudioTool {
     }
 
     public void generateMusicFolder() throws CannotReadException, IOException {
-        File musicFolder = new File("./music");
-        if (!musicFolder.exists()) {
-            Audio.info(musicFolder.mkdir() ? "Music Folder is created at " + Utils.MUSIC_FOLDER_PATH
+        if (!music.exists()) {
+            Audio.info(music.mkdir() ? "Music Folder is created at " + Utils.MUSIC_FOLDER_PATH
                     : "Try create music folder but fail.");
-        } else for (File file : Objects.requireNonNull(musicFolder.listFiles()))
-                AudioRegistryHandler.CUSTOM_FILE_MAP.put(file.getName().split(".ogg")[0], getOggDuration(file).orElse(-1L));
-
+        } else for (File file : Objects.requireNonNull(music.listFiles()))
+            AudioRegistryHandler.CUSTOM_FILE_MAP.put(file.getName().split(".ogg")[0],
+                    getOggDuration(file).orElse(-1L));
         //Debug
 //        AudioRegistryHandler.CUSTOM_FILE_MAP.forEach((key, val) -> Audio.info("from DURATION :" + key + " : " + val));
     }
@@ -99,29 +94,21 @@ public class IOHelper implements IAudioTool {
         return Objects.requireNonNull(music.listFiles()).length;
     }
 
-    @Deprecated
     public int countJar() throws IOException {
-        return getZipFileNames().size();
+        return getEntrys().length;
     }
 
     /**
      * @return an Array of String that contains the filename in the jar , also called 'entry'
-     * @clclfl: May better use method : getZipFileNames()
      */
-    @SuppressWarnings("resource")
-    @Deprecated
-    public String[] getEntries() throws IOException {
+    public String[] getEntrys() throws IOException {
+        JarFile modJar = new JarFile(jarPath);
         ArrayList<String> fileList = new ArrayList<>();
-        Enumeration<JarEntry> entries = zip.entries();
-        while (entries.hasMoreElements()) {
-            fileList.add((entries.nextElement()).getName());
+        Enumeration entrys = modJar.entries();
+        while (entrys.hasMoreElements()) {
+            fileList.add(((JarEntry) entrys.nextElement()).getName());
         }
-        return fileList.toArray(new String[0]);
-    }
-
-    @SuppressWarnings("resource")
-    public List<String> getZipFileNames() {
-        return zip.stream().map(ZipEntry::getName).collect(Collectors.toList());
+        return fileList.toArray(new String[fileList.size()]);
     }
 
     /**
@@ -133,7 +120,7 @@ public class IOHelper implements IAudioTool {
      */
     public void extractEntry(String entryName, String filePath) throws IOException {
         TreeMap<String, byte[]> entryMap = new TreeMap<>();
-        Enumeration<JarEntry> iterator = zip.entries();
+        Enumeration<JarEntry> iterator = new JarFile(jarPath).entries();
         String signedName = processEntryName(entryName);
         while (iterator.hasMoreElements()) {
             JarEntry jarEntry = iterator.nextElement();
@@ -141,7 +128,7 @@ public class IOHelper implements IAudioTool {
                 if (jarEntry.isDirectory())
                     new File(signedName + jarEntry.getName().substring(entryName.length())).mkdir();
                 else
-                    entryMap.put(signedName + jarEntry.getName().substring(entryName.length()), readZip(zip, jarEntry));
+                    entryMap.put(signedName + jarEntry.getName().substring(entryName.length()), readEntry(new JarFile(jarPath), jarEntry));
             }
         }
         for (String externFileName : entryMap.keySet())
@@ -149,12 +136,12 @@ public class IOHelper implements IAudioTool {
     }
 
     public void deleteEntry(String entryName) throws IOException {
-        TreeMap<String, byte[]> entryMap = readZip();
+        TreeMap<String, byte[]> entryMap = readJar(new JarFile(jarPath));
         Set<String> collect = entryMap.keySet().stream().filter(k -> k.startsWith(entryName)).collect(Collectors.toSet());
         for (String key : collect) {
             entryMap.remove(key);
         }
-        writeZip(entryMap, new JarOutputStream(Files.newOutputStream(Paths.get(jarPath))));
+        writeJar(entryMap, new JarOutputStream(Files.newOutputStream(Paths.get(jarPath))));
         Audio.info("Entry deleted.");
     }
 
@@ -164,14 +151,12 @@ public class IOHelper implements IAudioTool {
      *                  that it's path but not file name.
      */
     public void fileInsert(File file, String entryPath) throws IOException {
-        if (!file.exists() && file.isDirectory()) {
+        if (file.exists() && !file.isDirectory()) {
+            TreeMap<String, byte[]> entryMap = readJar(new JarFile(jarPath));
+            reWriteMap(entryMap, entryPath + file.getName(), readFile(file));
+            writeJar(entryMap, new JarOutputStream(new FileOutputStream(jarPath)));
+        } else
             Audio.warn("File not found or you just input a folder!");
-            return;
-        }
-
-        TreeMap<String, byte[]> entryMap = readZip();
-        rewriteMap(entryMap, entryPath + file.getName(), readFile(file));
-        writeZip(entryMap, new JarOutputStream(new FileOutputStream(jarPath)));
     }
 
     /**
@@ -185,88 +170,94 @@ public class IOHelper implements IAudioTool {
     public void folderInsert(File folder, String entryPath, boolean keepParent) throws IOException {
         if (folder.exists() && folder.isDirectory()) {
             Audio.info("Start inserting folder");
-            TreeMap<String, byte[]> entryMap = readZip();
+            TreeMap<String, byte[]> entryMap = readJar(new JarFile(jarPath));
             TreeMap<String, byte[]> folderMap = readFolder(folder);
             folderMap.forEach((fileName, fileContent) -> {
                 boolean reWrite = keepParent ?
-                        rewriteMap(entryMap, entryPath + folder.getName() + '/' + fileName, fileContent) :
-                        rewriteMap(entryMap, entryPath + fileName, fileContent);
+                        reWriteMap(entryMap, entryPath + folder.getName() + '/' + fileName, fileContent) :
+                        reWriteMap(entryMap, entryPath + fileName, fileContent);
 
             });
-            writeZip(entryMap, new JarOutputStream(new FileOutputStream(jarPath)));
+            writeJar(entryMap, new JarOutputStream(new FileOutputStream(jarPath)));
             Audio.info("Done insertion");
         } else
             Audio.warn("Folder not found or you just input a file!");
     }
 
-    public void simpleInsert(File file, String entryPath, boolean keepParent) throws IOException {
-        if (!file.exists() && !file.isDirectory()) return;
-        TreeMap<String, byte[]> destination = readZip(); //resource
-        TreeMap<String, byte[]> resources = readFolder(file); //music
-        resources.forEach((fileName, fileContent) -> {
-                    if (keepParent)
-                        rewriteMap(destination, entryPath + file.getName() + '/' + gen.get() + ".ogg", fileContent);
-                    else
-                        rewriteMap(destination, entryPath + gen.get() + ".ogg", fileContent);
-                }
-        );
-        writeZip(destination, new JarOutputStream(new FileOutputStream(jarPath)));
+    public void simpleInsert(File folder, String entryPath, boolean keepParent) throws IOException {
+        if (folder.exists() && folder.isDirectory()) {
+            TreeMap<String, byte[]> entryMap = readJar(new JarFile(jarPath)); //resource
+            TreeMap<String, byte[]> folderMap = readFolder(folder); //music
+            folderMap.forEach((fileName, fileContent) -> {
+                        if (keepParent)
+                            reWriteMap(entryMap, entryPath + folder.getName() + '/' + sup.get() + ".ogg", fileContent);
+                        else reWriteMap(entryMap, entryPath + sup.get() + ".ogg", fileContent);
+                    }
+            );
+            writeJar(entryMap, new JarOutputStream(new FileOutputStream(jarPath)));
+        }
     }
 
-    private byte[] readIntoByte(InputStream stream) throws IOException {
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        byte[] buffer = new byte[2048];
-        int len;
-        while ((len = stream.read(buffer)) != -1) outputStream.write(buffer, 0, len);
-        stream.close();
-        outputStream.close();
-        return outputStream.toByteArray();
-    }
+    private static int num = 0;
+    private static final Supplier<String> sup = () -> "custom_" + (++num);
 
-
-    private byte[] readZip(JarFile modJar, JarEntry jarEntry) throws IOException {
+    private byte[] readEntry(JarFile modJar, JarEntry jarEntry) throws IOException {
         InputStream inputStream = modJar.getInputStream(jarEntry);
-        return readIntoByte(inputStream);
+        return getBytes(inputStream);
     }
 
     private byte[] readFile(File file) throws IOException {
         FileInputStream inputStream = new FileInputStream(file);
-        return readIntoByte(inputStream);
+        return getBytes(inputStream);
+    }
+
+    private byte[] getBytes(InputStream inputStream) throws IOException {
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        byte[] buffer = new byte[2048];
+        int len = 0;
+        while ((len = inputStream.read(buffer)) != -1) {
+            outputStream.write(buffer, 0, len);
+        }
+        inputStream.close();
+        outputStream.close();
+        return outputStream.toByteArray();
     }
 
     private TreeMap<String, byte[]> readFolder(File folder) throws IOException {
-        TreeMap<String, byte[]> fileInfo = new TreeMap<>();
-        for (File file : Objects.requireNonNull(folder.listFiles())) fileInfo.put(file.getName(), readFile(file));
+        File[] fileList = folder.listFiles();
+        TreeMap<String, byte[]> files = new TreeMap<>();
+        for (File file : fileList) {
+            files.put(file.getName(), readFile(file));
+        }
         TreeMap<String, String> map = new TreeMap<>(new Comparator<String>() {
             @Override
             public int compare(String o1, String o2) {
                 return o1.toLowerCase().charAt(0) - o2.toLowerCase().charAt(0);
             }
         });
-        return fileInfo;
+        return files;
     }
 
-    private void writeZip(TreeMap<String, byte[]> entryMap, JarOutputStream outputStream) throws IOException {
-        for (Map.Entry<String, byte[]> entry : entryMap.entrySet()) {
-            outputStream.putNextEntry(new JarEntry(entry.getKey()));
-            outputStream.write(entry.getValue(), 0, entry.getValue().length);
+    private void writeJar(TreeMap<String, byte[]> entryMap, JarOutputStream outputStream) throws IOException {
+        for (Map.Entry<String, byte[]> entrySet : entryMap.entrySet()) {
+            JarEntry entry = new JarEntry(entrySet.getKey());
+            outputStream.putNextEntry(entry);
+            outputStream.write(entrySet.getValue(), 0, entrySet.getValue().length);
         }
         outputStream.close();
     }
 
-    private TreeMap<String, byte[]> readZip() {
-        TreeMap<String, byte[]> jarInfo = new TreeMap<>();
-        zip.stream().forEach(e -> {
-            try {
-                jarInfo.put(e.getName(), readZip(zip, e));
-            } catch (IOException ex) {
-                ex.printStackTrace();
-            }
-        });
-        return jarInfo;
+    private TreeMap<String, byte[]> readJar(JarFile modJar) throws IOException {
+        TreeMap<String, byte[]> entryMap = new TreeMap<>();
+        Enumeration<JarEntry> entrys = modJar.entries();
+        while (entrys.hasMoreElements()) {
+            JarEntry entry = entrys.nextElement();
+            entryMap.put(entry.getName(), readEntry(modJar, entry));
+        }
+        return entryMap;
     }
 
-    private boolean rewriteMap(TreeMap<String, byte[]> entryMap, String key, byte[] value) {
+    private boolean reWriteMap(TreeMap<String, byte[]> entryMap, String key, byte[] value) {
         entryMap.remove(key);
         entryMap.put(key, value);
         return true;

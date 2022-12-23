@@ -29,7 +29,7 @@ public class ReloadResourceCommand {
     }
 
     @SuppressWarnings("deprecation")
-    private int ReloadResource(CommandSource source) throws CommandSyntaxException, IOException {
+    private int ReloadResource(CommandSource source) throws IOException {
 
         Utils.getIOHelper().folderInsert(new File("./music"), "assets/audio/sounds/",false);
         Minecraft.getInstance().reloadResources();
@@ -37,7 +37,6 @@ public class ReloadResourceCommand {
             Minecraft.getInstance().player.sendMessage(
                     new TranslationTextComponent("command.audio.reloadResource") , UUID.randomUUID());
         }
-
         return 1;
     }
 

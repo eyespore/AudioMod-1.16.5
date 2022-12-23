@@ -4,6 +4,7 @@ import com.github.audio.Audio;
 import com.github.audio.Env;
 import com.github.audio.api.annotation.Exec;
 import com.github.audio.master.Executor;
+import com.github.audio.master.client.exec.Mp3Executor;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.eventbus.api.IEventBus;
 
@@ -55,6 +56,7 @@ public class ExecRegistryHandler {
             Audio.warn("Exception with Executor loading, this is probably occur because in the class there's no" +
                     "method \" getExecutor \" was defined.");
         }
+
     }
 
     private static ArrayList<Executor> getTarget(Enum<Type> side) throws ClassNotFoundException, IOException, NoSuchMethodException,

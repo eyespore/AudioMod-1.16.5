@@ -6,18 +6,20 @@ import com.github.audio.api.exception.InitBeforeWorldGenerationException;
 import com.github.audio.api.exception.MultipleSingletonException;
 import com.github.audio.item.mp3.Mp3;
 import com.github.audio.keybind.KeyBinds;
-import com.github.audio.master.client.*;
-import com.github.audio.master.client.api.IAutoSwitchable;
+import com.github.audio.master.client.DeviceExecutor;
 import com.github.audio.master.client.api.IPauseable;
+import com.github.audio.master.client.api.ISwitchable;
 import com.github.audio.master.client.ctx.Mp3Context;
 import com.github.audio.master.client.sel.DefSelector;
 import com.github.audio.master.client.sel.RandSelector;
+import com.github.audio.master.client.sound.PlayableAudio;
 import com.github.audio.master.net.Mp3Packet;
 import com.github.audio.registryHandler.AudioRegistryHandler;
 import com.github.audio.sound.SoundChannel;
 import com.github.audio.util.Utils;
 import com.github.audio.util.gen.TextHelper;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
+import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraftforge.api.distmarker.Dist;
@@ -32,20 +34,15 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 import java.util.Arrays;
 import java.util.function.Consumer;
-import java.util.function.Supplier;
 
 @Exec(Dist.CLIENT)
 @OnlyIn(Dist.CLIENT)
-public class Mp3Executor extends DeviceExecutor<Mp3Context, RandSelector>
-        implements IAutoSwitchable, IPauseable {
+public class Mp3Executor
+        extends DeviceExecutor<Mp3Context, RandSelector>
+        implements ISwitchable, IPauseable {
 
-    private static final Mp3Executor EX = getExecutor();
-    private static Enum<Handler> handler = Handler.NULL;
-    private static Saver saver;
-
-    public String rollString;
-    public TextHelper.Roller rs = Utils.getRollerBuilder().src(() -> isNullEnv() ?
-            "No Source Found" : sel.getCurrent().getRegistryName()).build();
+    public String displayStr;
+    private TextHelper.Scroller scroller;
 
     private Mp3Executor() {
         if (Mp3ExecutorHolder.EX != null) {
@@ -62,11 +59,11 @@ public class Mp3Executor extends DeviceExecutor<Mp3Context, RandSelector>
     }
 
     public void playInit() {
-        playSound(AudioRegistryHandler.KATANA_ZERO_INIT);
+        playForSingleTime(PlayableAudio.global(AudioRegistryHandler.KATANA_ZERO_INIT));
     }
 
     public void playEnd() {
-        playSound(AudioRegistryHandler.KATANA_ZERO_END);
+        playForSingleTime(PlayableAudio.global(AudioRegistryHandler.KATANA_ZERO_END));
     }
 
     @Override
@@ -87,10 +84,24 @@ public class Mp3Executor extends DeviceExecutor<Mp3Context, RandSelector>
             throw new InitBeforeWorldGenerationException("Minecraft.getInstance().player");
         ctx = new Mp3Context(player, world);
         sel = new RandSelector(new DefSelector(SoundChannel.KATANA_ZERO_CHANNEL));
-        saver = new Saver(() -> sel.getPointer(), 80);
-        Mp3.MODE_LIST.addAll(Arrays.asList(Mp3.RelayMode.DEFAULT, Mp3.RelayMode.SINGLE, Mp3.RelayMode.RANDOM));
         sel.reload();
         ctx.reload();
+        scroller = TextHelper.Scroller.newInstance(() -> sel.getCurrent().getDisplayName(), 40, 12);
+        scroller.reset();
+        Mp3.MODE_LIST.addAll(Arrays.asList(Mp3.RelayMode.DEFAULT, Mp3.RelayMode.SINGLE, Mp3.RelayMode.RANDOM));
+        /* To avoid the echo execute just after player join in the world. */
+//        this.testSound = new PlayableAudio(AudioRegistryHandler.BACKPACK_FOLD_SOUND, SoundCategory.RECORDS, getPlayer().get());
+        GLOBAL_AUDIO = PlayableAudio.global(AudioRegistryHandler.KATANA_ZERO_INIT);
+        checker3.setCanceled(true);
+        checker3.reset();
+        checker1.reset();
+        checker2.reset();
+    }
+
+    public void stopAudio() {
+        super.stopDevice();
+        this.checker3.setCanceled(true);
+        this.checker3.reset();
     }
 
     @Override
@@ -128,22 +139,18 @@ public class Mp3Executor extends DeviceExecutor<Mp3Context, RandSelector>
         sel.sourceChange = true;
     }
 
-    public void stopAudio() {
-        super.stopDevice();
+    private float volume = 1;
+
+    private PlayableAudio GLOBAL_AUDIO;
+
+    private void toTurnUp() {
+        if (isNullEnv()) return;
+
+        //TODO
     }
 
-    @Override
-    public void stopDevice() {
-        if (isPlaying()) playEnd();
-        super.stopDevice();
-        ctx.gonnaPlay = false;
-        ctx.isPaused = false;
-        ctx.isPlaySong = false;
-        ctx.preventChecked = true;
-    }
-
-    @Override
-    public void otherChannel() {
+    private void toTurnDown() {
+        if (sel.source == null || isNullEnv()) return;
 
     }
 
@@ -164,6 +171,22 @@ public class Mp3Executor extends DeviceExecutor<Mp3Context, RandSelector>
         }
         ctx.isPaused = !ctx.isPaused;
         ctx.isPlaySong = !ctx.isPlaySong;
+    }
+
+    @Override
+    public void stopDevice() {
+        if (isPlaying()) playEnd();
+        stopAudio();
+        super.stopDevice();
+        ctx.gonnaPlay = false;
+        ctx.isPaused = false;
+        ctx.isPlaySong = false;
+        ctx.preventChecked = true;
+    }
+
+    @Override
+    public void otherChannel() {
+
     }
 
     @SubscribeEvent
@@ -200,75 +223,108 @@ public class Mp3Executor extends DeviceExecutor<Mp3Context, RandSelector>
     public void onKeyInput(InputEvent.KeyInputEvent event) {
         if (KeyBinds.relayLast.isPressed()) {
             if (!Mp3.isHoldingMp3) return;
-            handler = Handler.TO_LAST;
+            if (Screen.hasControlDown()) options(Handler.TURN_DOWN);
+            else options(Handler.TO_LAST);
+
         } else if (KeyBinds.relayNext.isPressed()) {
             if (!Mp3.isHoldingMp3) return;
-            handler = Handler.TO_NEXT;
+            if (Screen.hasControlDown()) options(Handler.TURN_UP);
+            else options(Handler.TO_NEXT);
+
         } else if (KeyBinds.pauseOrResume.isPressed()) {
             if (!Mp3.isHoldingMp3) return;
-            handler = Handler.PAUSE;
+            options(Handler.PAUSE);
+        }
+    }
+
+    private void options(Handler handler) {
+        if (isNullEnv()) return;
+        switch (handler) {
+            case TO_NEXT:
+                toNext();
+                break;
+            case TO_LAST:
+                toLast();
+                break;
+            case PAUSE:
+                toPause();
+                break;
+            case TURN_UP:
+                toTurnUp();
+                break;
+            case TURN_DOWN:
+                toTurnDown();
+                break;
         }
     }
 
     @SubscribeEvent
     public void tick(TickEvent.ClientTickEvent event) {
-        if (event.phase != TickEvent.Phase.END) return;
         if (isNullEnv()) return;
-        /* detect time and save player's pointer */
-        saver.loop(event);
-        if (handler.equals(Handler.TO_NEXT)) EX.toNext();
-        else if (handler.equals(Handler.TO_LAST)) EX.toLast();
-        else if (handler.equals(Handler.PAUSE)) EX.toPause();
-        handler = Handler.NULL;
+        displayStr = scroller.loop(event).toStr();
+        checker1.loop(event);
+        checker2.loop(event);
+        checker3.loop(event);
     }
 
+    /* this is the main check of auto switching song function. */
+    private final EchoConsumer<ClientPlayerEntity> checker1 = new EchoConsumer<ClientPlayerEntity>(getPlayer(), 1) {
+        @Override
+        public Consumer<ClientPlayerEntity> process() {
+            return p -> {
+                if (sel.sourceChange) {
+                    ctx.preventChecked = true;
+                    sel.sourceChange = false;
+                }
 
-    @SubscribeEvent
-    public void tick2(TickEvent.ClientTickEvent event) {
-        if (event.phase != TickEvent.Phase.END) return;
-        if (isNullEnv()) return;
+                if (ctx.gonnaPlay) {
+                    checker3.setCanceled(false);
+                    ctx.gonnaPlay = false;
+                }
 
-        rollString = rs.loop(event);
+                boolean flag1 = sel.source != null
+                        && sel.source.isStopped()
+                        && ctx.isPlaySong
+                        && !ctx.gonnaPlay
+                        && !ctx.preventChecked;
 
-        if (sel.sourceChange) {
-            ctx.preventChecked = true;
-            sel.sourceChange = false;
+                boolean flag2 = !(Mp3.currentMode == Mp3.RelayMode.SINGLE)
+                        && (Mp3.isHoldingMp3 || Mp3.isMp3InInventory);
+
+                if (flag1 && flag2) {
+                    ctx.lastChecked = getGameTime().get();
+                    toNext();
+                }
+            };
         }
+    };
 
-        if (ctx.gonnaPlay) {
-            if (playDelaySound(sel.getCurrent(), 40, event).judge()) {
+    /* for detect when should play a song just after the music *Mp3_init* music finish playing */
+    private final EchoConsumer<com.github.audio.sound.AudioSound> checker3 = new EchoConsumer<com.github.audio.sound.AudioSound>(() -> sel.getCurrent(), 45) {
+        @Override
+        public Consumer<com.github.audio.sound.AudioSound> process() {
+            return a -> {
+                if (isNullEnv()) return;
+                playAudio(a);
                 drawToast();
-                ctx.gonnaPlay = false;
                 ctx.isPaused = false;
                 ctx.isPlaySong = true;
-            }
+                reset();
+                setCanceled(true);
+            };
         }
-        checker(event);
-    }
+    };
 
-    @Override
-    public void checker(TickEvent.ClientTickEvent event) {
-        boolean flag1 = sel.source != null
-                && sel.source.isStopped()
-                && ctx.isPlaySong
-                && !ctx.gonnaPlay
-                && !ctx.preventChecked
-                && handler == Handler.NULL;
-
-        boolean flag2 = !(Mp3.currentMode == Mp3.RelayMode.SINGLE)
-                && Mp3.isHoldingMp3
-                || Mp3.isMp3InInventory;
-
-        if (getGameTime().get() > ctx.lastChecked + INTERVAL) {
-            ctx.lastChecked = getGameTime().get();
-            ctx.preventChecked = false;
+    /* for reset prevent parameter for auto switching song */
+    private final EchoConsumer<ClientPlayerEntity> checker2 = new EchoConsumer<ClientPlayerEntity>(getPlayer(), 60) {
+        @Override
+        public Consumer<ClientPlayerEntity> process() {
+            return p -> {
+                ctx.preventChecked = false;
+                p.getPersistentData().putInt(Utils.MOD_ID + "channel_pointer", sel.pointer);
+            };
         }
-
-        if (flag1 && flag2) {
-            ctx.lastChecked = getGameTime().get();
-            toNext();
-        }
-    }
+    };
 
     @SubscribeEvent
     public void onSourceChange(SoundEvent.SoundSourceEvent event) {
@@ -282,27 +338,10 @@ public class Mp3Executor extends DeviceExecutor<Mp3Context, RandSelector>
     @Override
     public boolean isNullEnv() {
         return super.isNullEnv()
-                || saver == null
                 || !Mp3.isMp3InInventory
                 || !Mp3.isHoldingMp3;
     }
 
-    private class Saver extends EchoConsumer<Integer> {
-
-        public Saver(Supplier<Integer> src, long interval) {
-            super(src, interval);
-        }
-
-        @Override
-        public Consumer<Integer> process() {
-            return (integer) -> {
-                if (!isNullEnv()) {
-                    getPlayer().get().getPersistentData()
-                            .putInt(Utils.MOD_ID + "channel_pointer", src.get());
-                }
-            };
-        }
-    }
 
     public void onTossMp3() {
         stopDevice();
@@ -313,10 +352,19 @@ public class Mp3Executor extends DeviceExecutor<Mp3Context, RandSelector>
     }
 
     public void refresh(Mp3Packet.Type type) {
-        if (!Mp3.isMp3InInventory) Mp3.isMp3InInventory = true;
+        if (type.equals(Mp3Packet.Type.HAS_MP3)) {
+            Mp3.isMp3InInventory = true;
+        }
+
+        if (type.equals(Mp3Packet.Type.NOT_HAS_MP3)) {
+            stopDevice();
+            Mp3.isMp3InInventory = false;
+            Mp3.isHoldingMp3 = false;
+        }
     }
 
     private enum Handler {
-        NULL, TO_NEXT, TO_LAST, PAUSE, STOP;
+        TO_NEXT, TO_LAST, PAUSE, STOP, TURN_UP, TURN_DOWN;
+        //TODO : add turn up and down function to mp3.
     }
 }

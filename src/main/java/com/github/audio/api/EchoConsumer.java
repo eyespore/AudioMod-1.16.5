@@ -23,6 +23,7 @@ public abstract class EchoConsumer<T> extends Executor implements IEchoConsumer<
     public Supplier<T> src;
     private long ticker;
     private long delay;
+    private boolean isCanceled = false;
 
     public EchoConsumer(@Nullable Supplier<T> src , long delay) {
         this.delay = delay;
@@ -31,12 +32,18 @@ public abstract class EchoConsumer<T> extends Executor implements IEchoConsumer<
 
     @Override
     public final void loop(TickEvent event) {
+        if (isCanceled) return;
+        if (event.phase != TickEvent.Phase.END) return;
         if (src == null || src.get() == null) return;
         ticker ++;
         if (ticker > delay) {
             process().accept(src.get());
             ticker = 0;
         }
+    }
+
+    public void setCanceled(boolean canceled) {
+        isCanceled = canceled;
     }
 
     @Override

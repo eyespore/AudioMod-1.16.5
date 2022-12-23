@@ -30,8 +30,6 @@ public class Mp3 extends Item {
     public static Enum<RelayMode> currentMode = RelayMode.DEFAULT;
     public static final ArrayList<RelayMode> MODE_LIST = new ArrayList<RelayMode>();
 
-    public static boolean hasInitStatue;
-
     public static Enum<RelayMode> getCurrentMode() {
         return currentMode;
     }
@@ -66,7 +64,7 @@ public class Mp3 extends Item {
     }
 
     public static ITextComponent getCurrentSoundITextComponent(String translationKey) {
-        return new TranslationTextComponent(translationKey, Mp3Executor.getExecutor().rollString);
+        return new TranslationTextComponent(translationKey, Mp3Executor.getExecutor().displayStr);
     }
 
     private static ITextComponent getTooltip() {
@@ -105,6 +103,7 @@ public class Mp3 extends Item {
             if (clientPlayer == null) return;
             clientPlayer.sendStatusMessage(getTooltip(), true);
             isHoldingMp3 = true;
+            showDurabilityBar(stackIn);
         } else if (worldIn.isRemote) {
             isHoldingMp3 = false;
         }

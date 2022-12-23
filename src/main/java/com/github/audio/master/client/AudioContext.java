@@ -14,7 +14,7 @@ import java.util.*;
  * various kinds of parameters which are for called in the other class to use.
  */
 @OnlyIn(Dist.CLIENT)
-public abstract class AudioContext implements Serializable {
+public abstract class AudioContext {
 
     public ClientPlayerEntity player;
     public ClientWorld world;

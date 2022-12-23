@@ -17,7 +17,7 @@ public class AudioSound {
     protected static final long DEF_DURATION = 50;
     /* Default means the song's name has not been reinitialized yet. */
     static final String NON_NAMED = "non_named";
-    /* Return the unique registryID for each auto-registry AudioSound. */
+    /* Return the unique registryID for each auto-registry PlayableAudio. */
     private static int registryID = 0;
 
     private final int id;
@@ -102,7 +102,7 @@ public class AudioSound {
             return this;
         }
 
-        public AudioSoundBuilder display(String displayName) {
+        public AudioSoundBuilder displayName(String displayName) {
             this.displayName = displayName;
             return this;
         }

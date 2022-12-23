@@ -10,7 +10,6 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraftforge.client.event.InputEvent;
 import net.minecraftforge.event.RegisterCommandsEvent;
-import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.server.command.ConfigCommand;
 
@@ -29,7 +28,7 @@ public class SimpleExecutor extends ClientExecutor {
         ConfigCommand.register(event.getDispatcher());
     }
 
-    //    @SubscribeEvent
+    //@SubscribeEvent
     public void onMp3Deleted(GuiScreenEvent.MouseClickedEvent event) {
         if (!event.isCanceled() && event.getGui().getClass().getName()
                 .equals("net.minecraft.client.gui.screen.inventory.CreativeScreen")) {

@@ -36,7 +36,6 @@ public class BackpackExecutor extends AudioExecutor {
             playAudio(AudioRegistryHandler.BACKPACK_UNFOLD_SOUND);
             NetworkHandler.BACKPACK_SOUND_CHANNEL.sendToServer(
                     new BackPackPacket(getUUID().get(), true, true));
-
         }
     }
 }

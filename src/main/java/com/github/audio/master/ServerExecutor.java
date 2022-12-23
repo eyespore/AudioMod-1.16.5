@@ -2,6 +2,7 @@ package com.github.audio.master;
 
 import com.github.audio.api.annotation.Exec;
 import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.RegistryKey;
 import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
@@ -23,7 +24,15 @@ public class ServerExecutor extends Executor{
         return () -> ServerLifecycleHooks.getCurrentServer().getServerTime();
     }
 
+    public Supplier<MinecraftServer> getServer() {
+        return ServerLifecycleHooks::getCurrentServer;
+    }
+
     public Supplier<List<ServerPlayerEntity>> getPlayers() {
         return () -> ServerLifecycleHooks.getCurrentServer().getPlayerList().getPlayers();
+    }
+
+    public boolean isNullEnv() {
+        return getServer().get() == null || getPlayers().get().isEmpty();
     }
 }

@@ -39,14 +39,14 @@ public class AudioRegistryHandler {
     }
 
     /**
-     * The register for registry AudioSound, this class owns kinds of situations while trying to registry
-     * one or more AudioSound instance.
+     * The register for registry PlayableAudio, this class owns kinds of situations while trying to registry
+     * one or more PlayableAudio instance.
      */
     public static class AudioSoundRegister {
 
         private AudioSoundRegister() {}
 
-        /* The AudioSound instance in this map should be defined in the inside. */
+        /* The PlayableAudio instance in this map should be defined in the inside. */
         private static final HashMap<String, AudioSound> DEFINED_SOUND_MAP = new HashMap<String, AudioSound>();
 
         private Supplier<AudioSound> registryDef(String registryName) {
@@ -56,11 +56,8 @@ public class AudioRegistryHandler {
         }
 
         private void registryCus(String displayName , long duration) {
-            AudioSound registryAudioSound = new AudioSound.AudioSoundBuilder()
-                    .display(displayName).duration(duration).build();
-            registryAudioSound.into(SoundChannel.KATANA_ZERO_CHANNEL);
-//            Audio.info("registry into KATANA_ZERO_CHANNEL with : " + displayName + ":" + duration);
-            Utils.SOUND_SOURCE_PATH.add(registryAudioSound.getRegistryName());
+            AudioSound registryAudioSound = new AudioSound.AudioSoundBuilder().displayName(displayName).duration(duration).build();
+            Utils.SOUND_SOURCE_PATH.add(registryAudioSound.into(SoundChannel.KATANA_ZERO_CHANNEL).getRegistryName());
         }
 
         public void autoConstructor() {

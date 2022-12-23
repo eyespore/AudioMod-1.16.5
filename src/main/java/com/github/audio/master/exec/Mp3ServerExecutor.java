@@ -14,6 +14,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.item.ItemTossEvent;
+import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.network.PacketDistributor;
@@ -29,17 +30,17 @@ import java.util.stream.Collectors;
 public class Mp3ServerExecutor extends ServerExecutor {
 
     private static final Mp3ServerExecutor MP_3_SERVER_EXECUTOR = new Mp3ServerExecutor();
+
+    /* Set echo loop to check if mp3 is in player's inventory. */
     private static final IEchoConsumer<List<ServerPlayerEntity>> MP3_CHECKER = new EchoConsumer<List<ServerPlayerEntity>>(
             () -> ServerLifecycleHooks.getCurrentServer().getPlayerList().getPlayers() , 30) {
         @Override
         public Consumer<List<ServerPlayerEntity>> process() {
-            return (s) -> {
-                Audio.info("start execute from mp3 checker");
-                s.stream().filter(Objects::nonNull)
-                        .collect(Collectors.toMap(p -> p , p -> p.inventory.mainInventory.contains(new ItemStack(ItemRegisterHandler.Mp3.get()))))
-                        .forEach((p , b) -> NetworkHandler.MP3_CHANNEL.send(PacketDistributor.PLAYER.with(() -> p),
-                                new Mp3Packet(b ? Mp3Packet.Type.HAS_MP3 : Mp3Packet.Type.NOT_HAS_MP3)));
-            };
+            return (s) -> s.stream().filter(Objects::nonNull)
+                    .collect(Collectors.toMap(p -> p , p -> p.inventory.mainInventory
+                            .stream().anyMatch(i -> i.isItemEqual(new ItemStack(ItemRegisterHandler.Mp3.get())))))
+                    .forEach((p , b) -> NetworkHandler.MP3_CHANNEL.send(PacketDistributor.PLAYER.with(() -> p),
+                            new Mp3Packet(b ? Mp3Packet.Type.HAS_MP3 : Mp3Packet.Type.NOT_HAS_MP3)));
         }
     };
 
@@ -59,10 +60,17 @@ public class Mp3ServerExecutor extends ServerExecutor {
     @SubscribeEvent
     public void onPlayerTossMp3(ItemTossEvent event) {
         if (event.getPlayer() == null) return;
-        Audio.info("Mp3 is throwing by " + event.getPlayer().getName().getString());
-        NetworkHandler.MP3_CHANNEL.send(
-                PacketDistributor.PLAYER.with(() -> (ServerPlayerEntity) event.getPlayer()),
+        NetworkHandler.MP3_CHANNEL.send(PacketDistributor.PLAYER.with(() -> (ServerPlayerEntity) event.getPlayer()),
                 new Mp3Packet(Mp3Packet.Type.TOSS)
         );
+    }
+
+    @SubscribeEvent
+    public void onPlayerChangeDimension(PlayerEvent.PlayerChangedDimensionEvent event) {
+        ServerPlayerEntity serverPlayer = (ServerPlayerEntity) event.getPlayer();
+        if (serverPlayer != null) {
+            NetworkHandler.MP3_CHANNEL.send(PacketDistributor.PLAYER.with(() -> serverPlayer),
+                    new Mp3Packet(Mp3Packet.Type.CHANGE_DIMENSION));
+        }
     }
 }

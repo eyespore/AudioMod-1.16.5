@@ -12,7 +12,7 @@ import java.io.File;
 import java.io.IOException;
 
 /**
- * @Description: The generation process of AudioSound.
+ * @Description: The generation process of PlayableAudio.
  */
 public class AudioGenerateCycle {
 
@@ -46,10 +46,11 @@ public class AudioGenerateCycle {
             Audio.warn("Fail to load music into the game , The given zip according to the path could not be found, this is probably caused " +
                     "by the resource folder named \" audioresource.zip \" is not placed in the right place, plz check if you have download this " +
                     "resource pack and have it loaded on your minecraft.");
+            e.printStackTrace();
         }
 
         /* Add sound register into eventbus so the sound event could be correctly registry */
-        AudioSound.SOUND_REGISTER.register(eventBus);
+        com.github.audio.sound.AudioSound.SOUND_REGISTER.register(eventBus);
 
         /* Initialize mod sound list, map, and registry custom sound event into eventbus. */
         registryAudioSound();

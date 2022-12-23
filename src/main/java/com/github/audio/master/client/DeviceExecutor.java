@@ -1,51 +1,33 @@
 package com.github.audio.master.client;
 
-import com.github.audio.client.gui.AudioToastMessage;
-import com.github.audio.master.client.api.IAudioExecutor;
-import com.github.audio.sound.AudioSound;
+import com.github.audio.client.gui.ToastMessage;
+import com.github.audio.master.client.api.IDeviceExecutor;
+import com.github.audio.master.client.sound.PlayableAudio;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.audio.ISound;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 import java.io.Serializable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 @OnlyIn(Dist.CLIENT)
 public abstract class DeviceExecutor<K extends AudioContext, T extends Selector> extends AudioExecutor
-        implements Serializable, IAudioExecutor<K, T> {
+        implements Serializable, IDeviceExecutor<K, T> {
 
     protected T sel;
     protected K ctx;
-    protected final List<ISound> devicePlayList = Collections.synchronizedList(new ArrayList<>());
-
-    private boolean hasChecked = false;
-    private long firstCheck;
+    protected final List<PlayableAudio> devicePlayList = Collections.synchronizedList(new ArrayList<>());
 
     public DeviceExecutor() {
     }
 
-    public final Judge playDelaySound(AudioSound audioSound, long delay, TickEvent.ClientTickEvent event) {
-        return () -> {
-            if (!hasChecked) {
-                firstCheck = getGameTime().get();
-                hasChecked = true;
-            }
-            if (getGameTime().get() > firstCheck + delay) {
-                playAudio(audioSound);
-                hasChecked = false;
-                return true;
-            }
-            return false;
-        };
-    }
-
     public void drawToast() {
         String displayName = sel.getCurrent().getDisplayName();
-        new AudioToastMessage().show("Now Playing:", displayName.length() > 20 ?
+        new ToastMessage().show("Now Playing:", displayName.length() > 20 ?
                 displayName.substring(0, 20) + "..." : displayName);
     }
 
@@ -61,9 +43,19 @@ public abstract class DeviceExecutor<K extends AudioContext, T extends Selector>
         return !this.devicePlayList.isEmpty();
     }
 
-    protected final void playSound(ISound sound) {
+    protected final void playForSingleTime(PlayableAudio sound) {
+        super.playSound(sound);
+    }
+
+    @Override
+    protected final void playSound(PlayableAudio sound) {
         devicePlayList.add(sound);
         super.playSound(sound);
+    }
+
+    protected void setVolume(final float volume) {
+        if (this.devicePlayList.isEmpty()) return;
+        this.devicePlayList.forEach(a -> a.setVolume(volume));
     }
 
     /**
