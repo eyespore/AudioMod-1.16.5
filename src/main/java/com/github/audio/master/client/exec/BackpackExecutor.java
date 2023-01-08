@@ -20,16 +20,16 @@ public class BackpackExecutor extends AudioExecutor {
         return BACKPACK_EXECUTOR;
     }
 
-    public void onFoldBackpack() {
+    public void playFoldBackPackSound() {
         playAudio(AudioRegistryHandler.BACKPACK_FOLD_SOUND);
     }
 
-    public void onUnFoldBackpack() {
+    public void playUnfoldBackPackSound() {
         playAudio(AudioRegistryHandler.BACKPACK_UNFOLD_SOUND);
     }
 
     @SubscribeEvent
-    public void playerUnfoldBPListener(GuiOpenEvent event) {
+    public void onPlayerUnfoldBackPack(GuiOpenEvent event) {
         if (isNullEnv() || !(event.getGui() instanceof InventoryScreen)) return;
         //Multiple or Single
         if (Config.BACK_PACK_SOUND_STATUE.get() == 0 || Config.BACK_PACK_SOUND_STATUE.get() == 1) {

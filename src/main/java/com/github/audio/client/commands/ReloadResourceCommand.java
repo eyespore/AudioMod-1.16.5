@@ -1,8 +1,7 @@
 package com.github.audio.client.commands;
 
-import com.github.audio.util.Utils;
+import com.github.audio.util.gen.ClientFileOperator;
 import com.mojang.brigadier.CommandDispatcher;
-import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.minecraft.client.Minecraft;
 import net.minecraft.command.CommandSource;
 import net.minecraft.command.Commands;
@@ -10,7 +9,6 @@ import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.UUID;
 
@@ -31,7 +29,8 @@ public class ReloadResourceCommand {
     @SuppressWarnings("deprecation")
     private int ReloadResource(CommandSource source) throws IOException {
 
-        Utils.getIOHelper().folderInsert(new File("./music"), "assets/audio/sounds/",false);
+//        Utils.getIOHelper().moveOgg(false);
+        ClientFileOperator.getClientFileOperator().flushOgg();
         Minecraft.getInstance().reloadResources();
         if (Minecraft.getInstance().player != null) {
             Minecraft.getInstance().player.sendMessage(

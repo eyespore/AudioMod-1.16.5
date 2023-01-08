@@ -114,7 +114,7 @@
  - 36.1.33 Add userdev to run config.
  - 36.1.32 Add truncation to FMLStatusPing to work around protocol limits (#7818)
  - 36.1.31 Remove ModelResourceLocation patch for SAS entry (#7813)
- - 36.1.30 Fix jar file path detection if the path contains a "!" (#7790)
+ - 36.1.30 Fix jarPackage file path detection if the path contains a "!" (#7790)
  - 36.1.29 Add method to get the number of elements in a model builder (#7792)
  - 36.1.28 Fix vanilla packet splitter remote detection and add advancement packet splitting (#7802)
  - 36.1.27 Add option for linear filtering of text texture (#7645)

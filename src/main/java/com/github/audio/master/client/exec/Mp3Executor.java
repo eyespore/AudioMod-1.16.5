@@ -1,5 +1,6 @@
 package com.github.audio.master.client.exec;
 
+import com.github.audio.Audio;
 import com.github.audio.api.EchoConsumer;
 import com.github.audio.api.annotation.Exec;
 import com.github.audio.api.exception.InitBeforeWorldGenerationException;
@@ -15,6 +16,7 @@ import com.github.audio.master.client.sel.RandSelector;
 import com.github.audio.master.client.sound.PlayableAudio;
 import com.github.audio.master.net.Mp3Packet;
 import com.github.audio.registryHandler.AudioRegistryHandler;
+import com.github.audio.sound.AudioSound;
 import com.github.audio.sound.SoundChannel;
 import com.github.audio.util.Utils;
 import com.github.audio.util.gen.TextHelper;
@@ -86,12 +88,10 @@ public class Mp3Executor
         sel = new RandSelector(new DefSelector(SoundChannel.KATANA_ZERO_CHANNEL));
         sel.reload();
         ctx.reload();
-        scroller = TextHelper.Scroller.newInstance(() -> sel.getCurrent().getDisplayName(), 40, 12);
+        scroller = Utils.getScroller(() -> sel.getCurrent().getDisplayName(), 12);
         scroller.reset();
         Mp3.MODE_LIST.addAll(Arrays.asList(Mp3.RelayMode.DEFAULT, Mp3.RelayMode.SINGLE, Mp3.RelayMode.RANDOM));
         /* To avoid the echo execute just after player join in the world. */
-//        this.testSound = new PlayableAudio(AudioRegistryHandler.BACKPACK_FOLD_SOUND, SoundCategory.RECORDS, getPlayer().get());
-        GLOBAL_AUDIO = PlayableAudio.global(AudioRegistryHandler.KATANA_ZERO_INIT);
         checker3.setCanceled(true);
         checker3.reset();
         checker1.reset();
@@ -139,10 +139,6 @@ public class Mp3Executor
         sel.sourceChange = true;
     }
 
-    private float volume = 1;
-
-    private PlayableAudio GLOBAL_AUDIO;
-
     private void toTurnUp() {
         if (isNullEnv()) return;
 
@@ -163,9 +159,17 @@ public class Mp3Executor
             return;
 
         } else if (ctx.isPlaySong && !ctx.isPaused) {
+            if (sel.source == null) {
+                Audio.warn("No sound source to pause!");
+                return;
+            }
             sel.source.pause();
 
         } else if (!ctx.isPlaySong) {
+            if (sel.source == null) {
+                Audio.warn("No sound source to resume!");
+                return;
+            }
             sel.source.resume();
 
         }
@@ -261,14 +265,16 @@ public class Mp3Executor
     @SubscribeEvent
     public void tick(TickEvent.ClientTickEvent event) {
         if (isNullEnv()) return;
-        displayStr = scroller.loop(event).toStr();
+        displayStr = scroller.loop(event, 40).toStr();
         checker1.loop(event);
-        checker2.loop(event);
-        checker3.loop(event);
+        checker2.loop(event, 60);
+        checker3.loop(event, 45);
     }
 
-    /* this is the main check of auto switching song function. */
-    private final EchoConsumer<ClientPlayerEntity> checker1 = new EchoConsumer<ClientPlayerEntity>(getPlayer(), 1) {
+    /**
+     * @Description: this is the main check of auto switching song function.
+     */
+    private final EchoConsumer<ClientPlayerEntity> checker1 = new EchoConsumer<ClientPlayerEntity>(getPlayer()) {
         @Override
         public Consumer<ClientPlayerEntity> process() {
             return p -> {
@@ -300,9 +306,9 @@ public class Mp3Executor
     };
 
     /* for detect when should play a song just after the music *Mp3_init* music finish playing */
-    private final EchoConsumer<com.github.audio.sound.AudioSound> checker3 = new EchoConsumer<com.github.audio.sound.AudioSound>(() -> sel.getCurrent(), 45) {
+    private final EchoConsumer<AudioSound> checker3 = new EchoConsumer<AudioSound>(() -> sel.getCurrent()) {
         @Override
-        public Consumer<com.github.audio.sound.AudioSound> process() {
+        public Consumer<AudioSound> process() {
             return a -> {
                 if (isNullEnv()) return;
                 playAudio(a);
@@ -316,7 +322,7 @@ public class Mp3Executor
     };
 
     /* for reset prevent parameter for auto switching song */
-    private final EchoConsumer<ClientPlayerEntity> checker2 = new EchoConsumer<ClientPlayerEntity>(getPlayer(), 60) {
+    private final EchoConsumer<ClientPlayerEntity> checker2 = new EchoConsumer<ClientPlayerEntity>(getPlayer()) {
         @Override
         public Consumer<ClientPlayerEntity> process() {
             return p -> {
@@ -329,7 +335,7 @@ public class Mp3Executor
     @SubscribeEvent
     public void onSourceChange(SoundEvent.SoundSourceEvent event) {
         if (isNullEnv()) return;
-        if (Utils.SOUND_SOURCE_PATH.contains(event.getName())) {
+        if (AudioRegistryHandler.SOUND_SOURCE_PATH.contains(event.getName())) {
             sel.source = event.getSource();
             sel.sourceChange = true;
         }
@@ -337,9 +343,7 @@ public class Mp3Executor
 
     @Override
     public boolean isNullEnv() {
-        return super.isNullEnv()
-                || !Mp3.isMp3InInventory
-                || !Mp3.isHoldingMp3;
+        return super.isNullEnv() || !Mp3.isMp3InInventory;
     }
 
 

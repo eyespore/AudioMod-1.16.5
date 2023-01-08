@@ -14,16 +14,16 @@ public class TextHelper implements IAudioTool {
     public static class Scroller implements IAudioTool {
 
         private String rec;
-        private String str;
         private String cur;
+        private String str;
         private final EchoConsumer<String> out;
         private final EchoConsumer<String> in;
 
-        private Scroller(Supplier<String> sup , long delay , int length) {
+        private Scroller(Supplier<String> sup, int length) {
             cur = sup.get();
             rec = sup.get();
 
-            this.out = new EchoConsumer<String>(sup , 1) {
+            this.out = new EchoConsumer<String>(sup) {
                 @Override
                 public Consumer<String> process() {
                     return s -> {
@@ -32,22 +32,33 @@ public class TextHelper implements IAudioTool {
                             if (length > rec.length()) cur = rec;
                             else cur = rec + "   ";
                         }
-                        str = cur.substring(0 , length);
+//                        str.delete(0 , str.length());
+//                        int gap = length - cur.length();
+//                        if (gap > 0) {
+//                            for (int i = 0; i < gap / 2; i++) str.append(" ");
+//                            str.append(cur);
+//                            if (gap % 2 == 0)
+//                                for (int i = 0; i < gap / 2; i++) str.append(" ");
+//                            else
+//                                for (int i = 0; i < (gap / 2) + 1; i++) str.append(" ");
+//                        } else str.append(cur, 0, length);
+                        if (cur.length() < length) str = cur;
+                        else str = cur.substring(0 , length);
                     };
                 }
             };
 
-            this.in = new EchoConsumer<String>(() -> this.cur , delay) {
+            this.in = new EchoConsumer<String>(() -> this.cur) {
                 @Override
                 public Consumer<String> process() {
-                    return s -> cur = length <= rec.length() ?  cur.substring(1) + cur.split("")[0] : rec;
+                    return s -> cur = length <= rec.length() ? cur.substring(1) + cur.split("")[0] : rec;
                 }
             };
         }
 
-        public Scroller loop(TickEvent.ClientTickEvent event) {
+        public Scroller loop(TickEvent.ClientTickEvent event , long delay) {
             out.loop(event);
-            in.loop(event);
+            in.loop(event , delay);
             return this;
         }
 
@@ -60,12 +71,12 @@ public class TextHelper implements IAudioTool {
             return str;
         }
 
-        public static Scroller newInstance(Supplier<String> sup , long delay , int length) {
-            return new Scroller(sup , delay , length);
+        public static Scroller newInstance(Supplier<String> sup, int length) {
+            return new Scroller(sup, length);
         }
     }
 
-    public static class TipHelper implements IAudioTool{
+    public static class TipHelper implements IAudioTool {
 
         private static final TipHelper TIP_HELPER = new TipHelper();
 

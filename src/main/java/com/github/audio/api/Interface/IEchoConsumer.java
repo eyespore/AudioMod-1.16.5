@@ -10,7 +10,7 @@ public interface IEchoConsumer<T> {
 
     Consumer<T> process();
 
-    default void loop(TickEvent e) {
+    default void loop(TickEvent e , long delay) {
         return;
     }
 }

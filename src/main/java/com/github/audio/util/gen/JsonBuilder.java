@@ -1,33 +1,35 @@
 package com.github.audio.util.gen;
 
-import com.github.audio.api.exception.MultipleSingletonException;
-import com.github.audio.sound.AudioSound;
 import com.github.audio.util.IAudioTool;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
-import java.io.*;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.function.Supplier;
 
+
+/**
+ * @author clclFL , blu3
+ * @Description: The builder for generate essential custom ogg json file which is in the resource pack.
+ */
+@OnlyIn(Dist.CLIENT)
 public class JsonBuilder implements IAudioTool {
 
-    private static final LinkedHashMap<String, CustomSound> JSON_MAP = new LinkedHashMap<>();
-    private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
-    private static final AudioSound.NameGenerator gen = new AudioSound.NameGenerator();
-
-    public JsonBuilder add(String... registryNames) {
-        for (String s : registryNames) add(s);
-        return this;
+    public static void main(String[] args) {
     }
 
-    public JsonBuilder addCus(Supplier<Integer> sup) {
-        for (int i = 0; i < sup.get(); i++) {
-            add(gen.get());
-        }
-        return this;
-    }
+    private JsonBuilder() {}
+
+    private final LinkedHashMap<String, soundEvent> JSON_MAP = new LinkedHashMap<>();
+    private final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 
     public JsonBuilder clear() {
         JSON_MAP.clear();
@@ -40,46 +42,78 @@ public class JsonBuilder implements IAudioTool {
         br.close();
     }
 
-    public void toJson(String path) throws IOException{
+    public void toJson(String path) throws IOException {
         toJson(new File(path));
     }
 
-    public static JsonBuilder getInstance()  {
-        JSON_MAP.clear();
-        return JsonBuilderHolder.JSON_BUILDER;
-    }
-
-    public JsonBuilder add(String registryName) {
-        ArrayList<SoundObject> tempList = new ArrayList<>();
-        tempList.add(new SoundObject("audio:" + registryName, true));
-        JSON_MAP.put(registryName, new CustomSound(tempList));
+    /**
+     * @Description: add new json object that point the ogg file into the json file.
+     */
+    public JsonBuilder add(String registryName, String oggName) {
+        ArrayList<ogg> oggs = new ArrayList<>();
+        oggs.add(new ogg("audio:" + oggName, true));
+        JSON_MAP.put(registryName, new soundEvent(oggs));
         return this;
     }
 
-    private static class JsonBuilderHolder{
-        private static final JsonBuilder JSON_BUILDER = new JsonBuilder();
+    public JsonBuilder add(String registryName, String oggFolderPath, String oggName) {
+        ArrayList<ogg> oggs = new ArrayList<>();
+        oggs.add(new ogg("audio:" + oggFolderPath + "/" + oggName, true));
+        JSON_MAP.put(registryName, new soundEvent(oggs));
+        return this;
     }
 
-    private static class SoundObject {
-        public SoundObject(String name, boolean stream) {
-            this.name = name;
-            this.stream = stream;
+    public JsonBuilder add(String registryName, String oggFolderPath, Supplier<String> oggNameGenerator, int amount) {
+        ArrayList<ogg> oggs = new ArrayList<>();
+        for (int i = 0; i < amount; i++)
+            oggs.add(new ogg("audio:" + oggFolderPath + "/" + oggNameGenerator.get(), true));
+        JSON_MAP.put(registryName, new soundEvent(oggs));
+        return this;
+    }
+
+    /* For custom ogg registry */
+    public JsonBuilder addMultiple(Supplier<String> registryNameGenerator, int amount) {
+        for (int i = 0; i < amount; i++) {
+            ArrayList<ogg> oggs = new ArrayList<>();
+            String registryName = registryNameGenerator.get();
+            oggs.add(new ogg("audio:" + registryName, true));
+            JSON_MAP.put(registryName, new soundEvent(oggs));
         }
-
-        String name;
-        boolean stream;
+        return this;
     }
 
-    private static class CustomSound {
-        public CustomSound(ArrayList<SoundObject> sounds) {
-            this.sounds = sounds;
+    /* For custom ogg registry */
+    public JsonBuilder addMultiple(Supplier<String> registryNameGenerator, String oggFolderPath, int amount) {
+        for (int i = 0; i < amount; i++) {
+            ArrayList<ogg> oggs = new ArrayList<>();
+            String registryName = registryNameGenerator.get();
+            oggs.add(new ogg("audio:" + oggFolderPath + "/" + registryName, true));
+            JSON_MAP.put(registryName, new soundEvent(oggs));
         }
-        final ArrayList<SoundObject> sounds;
+        return this;
     }
 
-    private JsonBuilder() {
-        if (JsonBuilderHolder.JSON_BUILDER != null) {
-            throw new MultipleSingletonException(JsonBuilderHolder.JSON_BUILDER);
+    public static JsonBuilder getJsonBuilder() {
+        return new JsonBuilder();
+    }
+
+    private static class ogg {
+
+        private final String name;
+        private final boolean stream;
+
+        public ogg(String path, boolean isStream) {
+            this.name = path;
+            this.stream = isStream;
+        }
+    }
+
+    private static class soundEvent {
+
+        private final ArrayList<ogg> sounds;
+
+        public soundEvent(ArrayList<ogg> oggs) {
+            this.sounds = oggs;
         }
     }
 

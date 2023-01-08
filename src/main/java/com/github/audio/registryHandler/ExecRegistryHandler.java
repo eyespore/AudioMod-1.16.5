@@ -106,7 +106,7 @@ public class ExecRegistryHandler {
                     .map(getClassProcess).collect(Collectors.toSet());
         } catch (FileNotFoundException e) {
             if (isOnTest) return new HashSet<>();
-            else Audio.warn("Cannot find the file through Jar path");
+            else Audio.warn("Cannot find the file through JarPackage path");
         }
         return new HashSet<>();
     }

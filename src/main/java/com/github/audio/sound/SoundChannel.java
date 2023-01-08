@@ -12,11 +12,16 @@ public class SoundChannel {
 
     /* ChannelSoundList Define*/
     private static final LinkedList<AudioSound> KATANA_ZERO = new LinkedList<>();
+    private static final LinkedList<AudioSound> CUSTOM_SOUND = new LinkedList<>();
     private static final ArrayList<AudioSound> MUSIC_BOX_CLEW_TONE = new ArrayList<>();
 
     /* Channel */
     public static final SoundChannel MUSIC_BOX_CHANNEL = new SoundChannel(MUSIC_BOX_CLEW_TONE);
     public static final SoundChannel KATANA_ZERO_CHANNEL = new SoundChannel(KATANA_ZERO);
+    /**
+     * @Description: This channel is for storing custom sound that registry into the game.
+     */
+    public static final SoundChannel CUSTOM_SOUND_CHANNEL = new SoundChannel(CUSTOM_SOUND);
 
     private SoundChannel(List<AudioSound> channelSoundList) {
         this.channelSoundList = channelSoundList;
@@ -33,6 +38,10 @@ public class SoundChannel {
 
     public void delete(AudioSound audioSound) {
         this.channelSoundList.remove(audioSound);
+    }
+
+    public AudioSound get(int index) {
+        return channelSoundList.get(index);
     }
 
     public int getSize() {

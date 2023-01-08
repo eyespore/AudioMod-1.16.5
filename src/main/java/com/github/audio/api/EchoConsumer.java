@@ -22,24 +22,37 @@ public abstract class EchoConsumer<T> extends Executor implements IEchoConsumer<
 
     public Supplier<T> src;
     private long ticker;
-    private long delay;
     private boolean isCanceled = false;
 
-    public EchoConsumer(@Nullable Supplier<T> src , long delay) {
-        this.delay = delay;
+    public EchoConsumer(@Nullable Supplier<T> src) {
         this.src = src;
     }
 
+    /**
+     * @Description: This is the method for those looper that needs the same interval between each loop.
+     * @param event the tick event for execute the logic in the method body.
+     */
     @Override
-    public final void loop(TickEvent event) {
-        if (isCanceled) return;
-        if (event.phase != TickEvent.Phase.END) return;
-        if (src == null || src.get() == null) return;
+    public final void loop(TickEvent event , long delay) {
+        if (isNullEnv(event)) return;
         ticker ++;
         if (ticker > delay) {
-            process().accept(src.get());
+            loop(event);
             ticker = 0;
         }
+    }
+
+    /**
+     * @Description: This is the default method for the looper that only need one tick looping.
+     * @param event the tick event for execute the logic in the method body.
+     */
+    public final void loop(TickEvent event) {
+        if (isNullEnv(event)) return;
+        process().accept(src.get());
+    }
+
+    private boolean isNullEnv(TickEvent event) {
+        return isCanceled || event.phase != TickEvent.Phase.END || src == null || src.get() == null;
     }
 
     public void setCanceled(boolean canceled) {
@@ -48,10 +61,6 @@ public abstract class EchoConsumer<T> extends Executor implements IEchoConsumer<
 
     @Override
     public abstract Consumer<T> process();
-
-    public final void setDelay(long delay) {
-        this.delay = delay;
-    }
 
     public void setSrc(Supplier<T> src) {
         this.src = src;

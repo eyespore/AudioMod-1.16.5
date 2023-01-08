@@ -1,5 +1,6 @@
 package com.github.audio.master.client;
 
+import com.github.audio.Audio;
 import com.github.audio.client.gui.ToastMessage;
 import com.github.audio.master.client.api.IDeviceExecutor;
 import com.github.audio.master.client.sound.PlayableAudio;
@@ -29,6 +30,9 @@ public abstract class DeviceExecutor<K extends AudioContext, T extends Selector>
         String displayName = sel.getCurrent().getDisplayName();
         new ToastMessage().show("Now Playing:", displayName.length() > 20 ?
                 displayName.substring(0, 20) + "..." : displayName);
+        Audio.info("registry name : " + sel.getCurrent().getRegistryName());
+        Audio.info("display name : " + sel.getCurrent().getDisplayName());
+        Audio.info("sound event :" + sel.getCurrent().getSoundEvent());
     }
 
     public void stopDevice() {

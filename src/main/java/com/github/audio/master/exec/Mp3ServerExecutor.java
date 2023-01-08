@@ -33,7 +33,7 @@ public class Mp3ServerExecutor extends ServerExecutor {
 
     /* Set echo loop to check if mp3 is in player's inventory. */
     private static final IEchoConsumer<List<ServerPlayerEntity>> MP3_CHECKER = new EchoConsumer<List<ServerPlayerEntity>>(
-            () -> ServerLifecycleHooks.getCurrentServer().getPlayerList().getPlayers() , 30) {
+            () -> ServerLifecycleHooks.getCurrentServer().getPlayerList().getPlayers()) {
         @Override
         public Consumer<List<ServerPlayerEntity>> process() {
             return (s) -> s.stream().filter(Objects::nonNull)
@@ -54,7 +54,7 @@ public class Mp3ServerExecutor extends ServerExecutor {
     @SubscribeEvent
     public void tick(TickEvent.ServerTickEvent event) {
         if (event.phase != TickEvent.Phase.END) return;
-        MP3_CHECKER.loop(event);
+        MP3_CHECKER.loop(event , 30);
     }
 
     @SubscribeEvent

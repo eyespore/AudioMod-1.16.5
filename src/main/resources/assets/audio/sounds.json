@@ -54,6 +54,406 @@
         "stream": true
       }
     ]
+  },
+  "custom_0": {
+    "sounds": [
+      {
+        "name": "audio:custom/custom_0",
+        "stream": true
+      }
+    ]
+  },
+  "custom_1": {
+    "sounds": [
+      {
+        "name": "audio:custom/custom_1",
+        "stream": true
+      }
+    ]
+  },
+  "custom_2": {
+    "sounds": [
+      {
+        "name": "audio:custom/custom_2",
+        "stream": true
+      }
+    ]
+  },
+  "custom_3": {
+    "sounds": [
+      {
+        "name": "audio:custom/custom_3",
+        "stream": true
+      }
+    ]
+  },
+  "custom_4": {
+    "sounds": [
+      {
+        "name": "audio:custom/custom_4",
+        "stream": true
+      }
+    ]
+  },
+  "custom_5": {
+    "sounds": [
+      {
+        "name": "audio:custom/custom_5",
+        "stream": true
+      }
+    ]
+  },
+  "custom_6": {
+    "sounds": [
+      {
+        "name": "audio:custom/custom_6",
+        "stream": true
+      }
+    ]
+  },
+  "custom_7": {
+    "sounds": [
+      {
+        "name": "audio:custom/custom_7",
+        "stream": true
+      }
+    ]
+  },
+  "custom_8": {
+    "sounds": [
+      {
+        "name": "audio:custom/custom_8",
+        "stream": true
+      }
+    ]
+  },
+  "custom_9": {
+    "sounds": [
+      {
+        "name": "audio:custom/custom_9",
+        "stream": true
+      }
+    ]
+  },
+  "custom_10": {
+    "sounds": [
+      {
+        "name": "audio:custom/custom_10",
+        "stream": true
+      }
+    ]
+  },
+  "custom_11": {
+    "sounds": [
+      {
+        "name": "audio:custom/custom_11",
+        "stream": true
+      }
+    ]
+  },
+  "custom_12": {
+    "sounds": [
+      {
+        "name": "audio:custom/custom_12",
+        "stream": true
+      }
+    ]
+  },
+  "custom_13": {
+    "sounds": [
+      {
+        "name": "audio:custom/custom_13",
+        "stream": true
+      }
+    ]
+  },
+  "custom_14": {
+    "sounds": [
+      {
+        "name": "audio:custom/custom_14",
+        "stream": true
+      }
+    ]
+  },
+  "custom_15": {
+    "sounds": [
+      {
+        "name": "audio:custom/custom_15",
+        "stream": true
+      }
+    ]
+  },
+  "custom_16": {
+    "sounds": [
+      {
+        "name": "audio:custom/custom_16",
+        "stream": true
+      }
+    ]
+  },
+  "custom_17": {
+    "sounds": [
+      {
+        "name": "audio:custom/custom_17",
+        "stream": true
+      }
+    ]
+  },
+  "custom_18": {
+    "sounds": [
+      {
+        "name": "audio:custom/custom_18",
+        "stream": true
+      }
+    ]
+  },
+  "custom_19": {
+    "sounds": [
+      {
+        "name": "audio:custom/custom_19",
+        "stream": true
+      }
+    ]
+  },
+  "custom_20": {
+    "sounds": [
+      {
+        "name": "audio:custom/custom_20",
+        "stream": true
+      }
+    ]
+  },
+  "custom_21": {
+    "sounds": [
+      {
+        "name": "audio:custom/custom_21",
+        "stream": true
+      }
+    ]
+  },
+  "custom_22": {
+    "sounds": [
+      {
+        "name": "audio:custom/custom_22",
+        "stream": true
+      }
+    ]
+  },
+  "custom_23": {
+    "sounds": [
+      {
+        "name": "audio:custom/custom_23",
+        "stream": true
+      }
+    ]
+  },
+  "custom_24": {
+    "sounds": [
+      {
+        "name": "audio:custom/custom_24",
+        "stream": true
+      }
+    ]
+  },
+  "custom_25": {
+    "sounds": [
+      {
+        "name": "audio:custom/custom_25",
+        "stream": true
+      }
+    ]
+  },
+  "custom_26": {
+    "sounds": [
+      {
+        "name": "audio:custom/custom_26",
+        "stream": true
+      }
+    ]
+  },
+  "custom_27": {
+    "sounds": [
+      {
+        "name": "audio:custom/custom_27",
+        "stream": true
+      }
+    ]
+  },
+  "custom_28": {
+    "sounds": [
+      {
+        "name": "audio:custom/custom_28",
+        "stream": true
+      }
+    ]
+  },
+  "custom_29": {
+    "sounds": [
+      {
+        "name": "audio:custom/custom_29",
+        "stream": true
+      }
+    ]
+  },
+  "custom_30": {
+    "sounds": [
+      {
+        "name": "audio:custom/custom_30",
+        "stream": true
+      }
+    ]
+  },
+  "custom_31": {
+    "sounds": [
+      {
+        "name": "audio:custom/custom_31",
+        "stream": true
+      }
+    ]
+  },
+  "custom_32": {
+    "sounds": [
+      {
+        "name": "audio:custom/custom_32",
+        "stream": true
+      }
+    ]
+  },
+  "custom_33": {
+    "sounds": [
+      {
+        "name": "audio:custom/custom_33",
+        "stream": true
+      }
+    ]
+  },
+  "custom_34": {
+    "sounds": [
+      {
+        "name": "audio:custom/custom_34",
+        "stream": true
+      }
+    ]
+  },
+  "custom_35": {
+    "sounds": [
+      {
+        "name": "audio:custom/custom_35",
+        "stream": true
+      }
+    ]
+  },
+  "custom_36": {
+    "sounds": [
+      {
+        "name": "audio:custom/custom_36",
+        "stream": true
+      }
+    ]
+  },
+  "custom_37": {
+    "sounds": [
+      {
+        "name": "audio:custom/custom_37",
+        "stream": true
+      }
+    ]
+  },
+  "custom_38": {
+    "sounds": [
+      {
+        "name": "audio:custom/custom_38",
+        "stream": true
+      }
+    ]
+  },
+  "custom_39": {
+    "sounds": [
+      {
+        "name": "audio:custom/custom_39",
+        "stream": true
+      }
+    ]
+  },
+  "custom_40": {
+    "sounds": [
+      {
+        "name": "audio:custom/custom_40",
+        "stream": true
+      }
+    ]
+  },
+  "custom_41": {
+    "sounds": [
+      {
+        "name": "audio:custom/custom_41",
+        "stream": true
+      }
+    ]
+  },
+  "custom_42": {
+    "sounds": [
+      {
+        "name": "audio:custom/custom_42",
+        "stream": true
+      }
+    ]
+  },
+  "custom_43": {
+    "sounds": [
+      {
+        "name": "audio:custom/custom_43",
+        "stream": true
+      }
+    ]
+  },
+  "custom_44": {
+    "sounds": [
+      {
+        "name": "audio:custom/custom_44",
+        "stream": true
+      }
+    ]
+  },
+  "custom_45": {
+    "sounds": [
+      {
+        "name": "audio:custom/custom_45",
+        "stream": true
+      }
+    ]
+  },
+  "custom_46": {
+    "sounds": [
+      {
+        "name": "audio:custom/custom_46",
+        "stream": true
+      }
+    ]
+  },
+  "custom_47": {
+    "sounds": [
+      {
+        "name": "audio:custom/custom_47",
+        "stream": true
+      }
+    ]
+  },
+  "custom_48": {
+    "sounds": [
+      {
+        "name": "audio:custom/custom_48",
+        "stream": true
+      }
+    ]
+  },
+  "custom_49": {
+    "sounds": [
+      {
+        "name": "audio:custom/custom_49",
+        "stream": true
+      }
+    ]
   }
 }
 

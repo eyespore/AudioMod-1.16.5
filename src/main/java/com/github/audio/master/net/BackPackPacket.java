@@ -50,17 +50,17 @@ public class BackPackPacket extends NetHandler {
                     //Multiple
                     if (parameter == 0 && !this.uuid.equals(
                             Objects.requireNonNull(Minecraft.getInstance().player).getUniqueID())) {
-                        BackpackExecutor.getExecutor().onUnFoldBackpack();
+                        BackpackExecutor.getExecutor().playUnfoldBackPackSound();
                     }
                 } else {
                     //handle folding sound
                     if (parameter == 0){
                         //Multiple
-                        BackpackExecutor.getExecutor().onFoldBackpack();
+                        BackpackExecutor.getExecutor().playFoldBackPackSound();
                     } else if (parameter == 1 && this.uuid.equals(
                             Objects.requireNonNull(Minecraft.getInstance().player).getUniqueID())) {
                         //Single
-                        BackpackExecutor.getExecutor().onFoldBackpack();
+                        BackpackExecutor.getExecutor().playFoldBackPackSound();
                     }
                 }
             }
