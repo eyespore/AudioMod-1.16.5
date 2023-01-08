@@ -3,7 +3,10 @@ package com.github.audio.registryHandler;
 import com.github.audio.api.NameGenerator;
 import com.github.audio.sound.AudioSound;
 import com.github.audio.sound.SoundChannel;
+import com.github.audio.util.Utils;
 import com.github.audio.util.gen.ClientFileOperator;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.SoundEvent;
 import net.minecraft.util.SoundEvents;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -23,7 +26,9 @@ public class AudioRegistryHandler {
      * @Description: This is the unit registry name for the whole custom sound event.
      */
     public static final String DEF_REGISTRY_NAME = "custom_";
-    private static final ClientFileOperator CLIENT_FILE_OPERATOR = ClientFileOperator.getClientFileOperator();
+
+//    private static final ClientFileOperator CLIENT_FILE_OPERATOR = ClientFileOperator.getClientFileOperator();
+
     private static int existedOggAmount = 0;
     /**
      * @Description: This generator is for auto register, which is used for registry an amount of custom ogg sound, this
@@ -77,7 +82,7 @@ public class AudioRegistryHandler {
 
         @OnlyIn(Dist.CLIENT)
         public static void convertClientOgg() {
-            CLIENT_FILE_OPERATOR.contextMap.forEach(AudioSoundRegister::moveExistedOggIntoChannel);
+            ClientFileOperator.getClientFileOperator().contextMap.forEach(AudioSoundRegister::moveExistedOggIntoChannel);
         }
 
         /**
@@ -86,7 +91,8 @@ public class AudioRegistryHandler {
          */
         private static void registryCus(int amount) {
             for (int i = 0; i < amount; i++) {
-                AudioSound registryAudioSound = new AudioSound.AudioSoundBuilder().tag(generator.get(), "non_named").build();
+                String registryName = generator.get();
+                AudioSound registryAudioSound = new AudioSound.AudioSoundBuilder().tag(registryName, "non_named").build();
                 SOUND_SOURCE_PATH.add(registryAudioSound.into(SoundChannel.CUSTOM_SOUND_CHANNEL).getRegistryName());
             }
         }

@@ -15,15 +15,11 @@ import java.io.IOException;
  */
 public class AudioGenerateCycle {
 
-    //    public static final IOHelper IO_HELPER = IOHelper.getInstance();
-    @OnlyIn(Dist.CLIENT)
-    public static final ClientFileOperator CLIENT_FILE_OPERATOR = ClientFileOperator.getClientFileOperator();
-
     public static void cycle(IEventBus eventBus) {
         /* Client IO stuff */
         if (!Env.isServer()) {
             try {
-                CLIENT_FILE_OPERATOR.clientFileGenerateCycle();
+                ClientFileOperator.getClientFileOperator().clientFileGenerateCycle();
             } catch (IOException e) {
                 e.printStackTrace();
                 Audio.info("Caused exception while trying running the io operator.");
