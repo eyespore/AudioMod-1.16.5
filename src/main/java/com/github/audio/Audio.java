@@ -34,7 +34,6 @@ public class Audio
         ItemRegisterHandler.register(ModEventBus);
         AudioGenerateCycle.cycle(ModEventBus);
 
-
         ModEventBus.addListener(this::setup);
         ModEventBus.addListener(this::enqueueIMC);
         ModEventBus.addListener(this::processIMC);
