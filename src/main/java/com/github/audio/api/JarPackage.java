@@ -23,6 +23,8 @@ public class JarPackage {
     private final ByteTransformer byteTransformer = ByteTransformer.getByteTransformer();
     private boolean isFlushed = false;
 
+    private static final byte[] DIRECTORY_BYTE_ARRAY = new byte[2048];
+
     public boolean isFlushed() {
         return isFlushed;
     }
@@ -31,8 +33,10 @@ public class JarPackage {
         if (!(path.endsWith(".zip") || path.endsWith(".jar")))
             throw new IOException("The given path \"" + path + "\" cannot be recognized as a jar or zip path.");
         this.fileOfJar = new File(path);
-        if (exists() && getJarFile() != null) {
-            cover(byteTransformer.toByteMap(getJarFile()));
+        JarFile jarFile = getJarFile();
+        if (exists() && jarFile != null) {
+            cover(byteTransformer.toByteMap(jarFile));
+            jarFile.close();
             isFlushed = true;
         }
     }
@@ -102,7 +106,10 @@ public class JarPackage {
     }
 
     public List<JarEntry> entries() throws IOException {
-        return getJarFile().stream().collect(Collectors.toList());
+        JarFile jarFile = getJarFile();
+        List<JarEntry> toReturn = jarFile.stream().collect(Collectors.toList());
+        jarFile.close();
+        return toReturn;
     }
 
     public void copy(File sourceFile) {
@@ -169,11 +176,15 @@ public class JarPackage {
      */
     private void addFile(String pre, File file, String fileAbsolutePath, String fileName) {
         isFlushed = false;
+        String fileNameInJar = pre + fileName + new StringBuilder(file.getAbsolutePath())
+                .delete(0, fileAbsolutePath.length()).toString().replace("\\", "/");
+
         if (!file.isDirectory()) {
-            byteMap.put(pre + fileName + new StringBuilder(file.getAbsolutePath())
-                    .delete(0, fileAbsolutePath.length()).toString().replace("\\", "/"), byteTransformer.toByteArray(file));
+            byteMap.put(fileNameInJar, byteTransformer.toByteArray(file));
             return;
         }
+
+        byteMap.put(fileNameInJar + "/" , DIRECTORY_BYTE_ARRAY);
         Arrays.stream(Objects.requireNonNull(file.listFiles())).forEach(f -> addFile(pre, f, fileAbsolutePath, fileName));
     }
 
@@ -192,10 +203,71 @@ public class JarPackage {
         isFlushed = true;
     }
 
+    public static void main(String[] args) throws IOException {
+        JarPackage jarPackage = new JarPackage("testJar.zip");
+        if (!jarPackage.exists()) jarPackage.createNewJar();
+
+        jarPackage.removeAll();
+
+        jarPackage.add(new File("D:\\BaiduNetdiskDownload\\AudioMod-1.16.5\\src\\main\\java\\com\\github\\audio\\util"));
+        jarPackage.flush();
+
+        System.out.println(jarPackage);
+    }
+
+    @Deprecated
+    public List<String> getEntryNames() throws IOException {
+        return entries().stream().map(JarEntry::getName).collect(Collectors.toList());
+    }
+
     @Override
     public String toString() {
         StringBuilder toReturn = new StringBuilder();
         byteMap.keySet().forEach(k -> toReturn.append(k).append('\n'));
         return toReturn.toString();
     }
+
+    public void extractEntry(String entryName) throws IOException {
+        String signedName = entryName.substring(entryName.lastIndexOf("/",entryName.length() - 2) + 1);//This is the replacement of the processEntryName()
+        entries().forEach((entry) -> {
+            if (entry.getName().startsWith(entryName)) {
+                if (entry.isDirectory())
+                    new File(signedName + entry.getName().substring(entryName.length())).mkdir();
+                //TODO: finish the extract function.
+            }
+        });
+    }
+
+//    public void extractEntry(String jarPath, String entryName, String filePath) throws IOException {
+//        JarFile modJar = new JarFile(jarPath);
+//        TreeMap<String, byte[]> entryMap = new TreeMap<>();
+//        Enumeration<JarEntry> iterator = getJarFile().entries();
+//        String signedName = processEntryName(entryName);
+//        while (iterator.hasMoreElements()) {
+//            JarEntry jarEntry = iterator.nextElement();
+//            if (jarEntry.getName().startsWith(entryName)) { //Sub or not
+//                if (jarEntry.isDirectory()) //What if it's "assets/" and contains "assets/assets/assets/"
+//                    new File(signedName + jarEntry.getName().substring(entryName.length())).mkdir();
+//                else
+//                    entryMap.put(signedName + jarEntry.getName().substring(entryName.length()), readEntry(modJar, jarEntry));
+//            }
+//        }
+//        for (String externFileName : entryMap.keySet()) {
+//            new FileOutputStream(externFileName).write(entryMap.get(externFileName));
+//        }
+//
+//        modJar.close();
+//    }
+//
+//    private static String processEntryName(String entryName) {
+//        String[] entryPiece = entryName.split("/");
+//        entryName = entryName.endsWith("/") ?
+//                entryName.equals(entryPiece[entryPiece.length - 1] + '/') ?
+//                        entryName : entryPiece[entryPiece.length - 1] + '/'
+//                : entryName.equals(entryPiece[entryPiece.length - 1]) ?
+//                entryName : entryPiece[entryPiece.length - 1];
+//        return entryName;
+//    }
+
+
 }
