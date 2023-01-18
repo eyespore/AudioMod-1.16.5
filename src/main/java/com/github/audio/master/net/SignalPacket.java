@@ -2,9 +2,16 @@ package com.github.audio.master.net;
 
 import com.github.audio.Audio;
 import com.github.audio.Env;
+import com.github.audio.master.Executor;
+import com.github.audio.master.client.ClientExecutor;
 import com.github.audio.master.client.NetHandler;
 import com.github.audio.master.client.exec.DataExecutor;
+import com.github.audio.util.Utils;
+import net.minecraft.client.Minecraft;
 import net.minecraft.network.PacketBuffer;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.SoundCategory;
+import net.minecraft.util.SoundEvent;
 import net.minecraftforge.fml.network.NetworkEvent;
 
 import java.io.File;
@@ -15,7 +22,7 @@ public class SignalPacket extends NetHandler {
 
     private final Signal signal;
     public enum Signal {
-        CALL_CLIENT_TO_SEND_MUSIC;
+        CALL_CLIENT_TO_SEND_MUSIC, PLAY_NEW_SOUND_EVENT;
     }
 
     public SignalPacket(PacketBuffer buffer) {
@@ -53,6 +60,14 @@ public class SignalPacket extends NetHandler {
                             }
                         }
                     }
+                    break;
+                }
+
+                case PLAY_NEW_SOUND_EVENT: {
+                    assert Minecraft.getInstance().player != null;
+                    Minecraft.getInstance().player.playSound(
+                            new SoundEvent(new ResourceLocation(Utils.MOD_ID , "new_sound_event"))
+                            , SoundCategory.AMBIENT , 1.0f , 1.0f);
                     break;
                 }
                 default: break;

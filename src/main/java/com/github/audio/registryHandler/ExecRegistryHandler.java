@@ -2,9 +2,10 @@ package com.github.audio.registryHandler;
 
 import com.github.audio.Audio;
 import com.github.audio.Env;
+import com.github.audio.api.ByteTransformer;
+import com.github.audio.api.JarOperator;
 import com.github.audio.api.annotation.Exec;
 import com.github.audio.master.Executor;
-import com.github.audio.master.client.exec.Mp3Executor;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.eventbus.api.IEventBus;
 
@@ -24,9 +25,28 @@ import java.util.zip.ZipEntry;
 
 public class ExecRegistryHandler {
 
+    private static final ByteTransformer BYTE_TRANSFORMER = ByteTransformer.getByteTransformer();
+    private static final ArrayList<Class<?>> CLIENT_EXEC = new ArrayList<>();
+    private static final ArrayList<Class<?>> SERVER_EXEC = new ArrayList<>();
+
+    private static final File SEEKING_FIELD = new File("D:\\Desktop\\audio\\src\\main\\java");
+    private static final File SEEKING_FIELD2 = new File("..\\src\\main\\java");
+    private static final File SEEKING_FILED3 = new File(".\\src\\main\\java");
+
+    private static JarOperator AUDIO_MOD;
+
+    static {
+        try {
+            AUDIO_MOD = new JarOperator("./mods/AudioMod-1.16.5-1.0.0.jar");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     /* this path is for run client test. */
     private static final File CLIENT_FILE = new File("../src/main/java/com/github/audio/master/client/exec");
     private static final File SERVER_FILE = new File("../src/main/java/com/github/audio/master/exec");
+
     /* this path work properly ISwitchable think, probably the mod name */
     //TODO : you guys should figure out what if a player change the mod display name, in that case this path will not exist.
     private static final String CLIENT_JAR_PATH = "./mods/AudioMod-1.16.5-1.0.0.jar";
@@ -42,6 +62,8 @@ public class ExecRegistryHandler {
 
     private static final boolean isServer = Env.isServer();
     private static final boolean isOnTest = Env.isOnTest();
+//    private static final boolean isServer = false;
+//    private static final boolean isOnTest = false;
 
     public static void registryExecutor(IEventBus eventBus) {
 
@@ -59,7 +81,16 @@ public class ExecRegistryHandler {
 
     }
 
-    private static ArrayList<Executor> getTarget(Enum<Type> side) throws ClassNotFoundException, IOException, NoSuchMethodException,
+//    private static List<Executor> getTargetFromFile(Dist dist) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+//        List<Class<? extends Executor>> fileExec = getFileExec(dist);
+//        List<Executor> toReturn = new ArrayList<>();
+//        for (Class<? extends Executor> aClass : fileExec) {
+//             toReturn.add((Executor) aClass.getDeclaredMethod("getExecutor").invoke(null));
+//        }
+//    }
+
+    @Deprecated
+    private static ArrayList<Executor> getTarget(Type side) throws ClassNotFoundException, IOException, NoSuchMethodException,
             InvocationTargetException, IllegalAccessException {
         boolean flag = side.equals(Type.SERVER);
         Set<Class<?>> clientClass = isOnTest ? getFileClasses(flag ? Type.SERVER : Type.CLIENT) : getJarClasses(flag ? Type.SERVER : Type.CLIENT);
@@ -83,7 +114,8 @@ public class ExecRegistryHandler {
         throw new RuntimeException("fail in loading executor");
     };
 
-    private static Set<Class<?>> getFileClasses(Enum<Type> side) {
+    @Deprecated
+    private static Set<Class<?>> getFileClasses(Type side) {
         boolean flag = side.equals(Type.SERVER);
         String pre = (flag ? SERVER_PRE : CLIENT_PRE);
         File[] targets = Objects.requireNonNull(flag ? SERVER_FILE.listFiles() : CLIENT_FILE.listFiles());
@@ -92,8 +124,9 @@ public class ExecRegistryHandler {
                 .map(getClassProcess).collect(Collectors.toSet());
     }
 
+    @Deprecated
     @SuppressWarnings("resource")
-    private static Set<Class<?>> getJarClasses(Enum<Type> side) throws IOException {
+    private static Set<Class<?>> getJarClasses(Type side) throws IOException {
         try {
             boolean flag = side.equals(Type.SERVER);
             Enumeration<JarEntry> entries = new JarFile(flag ? SERVER_JAR_PATH : CLIENT_JAR_PATH).entries();
@@ -106,12 +139,43 @@ public class ExecRegistryHandler {
                     .map(getClassProcess).collect(Collectors.toSet());
         } catch (FileNotFoundException e) {
             if (isOnTest) return new HashSet<>();
-            else Audio.warn("Cannot find the file through JarPackage path");
+            else Audio.warn("Cannot find the file through JarOperator path");
         }
         return new HashSet<>();
+    }
+
+    private static List<String> getFileExecNames() {
+        ArrayList<String> names = new ArrayList<>();
+        BYTE_TRANSFORMER.ofNameCollection(SEEKING_FILED3, names);
+        String pre = SEEKING_FILED3.getAbsolutePath();
+        return names.stream().filter(s -> s.endsWith(".java") && !s.contains("$"))
+                .map(s -> s.substring(pre.length() + 1, s.length() - 5).replace("\\", "."))
+                .collect(Collectors.toList());
+    }
+
+//    private static Set<String> getJarExecNames(JarOperator jarOperator) {
+//        return jarOperator.getClassNames();
+//    }
+
+    private static List<?> getFileExec(Dist dist) {
+        ArrayList<Class<?>> execs = new ArrayList<>();
+        getFileExecNames().forEach(s -> {
+            try {
+                Class<?> e = Class.forName(s);
+                if (e.isAnnotationPresent(Exec.class) && e.getAnnotation(Exec.class).value().equals(dist)) execs.add(e);
+            } catch (ClassNotFoundException e) {
+                e.printStackTrace();
+            }
+        });
+        return execs;
+    }
+
+    public static void main(String[] args) {
+        getFileExecNames().forEach(System.out::println);
     }
 
     private enum Type {
         SERVER, CLIENT;
     }
+
 }

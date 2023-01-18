@@ -172,11 +172,13 @@ public final class ClientFileOperator implements IAudioTool {
             modelOggPath = "./src/main/resources/assets/audio/sounds/model_ogg.ogg";
             resourcePackPath = "./run/resourcepacks/audioresource.zip";
             modelResourcePackPath = "./src/main/resources/assets/audio/resourcepacks/audioresource.zip";
+
         } else {
             musicFolder = new File(DEF_MUSIC_FOLDER_PATH);
             modelOggPath = Env.isOnTest() ? "../src/main/resources/assets/audio/sounds/model_ogg.ogg" : DEF_MODEL_OGG_PATH;
             resourcePackPath = Env.isOnTest() ? "../run/resourcepacks/audioresource.zip" : DEF_RESOURCE_PACK_PATH;
             modelResourcePackPath = Env.isOnTest() ? "../src/main/resources/assets/audio/resourcepacks/audioresource.zip" : DEF_MODEL_RESOURCE_PACK_PATH;
+
         }
         resourcePack = new File(resourcePackPath);
     }

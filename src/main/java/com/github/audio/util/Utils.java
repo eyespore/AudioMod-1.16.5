@@ -1,6 +1,8 @@
 package com.github.audio.util;
 
 import com.github.audio.util.gen.*;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.SoundEvent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -13,6 +15,8 @@ public class Utils {
      * @Description: The unique identifier for the mod.
      */
     public static final String MOD_ID = "audio";
+    public static final String CLIENT_OGG = "clientogg";
+    public static final String SERVER_OGG = "serverogg";
 
     private Utils() {
     }

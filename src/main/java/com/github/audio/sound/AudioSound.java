@@ -69,7 +69,8 @@ public class AudioSound {
     }
 
     public void setRegistryName(String registryName) {
-        this.soundEvent = SOUND_REGISTER.register(registryName, () -> new SoundEvent(new ResourceLocation(Utils.MOD_ID, registryName)));
+        this.soundEvent = SOUND_REGISTER.register(registryName,
+                () -> new SoundEvent(new ResourceLocation(Utils.MOD_ID, registryName)));
         this.registryName = registryName;
     }
 

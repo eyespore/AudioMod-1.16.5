@@ -11,7 +11,7 @@ import java.lang.annotation.Target;
 @Target(ElementType.TYPE)
 public @interface Exec {
 
-    Dist value();
+    Dist value() default Dist.DEDICATED_SERVER;
 
     Class<?> _interface() default Object.class;
 

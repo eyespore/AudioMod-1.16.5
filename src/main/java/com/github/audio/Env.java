@@ -10,7 +10,7 @@ import static java.io.File.separator;
 
 public enum Env {
 
-    ON_TEST, IN_GAME, DEDICATED_SERVER, MAIN_METHOD;
+    ON_TEST, IN_GAME, DEDICATED_SERVER;
 
     public static Env getEnv() {
         if (FMLEnvironment.dist == Dist.DEDICATED_SERVER) return DEDICATED_SERVER;

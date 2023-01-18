@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
  * @Description: The class for operate the jar or zip file, this class supply the essential method for operating a jar
  * or zip pack.
  */
-public class JarPackage {
+public class JarOperator {
 
     private final File fileOfJar;
     private final HashMap<String, byte[]> byteMap = new HashMap<>();
@@ -29,7 +29,7 @@ public class JarPackage {
         return isFlushed;
     }
 
-    public JarPackage(String path) throws IOException {
+    public JarOperator(String path) throws IOException {
         if (!(path.endsWith(".zip") || path.endsWith(".jar")))
             throw new IOException("The given path \"" + path + "\" cannot be recognized as a jar or zip path.");
         this.fileOfJar = new File(path);
@@ -47,8 +47,8 @@ public class JarPackage {
         isFlushed = false;
     }
 
-    public void cover(JarPackage jarPackage) {
-        cover(jarPackage.byteMap);
+    public void cover(JarOperator jarOperator) {
+        cover(jarOperator.byteMap);
     }
 
     /**
@@ -60,7 +60,7 @@ public class JarPackage {
     }
 
     /**
-     * @Description: Get the amount of entries existed in the {@link JarPackage#byteMap}.
+     * @Description: Get the amount of entries existed in the {@link JarOperator#byteMap}.
      */
     public int getMapEntryAmount() {
         if (!fileOfJar.exists()) return -1;
@@ -168,11 +168,11 @@ public class JarPackage {
      * @param fileAbsolutePath The absolute path of the given file, this parameter will mostly be given by the method that
      *                         in inside of the {@link ByteTransformer}
      * @param fileName         The name of the given file.
-     * @Description: The default method to add file into the {@link JarPackage#byteMap}, this method will change the statue of the
-     * parameter {@link JarPackage#isFlushed}, which is the signal that show if {@link JarPackage}'s instance has been flushed, with the
+     * @Description: The default method to add file into the {@link JarOperator#byteMap}, this method will change the statue of the
+     * parameter {@link JarOperator#isFlushed}, which is the signal that show if {@link JarOperator}'s instance has been flushed, with the
      * use of recursion, this method allow to add a directory into the byte map.
-     * @see JarPackage#add(File)
-     * @see JarPackage#add(String, File)
+     * @see JarOperator#add(File)
+     * @see JarOperator#add(String, File)
      */
     private void addFile(String pre, File file, String fileAbsolutePath, String fileName) {
         isFlushed = false;
@@ -204,15 +204,15 @@ public class JarPackage {
     }
 
     public static void main(String[] args) throws IOException {
-        JarPackage jarPackage = new JarPackage("testJar.zip");
-        if (!jarPackage.exists()) jarPackage.createNewJar();
+        JarOperator jarOperator = new JarOperator("testJar.zip");
+        if (!jarOperator.exists()) jarOperator.createNewJar();
 
-        jarPackage.removeAll();
+        jarOperator.removeAll();
 
-        jarPackage.add(new File("D:\\BaiduNetdiskDownload\\AudioMod-1.16.5\\src\\main\\java\\com\\github\\audio\\util"));
-        jarPackage.flush();
+        jarOperator.add(new File("D:\\BaiduNetdiskDownload\\AudioMod-1.16.5\\src\\main\\java\\com\\github\\audio\\util"));
+        jarOperator.flush();
 
-        System.out.println(jarPackage);
+        System.out.println(jarOperator);
     }
 
     @Deprecated

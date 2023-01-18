@@ -454,6 +454,14 @@
         "stream": true
       }
     ]
+  },
+  "new_sound_event": {
+    "sounds": [
+      {
+        "name": "audio:custom/newSoundEvent",
+        "stream": true
+      }
+    ]
   }
 }
 

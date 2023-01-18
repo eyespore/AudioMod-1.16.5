@@ -46,9 +46,9 @@ public abstract class PlayableAudio extends TickableSound {
             if (getEntity().removed) {
                 this.finishPlaying();
             } else {
-                this.x = (double) ((float) this.entity.getPosX());
-                this.y = (double) ((float) this.entity.getPosY());
-                this.z = (double) ((float) this.entity.getPosZ());
+                    this.x = (double) ((float) this.entity.getPosX());
+                    this.y = (double) ((float) this.entity.getPosY());
+                    this.z = (double) ((float) this.entity.getPosZ());
             }
         }
 

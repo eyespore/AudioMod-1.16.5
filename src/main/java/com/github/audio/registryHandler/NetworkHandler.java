@@ -29,6 +29,10 @@ public class NetworkHandler {
         );
     }
 
+    public static void registrySimpleChannel(SimpleChannel registryChannel) {
+
+    }
+
     public static void registerMessage(){
         /* Instance Channel */
         INSTANCE_1.messageBuilder(SendPack.class , nextID()).encoder(SendPack::toByte).decoder(SendPack::new).consumer(SendPack::handle).add();
@@ -37,6 +41,7 @@ public class NetworkHandler {
         MP3_CHANNEL.registerMessage(nextID() , Mp3Packet.class , Mp3Packet::toByte , Mp3Packet::new , Mp3Packet::handle);
         SIGNAL_CHANNEL.registerMessage(nextID(), SignalPacket.class, SignalPacket::toByte, SignalPacket::new, SignalPacket::handle);
         DATA_CHANNEL.registerMessage(nextID(), DataPacket.class, DataPacket::toByte, DataPacket::new, DataPacket::handle);
+
         /*
            public <MSG> IndexedMessageCodec.MessageHandler<MSG>
                 registerMessage(int index,

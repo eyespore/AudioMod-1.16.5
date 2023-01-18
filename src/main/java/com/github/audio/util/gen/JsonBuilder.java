@@ -3,7 +3,6 @@ package com.github.audio.util.gen;
 import com.github.audio.util.IAudioTool;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -22,9 +21,6 @@ import java.util.function.Supplier;
  */
 @OnlyIn(Dist.CLIENT)
 public class JsonBuilder implements IAudioTool {
-
-    public static void main(String[] args) {
-    }
 
     private JsonBuilder() {}
 
